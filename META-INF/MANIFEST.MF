@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: jpiere.plugin.webui.simpleinputwindow
+Bundle-SymbolicName: jpiere.plugin.webui.simpleinputwindow;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: OSS ERP Solutions
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Require-Bundle: org.adempiere.base;bundle-version="3.0.0",
+ org.adempiere.plugin.utils;bundle-version="3.0.0",
+ org.adempiere.ui.zk,
+ org.zkoss.zk.library
+Bundle-Activator: org.adempiere.plugin.utils.AdempiereActivator
+Service-Component: OSGI-INF/jpierePluginSimpleInputWindowModelFactory.xml,
+ OSGI-INF/jpierePluginSimpleInputWindowFormFactory.xml

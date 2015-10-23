@@ -1,0 +1,22 @@
+CREATE TABLE adempiere.JP_SimpleInputField
+(
+  JP_SimpleInputField_ID numeric(10,0) NOT NULL,
+  JP_SimpleInputField_uu character varying(36) DEFAULT NULL::character varying,
+  AD_Client_ID numeric(10,0) NOT NULL,
+  AD_Org_ID numeric(10,0) NOT NULL,
+  IsActive character(1) NOT NULL DEFAULT 'Y'::bpchar,
+  Created timestamp without time zone NOT NULL DEFAULT now(),
+  CreatedBy numeric(10,0) NOT NULL,
+  Updated timestamp without time zone NOT NULL DEFAULT now(),
+  UpdatedBy numeric(10,0) NOT NULL,
+
+
+  JP_SimpleInputWindow_ID  numeric(10,0) NOT NULL,
+  AD_Field_ID  numeric(10,0) NOT NULL,
+  seqno numeric(10,0) NOT NULL DEFAULT 0::numeric,
+  Description character varying(255),
+  FieldLength numeric(10,0) DEFAULT 100::numeric,
+  IsSummarized character(1) NOT NULL DEFAULT 'N'::bpchar,
+
+  CONSTRAINT JP_SimpleInputField_pkey PRIMARY KEY (JP_SimpleInputField_ID)
+)

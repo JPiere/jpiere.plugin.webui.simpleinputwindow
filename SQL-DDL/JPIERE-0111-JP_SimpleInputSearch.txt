@@ -1,0 +1,25 @@
+CREATE TABLE adempiere.JP_SimpleInputSearch
+(
+  JP_SimpleInputSearch_ID numeric(10,0) NOT NULL,
+  JP_SimpleInputSearch_uu character varying(36) DEFAULT NULL::character varying,
+  AD_Client_ID numeric(10,0) NOT NULL,
+  AD_Org_ID numeric(10,0) NOT NULL,
+  IsActive character(1) NOT NULL DEFAULT 'Y'::bpchar,
+  Created timestamp without time zone NOT NULL DEFAULT now(),
+  CreatedBy numeric(10,0) NOT NULL,
+  Updated timestamp without time zone NOT NULL DEFAULT now(),
+  UpdatedBy numeric(10,0) NOT NULL,
+
+
+  JP_SimpleInputWindow_ID  numeric(10,0) NOT NULL,
+  AD_Field_ID  numeric(10,0) NOT NULL,
+  seqno numeric(10,0) NOT NULL DEFAULT 0::numeric,
+  Description character varying(255),
+  IsMandatory character(1) NOT NULL DEFAULT 'N'::bpchar,
+  DefaultValue character varying(2000) DEFAULT NULL::character varying,
+  XPosition numeric(10,0) NOT NULL DEFAULT (1)::numeric,
+  ColumnSpan numeric(10,0) NOT NULL DEFAULT (2)::numeric,
+  AD_Tab_ID numeric(10,0) NOT NULL DEFAULT NULL::numeric,
+
+  CONSTRAINT JP_SimpleInputSearch_pkey PRIMARY KEY (JP_SimpleInputSearch_ID)
+)
