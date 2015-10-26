@@ -14,16 +14,22 @@
 package jpiere.plugin.simpleinputwindow.form;
 
 import java.util.HashMap;
-import java.util.TreeMap;
+import java.util.Properties;
+import java.util.logging.Level;
 
+import org.adempiere.base.Core;
+import org.adempiere.exceptions.AdempiereException;
 import org.adempiere.webui.editor.WEditor;
 import org.adempiere.webui.event.ValueChangeEvent;
 import org.adempiere.webui.event.ValueChangeListener;
 import org.adempiere.webui.panel.CustomForm;
 import org.compiere.model.GridField;
 import org.compiere.model.GridTab;
+import org.compiere.model.GridTable;
 import org.compiere.model.PO;
 import org.compiere.util.CLogger;
+import org.compiere.util.Env;
+import org.compiere.util.Trx;
 import org.zkoss.zul.ListModelMap;
 //import jpiere.plugin.matrixwindow.base.IMatrixWindowCallout;
 //import jpiere.plugin.matrixwindow.base.IMatrixWindowCalloutFactory;
@@ -72,45 +78,45 @@ public class SimpleInputWindowDataBinder implements ValueChangeListener {
 		this.gridTab = gridTab;
 	}
 
-	public ListModelMap<Object, Object>  getViewModel()
-	{
-		return viewModel;
-	}
-
-	public  ListModelMap<Object, Object>  getConvetionTable()
-	{
-		return convetionTable;
-	}
-
-	public HashMap<Integer,PO> 	getTableModel()
-	{
-		return tableModel;
-	}
-
-	public HashMap<Integer,PO> getDirtyModel()
-	{
-		return dirtyModel;
-	}
-
-	public void setColumnGridFieldMap(HashMap<Integer,GridField> columnGridFieldMap)
-	{
-		this.columnGridFieldMap = columnGridFieldMap;
-	}
-
-	public HashMap<Integer,GridField> getColumnGridFieldMap()
-	{
-		return columnGridFieldMap;
-	}
-
-	public void setColumnEditorMap(HashMap<Integer,WEditor>  columnEditorMap)
-	{
-		this.columnEditorMap = columnEditorMap;
-	}
-
-	public HashMap<Integer,WEditor>  getColumnEditorMap()
-	{
-		return columnEditorMap;
-	}
+//	public ListModelMap<Object, Object>  getViewModel()
+//	{
+//		return viewModel;
+//	}
+//
+//	public  ListModelMap<Object, Object>  getConvetionTable()
+//	{
+//		return convetionTable;
+//	}
+//
+//	public HashMap<Integer,PO> 	getTableModel()
+//	{
+//		return tableModel;
+//	}
+//
+//	public HashMap<Integer,PO> getDirtyModel()
+//	{
+//		return dirtyModel;
+//	}
+//
+//	public void setColumnGridFieldMap(HashMap<Integer,GridField> columnGridFieldMap)
+//	{
+//		this.columnGridFieldMap = columnGridFieldMap;
+//	}
+//
+//	public HashMap<Integer,GridField> getColumnGridFieldMap()
+//	{
+//		return columnGridFieldMap;
+//	}
+//
+//	public void setColumnEditorMap(HashMap<Integer,WEditor>  columnEditorMap)
+//	{
+//		this.columnEditorMap = columnEditorMap;
+//	}
+//
+//	public HashMap<Integer,WEditor>  getColumnEditorMap()
+//	{
+//		return columnEditorMap;
+//	}
 
 
 
@@ -119,91 +125,170 @@ public class SimpleInputWindowDataBinder implements ValueChangeListener {
 	 */
 	public void valueChange(ValueChangeEvent e)
     {
-
-		Object newValue = e.getNewValue();
-
-        Object source = e.getSource();
-        if (source instanceof WEditor)
+        if (gridTab.isProcessed())       //  only active records
         {
-        	//Step1:Get Row(Y) and Column(X) info
-        	WEditor editor = (WEditor) source;
-        	String[] yx = editor.getComponent().getId().split("_");
-            	int y =Integer.valueOf(yx[0]);
-            	int x =Integer.valueOf(yx[1]);
+            Object source = e.getSource();
+            if (source instanceof WEditor)
+            {
+            	// Elaine 2009/05/06
+            	WEditor editor = (WEditor) source;
+            	GridField gridField = editor.getGridField();
 
-            //Step2:Update ViewModel data for display data.Please refer to JPMatrixGridRowRenderer.editRow() method.
-        	ListModelMap.Entry<Object, Object>  viewModelRow = viewModel.getElementAt(y);
-        	@SuppressWarnings("unchecked")
-			TreeMap<Integer,Object> viewModelRowData = (TreeMap<Integer,Object>)viewModelRow.getValue();
-        	Object oldValue = viewModelRowData.get(x);
-        	viewModelRowData.put(x, newValue);
+            	if(gridField != null)
+            	{
+            		if(!gridField.isEditable(true))
+            		{
+            			if (logger.isLoggable(Level.CONFIG)) logger.config("(" + gridTab.toString() + ") " + e.getPropertyName());
+            			return;
+            		}
+            	}
+            	else if(!editor.isReadWrite())
+            	{
+            		if (logger.isLoggable(Level.CONFIG)) logger.config("(" + gridTab.toString() + ") " + e.getPropertyName());
+            		return;
+            	}
+            }
+            else
+            {
+                if (logger.isLoggable(Level.CONFIG)) logger.config("(" + gridTab.toString() + ") " + e.getPropertyName());
+                return;
+            }
+        }   //  processed
+        if (logger.isLoggable(Level.CONFIG)) logger.config("(" + gridTab.toString() + ") "
+            + e.getPropertyName() + "=" + e.getNewValue() + " (" + e.getOldValue() + ") "
+            + (e.getOldValue() == null ? "" : e.getOldValue().getClass().getName()));
 
-          	//Step3:Update Context : GridField.setValue method can update context
-        	editor.getGridField().setValue(newValue, false);
 
-        	//Step4:Update tableModel for consistency.Get Po's ID form convetionTable
-           	ListModelMap.Entry<Object, Object>  conversionTableRow = convetionTable.getElementAt(y);
-        	@SuppressWarnings("unchecked")
-    		TreeMap<Integer,Object> conversionTableRowData = (TreeMap<Integer,Object>)conversionTableRow.getValue();
-        	Object PO_ID = conversionTableRowData.get(x);
-        	PO po = tableModel.get(PO_ID);
-        	po.set_ValueNoCheck(editor.getColumnName(), newValue);
+        //  Get Row/Col Info
+        GridTable mTable = gridTab.getTableModel();
+        int row = gridTab.getCurrentRow();
+        int col = mTable.findColumn(e.getPropertyName());
+        //
+        if (e.getNewValue() == null && e.getOldValue() != null
+            && e.getOldValue().toString().length() > 0)     //  some editors return "" instead of null
+//        	  this is the original code from GridController, don't know what it does there but it breaks ignore button for web ui
+//            mTable.setChanged (true);
+        	mTable.setValueAt (e.getNewValue(), row, col);
+        else
+        {
 
-        	//Sstep5:Put map of dirtyModel for save data.
-        	dirtyModel.put((Integer)PO_ID, po);
+        	Object newValue = e.getNewValue();
+			Integer newValues[] = null;
 
-        	//Callout
-//    		List<IMatrixWindowCalloutFactory> factories = Service.locator().list(IMatrixWindowCalloutFactory.class).getServices();
-//    		if (factories != null)
-//    		{
-//    			String calloutMessage = null;
-//    			for(IMatrixWindowCalloutFactory factory : factories)
-//    			{
-//    				IMatrixWindowCallout callout = factory.getCallout(po.get_TableName(), editor.getColumnName());
-//    				if(callout != null)
-//    				{
-//    					calloutMessage =callout.start(this, x, y, newValue, oldValue);
-//    					if(calloutMessage != null && !calloutMessage.equals(""))
-//    					{
-//    						getColumnGridFieldMap().get(0).getGridTab().fireDataStatusEEvent("Message",calloutMessage, false);
-//    						logger.saveError("Error", new Exception(calloutMessage));
-//    					}
-//
-//    				}
-//
-//    			}//for
-//
-//    		}//if (factories != null)
+			if (newValue instanceof Integer[])
+			{
+				newValues = ((Integer[])newValue);
+				newValue = newValues[0];
 
-        }//if (source instanceof WEditor)
+				if (newValues.length > 1)
+				{
+					Integer valuesCopy[] = new Integer[newValues.length - 1];
+					System.arraycopy(newValues, 1, valuesCopy, 0, valuesCopy.length);
+					newValues = valuesCopy;
+				}
+				else
+				{
+					newValues = null;
+				}
+			}
+			else if (newValue instanceof Object[])
+			{
+				logger.severe("Multiple values can only be processed for IDs (Integer)");
+				throw new IllegalArgumentException("Multiple Selection values not available for this field. " + e.getPropertyName());
+			}
+
+           	mTable.setValueAt (newValue, row, col);
+            //  Force Callout
+            if ( e.getPropertyName().equals("S_ResourceAssignment_ID") )
+            {
+                GridField mField = gridTab.getField(col);
+				if (mField != null && (mField.getCallout().length() > 0
+						|| Core.findCallout(gridTab.getTableName(), mField.getColumnName()).size()>0)) {
+                    gridTab.processFieldChange(mField);     //  Dependencies & Callout
+				}
+            }
+
+			if (newValues != null && newValues.length > 0)
+			{
+				// Save data, since record need to be used for generating clones.
+				if (!gridTab.dataSave(false))
+				{
+					throw new AdempiereException("SaveError");
+				}
+
+				// Retrieve the current record ID
+				int recordId = gridTab.getKeyID(gridTab.getCurrentRow());
+
+				Trx trx = Trx.get(Trx.createTrxName(), true);
+				trx.start();
+				try
+				{
+					saveMultipleRecords(Env.getCtx(), gridTab.getTableName(), e.getPropertyName(), recordId, newValues, trx.getTrxName());
+					trx.commit();
+					gridTab.dataRefreshAll();
+				}
+				catch(Exception ex)
+				{
+					trx.rollback();
+					logger.severe(ex.getMessage());
+					throw new AdempiereException("SaveError");
+				}
+				finally
+				{
+					trx.close();
+				}
+			}
+        }
+
+
 
     } // ValueChange
 
-	public void setValue(int x, int y, Object newValue)
+	/**************************************************************************
+	 * Save Multiple records - Clone a record and assign new values to each
+	 * clone for a specific column.
+	 * @param ctx context
+	 * @param tableName Table Name
+	 * @param columnName Column for which value need to be changed
+	 * @param recordId Record to clone
+	 * @param values Values to be assigned to clones for the specified column
+	 * @param trxName Transaction
+	 * @throws Exception If error is occured when loading the PO or saving clones
+	 *
+	 * @author ashley
+	 */
+	protected void saveMultipleRecords(Properties ctx, String tableName,
+			String columnName, int recordId, Integer[] values,
+			String trxName) throws Exception
 	{
-    	//Step1:Update Editor Value for display data.
-    	WEditor editor = columnEditorMap.get(x);
-    	editor.setValue(newValue);
+		if (values == null)
+		{
+			return ;
+		}
 
-    	//Step2:Update ViewModel data for display data.Please refer to JPMatrixGridRowRenderer.editRow() method.
-       	ListModelMap.Entry<Object, Object>  viewModelRow = viewModel.getElementAt(y);
-    	@SuppressWarnings("unchecked")
-		TreeMap<Integer,Object> viewModelRowData = (TreeMap<Integer,Object>)viewModelRow.getValue();
-    	viewModelRowData.put(x, newValue);
+		int oldRow = gridTab.getCurrentRow();
+		GridField lineField = gridTab.getField("Line");
 
-    	//Step3:Update Context : GridField.setValue method can update context
-    	editor.getGridField().setValue(newValue, false);
+		for (int i = 0; i < values.length; i++)
+		{
+			if (!gridTab.dataNew(false))
+			{
+				throw new IllegalStateException("Could not create new row");
+			}
 
-    	//Step4:Update tableModel for consistency.Get Po's ID form convetionTable
-       	ListModelMap.Entry<Object, Object>  conversionTableRow = convetionTable.getElementAt(y);
-    	@SuppressWarnings("unchecked")
-		TreeMap<Integer,Object> conversionTableRowData = (TreeMap<Integer,Object>)conversionTableRow.getValue();
-    	Object PO_ID = conversionTableRowData.get(x);
-    	PO po = tableModel.get(PO_ID);
-    	po.set_ValueNoCheck(editor.getColumnName(), editor.getValue());
+			gridTab.setValue(columnName, values[i]);
 
-    	//Sstep5:Put map of dirtyModel for save data.
-    	dirtyModel.put((Integer)PO_ID, po);
+			if (lineField != null)
+			{
+				gridTab.setValue(lineField, 0);
+			}
+
+			if (!gridTab.dataSave(false))
+			{
+				throw new IllegalStateException("Could not update row");
+			}
+		}
+		gridTab.setCurrentRow(oldRow);
 	}
 
 

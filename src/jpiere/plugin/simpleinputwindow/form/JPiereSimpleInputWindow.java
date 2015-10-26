@@ -44,8 +44,10 @@ import org.adempiere.webui.apps.AEnv;
 import org.adempiere.webui.component.Button;
 import org.adempiere.webui.component.Checkbox;
 import org.adempiere.webui.component.Columns;
+import org.adempiere.webui.component.EditorBox;
 import org.adempiere.webui.component.Grid;
 import org.adempiere.webui.component.GridFactory;
+import org.adempiere.webui.component.NumberBox;
 import org.adempiere.webui.component.Panel;
 import org.adempiere.webui.component.Row;
 import org.adempiere.webui.component.Rows;
@@ -85,11 +87,13 @@ import org.compiere.util.DB;
 import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
+import org.zkoss.zk.au.out.AuFocus;
 import org.zkoss.zk.ui.AbstractComponent;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
+import org.zkoss.zk.ui.util.Clients;
 import org.zkoss.zul.Borderlayout;
 import org.zkoss.zul.Caption;
 import org.zkoss.zul.Center;
@@ -973,6 +977,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		if (event.getTarget() == simpleInputGrid && Events.ON_CLICK.equals(event.getName()))
 		{
+
 			Object data = event.getData();
 			org.zkoss.zul.Row row = null;
 			if (data != null && data instanceof Component)
@@ -1000,6 +1005,23 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 	}
 
+	/**
+	 * @param columnName
+	 */
+	public void setFocusToField(String columnName) {
+		for (WEditor editor : renderer.getEditors()) {
+			if (columnName.equals(editor.getColumnName())) {
+				Component c = editor.getComponent();
+				if (c instanceof EditorBox) {
+					c = ((EditorBox)c).getTextbox();
+				} else if (c instanceof NumberBox) {
+					c = ((NumberBox)c).getDecimalbox();
+				}
+				Clients.response(new AuFocus(c));
+				break;
+			}
+		}
+	}
 
 
 

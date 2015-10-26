@@ -60,6 +60,7 @@ import org.zkoss.zul.RendererCtrl;
 import org.zkoss.zul.Row;
 import org.zkoss.zul.RowRenderer;
 import org.zkoss.zul.RowRendererExt;
+import org.zkoss.zul.Rows;
 import org.zkoss.zul.impl.XulElement;
 
 
@@ -93,6 +94,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 	private Object[] currentValues;
 	private boolean editing = false;
 	private int currentRowIndex = -1;
+	private int currentColumnIndex = -1;
 	private AbstractADWindowContent m_windowPanel;
 	private ActionListener buttonListener;
 	/**
@@ -119,15 +121,16 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 		this.dataBinder = new SimpleInputWindowDataBinder(gridTab);
 	}
 
-
+	//TODO
 	private WEditor getEditorCell(GridField gridField) {
 		WEditor editor = editors.get(gridField);
+
 		if (editor != null)  {
 			prepareFieldEditor(gridField, editor);
 			editor.addValueChangeListener(dataBinder);
 			gridField.removePropertyChangeListener(editor);
 			gridField.addPropertyChangeListener(editor);
-			editor.setValue(gridField.getValue());
+//			editor.setValue(gridField.getValue());
 		}
 		return editor;
 	}
@@ -371,7 +374,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 		}
 
 		Component comp =row.getParent();
-		Component comp2 =row.getParent().getParent();
+		Component comp2 =row.getParent().getParent();//TODO
 
 		if (grid == null)
 			grid = (Grid) row.getParent().getParent();
@@ -484,6 +487,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 				Component component = getDisplayComponent(rowIndex, currentValues[i], gridPanelFields[i], isGridViewCustomized);
 				div.appendChild(component);
 				div.setAttribute("display.component", component);
+				div.setId(String.valueOf(row.getIndex())+"_"+String.valueOf(i));//Set RowIndex(Y-axis) and Column(X-axis) in ID of Cell(div)
 
 				if (DisplayType.YesNo == gridPanelFields[i].getDisplayType() || DisplayType.Image == gridPanelFields[i].getDisplayType()) {
 					divStyle = CELL_DIV_STYLE_ALIGN_CENTER;
@@ -543,14 +547,17 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 				cell.setSclass("row-indicator");
 			}
 		}
-		currentRow = row;
+
+		currentRowIndex = rowListener.getRowIndex();
+		currentColumnIndex =rowListener.getColumnIndex();
+		Rows rows =grid.getRows();
+		List<Row> rowA = rows.getChildren();
+		currentRow = rowA.get(currentRowIndex);
+
 		Cell cell = (Cell) currentRow.getChildren().get(1);
 		if (cell != null) {
 			cell.setSclass("row-indicator-selected");
 		}
-//		currentRowIndex = gridTab.getCurrentRow();
-		currentRowIndex = rowListener.getRowIndex();
-		int testIndex = row.getIndex();
 
 
 
@@ -560,7 +567,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 				editCurrentRow();
 			}
 		} else {
-			currentRowIndex = gridTab.getCurrentRow();
+//			currentRowIndex = gridTab.getCurrentRow();
 			if (editing) {
 				stopEditing(false);
 				editCurrentRow();
@@ -605,24 +612,57 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 	public void editCurrentRow() {
 		if (currentRow != null && currentRow.getParent() != null && currentRow.isVisible()
 				&& grid != null && grid.isVisible() && grid.getParent() != null && grid.getParent().isVisible()) {
-				GridField[] gridPanelFields = simpleInputWindow.getFields();
-				int columnCount = gridPanelFields.length;
+				GridField[] simpleInputFields = simpleInputWindow.getFields();
+				GridField[] gridTabFields = gridTab.getFields();
+
+				int columnCount = simpleInputFields.length;
 				org.zkoss.zul.Columns columns = grid.getColumns();
 				//skip selection and indicator column
 				int colIndex = 1;
+
+				SimpleInputWindowListModel model = (SimpleInputWindowListModel) grid.getModel();
+				Object[] data =(Object[])model.getElementAt(currentRowIndex);
+
+				if (!isGridViewCustomized) {
+					for(int i = 0; i < gridTabFields.length; i++) {
+						if (simpleInputFields[i].getAD_Field_ID() != gridTabFields[i].getAD_Field_ID()) {
+							isGridViewCustomized = true;
+							break;
+						}
+					}
+				}
+
+				if (!isGridViewCustomized) {
+					currentValues = data;
+				} else {
+					List<Object> dataList = new ArrayList<Object>();
+					for(GridField gridField : simpleInputFields) {
+						for(int i = 0; i < gridTabFields.length; i++) {
+							if (gridField.getAD_Field_ID() == gridTabFields[i].getAD_Field_ID()) {
+								dataList.add(data[i]);
+								break;
+							}
+						}
+					}
+					currentValues = dataList.toArray(new Object[0]);
+				}
+
 				for (int i = 0; i < columnCount; i++) {
-					if ((!isGridViewCustomized && !gridPanelFields[i].isDisplayedGrid()) || gridPanelFields[i].isToolbarOnlyButton()) {
+					if ((!isGridViewCustomized && !simpleInputFields[i].isDisplayedGrid()) || simpleInputFields[i].isToolbarOnlyButton()) {
 						continue;
 					}
 					colIndex ++;
 
-					if (editors.get(gridPanelFields[i]) == null)
-						editors.put(gridPanelFields[i], WebEditorFactory.getEditor(gridPanelFields[i], true));
+					if (editors.get(simpleInputFields[i]) == null)
+						editors.put(simpleInputFields[i], WebEditorFactory.getEditor(simpleInputFields[i], true));
 
 					org.zkoss.zul.Column column = (org.zkoss.zul.Column) columns.getChildren().get(colIndex);
 					if (column.isVisible()) {
 						Cell div = (Cell) currentRow.getChildren().get(colIndex);
-						WEditor editor = getEditorCell(gridPanelFields[i]);
+						WEditor editor = getEditorCell(simpleInputFields[i]);
+						editor.setValue(currentValues[i]);
+						editor.getComponent().addEventListener(Events.ON_OK, this);//OnEvent()
+
 						if (div.getChildren().isEmpty() || !(div.getChildren().get(0) instanceof Button))
 							div.getChildren().clear();
 						else if (!div.getChildren().isEmpty()) {
@@ -639,19 +679,22 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 			            }
 
 
-			            Properties ctx = gridPanelFields[i].getVO().ctx;
+			            Properties ctx = simpleInputFields[i].getVO().ctx;
 			            //check context
-						if (!gridPanelFields[i].isDisplayed(ctx, true)){
+						if (!simpleInputFields[i].isDisplayed(ctx, true)){
 							// IDEMPIERE-2253
 							div.removeChild(editor.getComponent());
 						}
 
-						editor.setReadWrite(gridPanelFields[i].isEditableGrid(true));
+						if(i==currentColumnIndex)
+							div.focus();
+						editor.setReadWrite(simpleInputFields[i].isEditableGrid(true));
 					}
 				}
 				editing = true;
 
-				SimpleInputWindowListModel model = (SimpleInputWindowListModel) grid.getModel();
+
+
 				model.setEditing(true);
 
 			}
@@ -800,6 +843,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 		private Grid _grid;
 
 		private int rowIndex = 0;
+		private int columnIndex = 0;
 
 		public RowListener(Grid grid) {
 			_grid = grid;
@@ -810,15 +854,25 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 			return rowIndex;
 		}
 
+		public int getColumnIndex()
+		{
+			return columnIndex;
+		}
+
 		public void onEvent(Event event) throws Exception {
 
 			if(event.getTarget() instanceof Cell)//Get Row Index
 			{
-				Component comp =event.getTarget();
-				Cell cell =(Cell)comp;
-				Component parent = cell.getParent();
-				Row row =(Row)parent;
-				rowIndex = row.getIndex();
+				String[] yx = ((Cell)event.getTarget()).getId().split("_");
+				rowIndex =Integer.valueOf(yx[0]).intValue();
+	            columnIndex =Integer.valueOf(yx[1]).intValue();
+
+//				Component comp =event.getTarget();
+//				Cell cell =(Cell)comp;
+//				List<Component> aa =cell.getChildren();
+//				Component parent = cell.getParent();
+//				Row row =(Row)parent;
+//				rowIndex = row.getIndex();
 			}
 
 			if (Events.ON_CLICK.equals(event.getName())) {
@@ -882,6 +936,8 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 
 
 
+	private int minRowIndex = 0;
+	private int maxRowIndex = 0;
 
 	/**
 	 * Enter Key Event(onOK)
@@ -900,6 +956,25 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 			Executions.getCurrent().setAttribute("gridView.onSelectRow", Boolean.TRUE);
 			Checkbox checkBox = (Checkbox) event.getTarget();
 //			Events.sendEvent(gridPanel, new Event("onSelectRow", gridPanel, checkBox));
+		}else if(event.getName().equals(Events.ON_OK)){
+
+			List<Row> rowList = grid.getRows().getChildren();
+			minRowIndex = grid.getActivePage() * grid.getPageSize();
+			maxRowIndex = minRowIndex + grid.getPageSize();
+			maxRowIndex = maxRowIndex > rowList.size() ? rowList.size() : maxRowIndex;
+
+			stopEditing(false);
+
+			currentRowIndex++;
+			if(maxRowIndex <= currentRowIndex)
+			{
+				currentRowIndex = minRowIndex;
+			}
+			currentRow = rowList.get(currentRowIndex);
+			editCurrentRow();
+
+			event.stopPropagation();
+			return;
 		}
 	}//onEvent
 
