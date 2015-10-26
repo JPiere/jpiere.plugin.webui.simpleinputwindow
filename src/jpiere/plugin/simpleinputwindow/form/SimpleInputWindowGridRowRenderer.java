@@ -961,6 +961,8 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 			List<Row> rowList = grid.getRows().getChildren();
 			minRowIndex = grid.getActivePage() * grid.getPageSize();
 			maxRowIndex = minRowIndex + grid.getPageSize();
+
+			boolean isLastPage =  maxRowIndex >= rowList.size() ? true : false;
 			maxRowIndex = maxRowIndex > rowList.size() ? rowList.size() : maxRowIndex;
 
 			stopEditing(false);
@@ -968,7 +970,12 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 			currentRowIndex++;
 			if(maxRowIndex <= currentRowIndex)
 			{
-				currentRowIndex = minRowIndex;
+				if(isLastPage)
+				{
+					//TODO:新規レコード追加?
+				}else{
+					currentRowIndex = minRowIndex;
+				}
 			}
 			currentRow = rowList.get(currentRowIndex);
 			editCurrentRow();
