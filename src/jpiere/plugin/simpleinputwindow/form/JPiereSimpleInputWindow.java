@@ -85,6 +85,7 @@ import org.compiere.util.DB;
 import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
+import org.zkoss.zk.ui.AbstractComponent;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
@@ -614,6 +615,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 
 		simpleInputGrid.setRowRenderer(renderer);
+		simpleInputGrid.addEventListener(Events.ON_CLICK, this);
 
 		return true;
 	}
@@ -967,7 +969,30 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 	@Override
 	public void onEvent(Event event) throws Exception {
 
-		if (event.getTarget().equals(SearchButton) || event.getName().equals("onComplete")){//onCompolete from process dialog
+		Component comp = event.getTarget() ;
+
+		if (event.getTarget() == simpleInputGrid && Events.ON_CLICK.equals(event.getName()))
+		{
+			Object data = event.getData();
+			org.zkoss.zul.Row row = null;
+			if (data != null && data instanceof Component)
+			{
+				AbstractComponent cmp = (AbstractComponent) data;
+				if (cmp.getParent() instanceof org.zkoss.zul.Row)
+				{
+					row = (org.zkoss.zul.Row) cmp.getParent();
+				}
+			}
+
+			if (row != null)
+			{
+				renderer.setCurrentRow(renderer.getCurrentRow());
+				renderer.editCurrentRow();
+			}
+			event.stopPropagation();
+
+		/*JPiereMatrixWindowQuickEntry#ConfirmPanel*/
+		}else if (event.getTarget().equals(SearchButton) || event.getName().equals("onComplete")){//onCompolete from process dialog
 
 			if(!createView ())
 				return;
