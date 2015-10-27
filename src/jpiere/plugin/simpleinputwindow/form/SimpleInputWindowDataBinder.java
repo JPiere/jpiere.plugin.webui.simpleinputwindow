@@ -13,7 +13,6 @@
  *****************************************************************************/
 package jpiere.plugin.simpleinputwindow.form;
 
-import java.util.HashMap;
 import java.util.Properties;
 import java.util.logging.Level;
 
@@ -22,15 +21,12 @@ import org.adempiere.exceptions.AdempiereException;
 import org.adempiere.webui.editor.WEditor;
 import org.adempiere.webui.event.ValueChangeEvent;
 import org.adempiere.webui.event.ValueChangeListener;
-import org.adempiere.webui.panel.CustomForm;
 import org.compiere.model.GridField;
 import org.compiere.model.GridTab;
 import org.compiere.model.GridTable;
-import org.compiere.model.PO;
 import org.compiere.util.CLogger;
 import org.compiere.util.Env;
 import org.compiere.util.Trx;
-import org.zkoss.zul.ListModelMap;
 //import jpiere.plugin.matrixwindow.base.IMatrixWindowCallout;
 //import jpiere.plugin.matrixwindow.base.IMatrixWindowCalloutFactory;
 
@@ -49,75 +45,17 @@ public class SimpleInputWindowDataBinder implements ValueChangeListener {
 
 	private GridTab gridTab;
 
-	//View Model:Map of Data Model for Display<Identifier of Row.<Column Number,data>>
-	private ListModelMap<Object, Object>  viewModel;
-
-	//Convertion Table:Connect View Model with Table Modle<Identifier of Row.<Column Number,Identifier of Data>>
-	private ListModelMap<Object, Object>  convetionTable ;
-
-	//Map of PO Instance that corresponding to Table.<ID of PO,PO>
-	private HashMap<Integer,PO> 	tableModel;
-
-	//Map of PO Instance that have to save.<ID of PO,PO>
-	private HashMap<Integer,PO> 	dirtyModel;
-
-	//Map of All Column GridField <Column order num,,GridField>
-	private HashMap<Integer,GridField> columnGridFieldMap;
-
-	//Map of All Column WEditor <Column order num,,WEditor>
-	private HashMap<Integer,WEditor>   columnEditorMap;
-
-	private CustomForm form;
+	private SimpleInputWindowGridRowRenderer rendere;
 
 	/**
 	 *
 	 * @param gridTab
 	 */
-	public SimpleInputWindowDataBinder(GridTab gridTab)
+	public SimpleInputWindowDataBinder(GridTab gridTab, SimpleInputWindowGridRowRenderer rendere)
 	{
 		this.gridTab = gridTab;
+		this.rendere = rendere;
 	}
-
-//	public ListModelMap<Object, Object>  getViewModel()
-//	{
-//		return viewModel;
-//	}
-//
-//	public  ListModelMap<Object, Object>  getConvetionTable()
-//	{
-//		return convetionTable;
-//	}
-//
-//	public HashMap<Integer,PO> 	getTableModel()
-//	{
-//		return tableModel;
-//	}
-//
-//	public HashMap<Integer,PO> getDirtyModel()
-//	{
-//		return dirtyModel;
-//	}
-//
-//	public void setColumnGridFieldMap(HashMap<Integer,GridField> columnGridFieldMap)
-//	{
-//		this.columnGridFieldMap = columnGridFieldMap;
-//	}
-//
-//	public HashMap<Integer,GridField> getColumnGridFieldMap()
-//	{
-//		return columnGridFieldMap;
-//	}
-//
-//	public void setColumnEditorMap(HashMap<Integer,WEditor>  columnEditorMap)
-//	{
-//		this.columnEditorMap = columnEditorMap;
-//	}
-//
-//	public HashMap<Integer,WEditor>  getColumnEditorMap()
-//	{
-//		return columnEditorMap;
-//	}
-
 
 
 	/**
@@ -161,7 +99,7 @@ public class SimpleInputWindowDataBinder implements ValueChangeListener {
 
         //  Get Row/Col Info
         GridTable mTable = gridTab.getTableModel();
-        int row = gridTab.getCurrentRow();
+        int row = rendere.getCurrentRowIndex();
         int col = mTable.findColumn(e.getPropertyName());
         //
         if (e.getNewValue() == null && e.getOldValue() != null
@@ -198,6 +136,7 @@ public class SimpleInputWindowDataBinder implements ValueChangeListener {
 			}
 
            	mTable.setValueAt (newValue, row, col);
+
             //  Force Callout
             if ( e.getPropertyName().equals("S_ResourceAssignment_ID") )
             {

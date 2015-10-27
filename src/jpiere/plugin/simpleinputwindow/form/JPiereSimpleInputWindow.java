@@ -614,6 +614,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		renderer.setGridView(gridView);
 		renderer.setSimpleInputWindow(this);
 		renderer.setGridTab(gridTab);
+//		renderer.setGrid(simpleInputGrid);
 
 
 

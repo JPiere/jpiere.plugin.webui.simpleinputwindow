@@ -60,7 +60,6 @@ import org.zkoss.zul.RendererCtrl;
 import org.zkoss.zul.Row;
 import org.zkoss.zul.RowRenderer;
 import org.zkoss.zul.RowRendererExt;
-import org.zkoss.zul.Rows;
 import org.zkoss.zul.impl.XulElement;
 
 
@@ -118,7 +117,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 	{
 		this.windowNo = form.getWindowNo();
 		this.form = form;
-		this.dataBinder = new SimpleInputWindowDataBinder(gridTab);
+		this.dataBinder = new SimpleInputWindowDataBinder(gridTab, this);
 	}
 
 	//TODO
@@ -373,9 +372,6 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 
 		}
 
-		Component comp =row.getParent();
-		Component comp2 =row.getParent().getParent();//TODO
-
 		if (grid == null)
 			grid = (Grid) row.getParent().getParent();
 
@@ -550,9 +546,8 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 
 		currentRowIndex = rowListener.getRowIndex();
 		currentColumnIndex =rowListener.getColumnIndex();
-		Rows rows =grid.getRows();
-		List<Row> rowA = rows.getChildren();
-		currentRow = rowA.get(currentRowIndex);
+		List<Row> rowList = grid.getRows().getChildren();
+		currentRow = rowList.get(currentRowIndex);
 
 		Cell cell = (Cell) currentRow.getChildren().get(1);
 		if (cell != null) {
@@ -569,12 +564,12 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 		} else {
 //			currentRowIndex = gridTab.getCurrentRow();
 			if (editing) {
-				stopEditing(false);
+				stopEditing(true);
 				editCurrentRow();
 			}
 		}
 
-		String script = "jq('#"+row.getUuid()+"').addClass('highlight').siblings().removeClass('highlight')";
+		String script = "jq('#"+currentRow.getUuid()+"').addClass('highlight').siblings().removeClass('highlight')";
 
 		Boolean isActive = null;
 		Object isActiveValue = gridTab.getValue(currentRowIndex, "IsActive");
@@ -965,22 +960,42 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 			boolean isLastPage =  maxRowIndex >= rowList.size() ? true : false;
 			maxRowIndex = maxRowIndex > rowList.size() ? rowList.size() : maxRowIndex;
 
-			stopEditing(false);
-
 			currentRowIndex++;
 			if(maxRowIndex <= currentRowIndex)
 			{
 				if(isLastPage)
 				{
 					//TODO:新規レコード追加?
+					currentRowIndex = minRowIndex;
 				}else{
 					currentRowIndex = minRowIndex;
 				}
 			}
 			currentRow = rowList.get(currentRowIndex);
+
+			stopEditing(true);
 			editCurrentRow();
 
 			event.stopPropagation();
+
+
+			String script = "jq('#"+currentRow.getUuid()+"').addClass('highlight').siblings().removeClass('highlight')";
+
+			Boolean isActive = null;
+			Object isActiveValue = gridTab.getValue(currentRowIndex, "IsActive");
+			if (isActiveValue != null) {
+				if ("true".equalsIgnoreCase(isActiveValue.toString())) {
+					isActive = Boolean.TRUE;
+				} else {
+					isActive = Boolean.FALSE;
+				}
+			}
+			if (isActive != null && !isActive.booleanValue()) {
+				script = "jq('#"+currentRow.getUuid()+"').addClass('grid-inactive-row').siblings().removeClass('highlight')";
+			}
+
+			Clients.response(new AuScript(script));
+
 			return;
 		}
 	}//onEvent
@@ -994,6 +1009,13 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 	{
 		this.simpleInputWindow = simpleInputWindow;
 	}
+
+//	private Grid simpleInputGrid  = null;
+//
+//	public void setGrid(Grid simpleInputGrid)
+//	{
+//		this.simpleInputGrid = simpleInputGrid;
+//	}
 
 
 	public void setGridTab(GridTab gridTab)
