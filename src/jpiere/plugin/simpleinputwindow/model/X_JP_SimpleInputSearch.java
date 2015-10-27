@@ -30,7 +30,7 @@ public class X_JP_SimpleInputSearch extends PO implements I_JP_SimpleInputSearch
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20151021L;
+	private static final long serialVersionUID = 20151027L;
 
     /** Standard Constructor */
     public X_JP_SimpleInputSearch (Properties ctx, int JP_SimpleInputSearch_ID, String trxName)
@@ -40,7 +40,7 @@ public class X_JP_SimpleInputSearch extends PO implements I_JP_SimpleInputSearch
         {
 			setAD_Field_ID (0);
 			setAD_Tab_ID (0);
-// 0|AD_Tab_ID
+// @0|AD_Tab_ID@
 			setColumnSpan (0);
 // 2
 			setIsMandatory (false);

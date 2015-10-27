@@ -40,7 +40,6 @@ import org.adempiere.webui.adwindow.ADWindowContent;
 import org.adempiere.webui.adwindow.GridView;
 import org.adempiere.webui.adwindow.IADTabbox;
 import org.adempiere.webui.adwindow.ToolbarProcessButton;
-import org.adempiere.webui.apps.AEnv;
 import org.adempiere.webui.component.Button;
 import org.adempiere.webui.component.Checkbox;
 import org.adempiere.webui.component.Columns;
@@ -604,8 +603,16 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			return false;
 		}
 
-		setupFields(gridTab);
-		setupColumns();
+		org.zkoss.zul.Columns columns = simpleInputGrid.getColumns();
+		if(columns == null)
+		{
+			setupFields(gridTab);
+			setupColumns();
+
+			Frozen frozen = new Frozen();
+			frozen.setColumns(m_simpleInputWindow.getJP_FrozenField()+2);//freeze selection and indicator column
+			simpleInputGrid.appendChild(frozen);
+		}
 
 		listModel = new SimpleInputWindowListModel(gridTab.getTableModel(), form.getWindowNo());
 		simpleInputGrid.setModel(listModel);
@@ -615,9 +622,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		renderer.setSimpleInputWindow(this);
 		renderer.setGridTab(gridTab);
 //		renderer.setGrid(simpleInputGrid);
-
-
-
 
 		simpleInputGrid.setRowRenderer(renderer);
 		simpleInputGrid.addEventListener(Events.ON_CLICK, this);
@@ -698,15 +702,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		if (init) return;
 
 		Columns columns = new Columns();
-
-		//frozen not working well on tablet devices yet
-		if (!AEnv.isTablet())
-		{
-			Frozen frozen = new Frozen();
-			//freeze selection and indicator column
-			frozen.setColumns(2);
-			simpleInputGrid.appendChild(frozen);
-		}
 
 		org.zkoss.zul.Column selection = new Column();
 		selection.setWidth("22px");
@@ -912,7 +907,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			sql.append(" "+ m_simpleInputWindow.getJP_JoinClause());
 		}
 
-//		sql.append(whereClause + " ORDER BY " + m_columnKeyColumn.getColumnName() + "," + m_rowKeyColumn.getColumnName());
+		sql.append(whereClause);
 
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -967,8 +962,66 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 	}
 
 	@Override
-	public void valueChange(ValueChangeEvent evt) {
+	public void valueChange(ValueChangeEvent e) {
 
+		WEditor editor = searchEditorMap.get(e.getPropertyName());
+
+		editor.setValue(e.getNewValue());
+
+		if(editor instanceof WYesNoEditor)
+		{
+			Env.setContext(Env.getCtx(), form.getWindowNo(), editor.getColumnName(), e.getNewValue().equals("true") ? "Y" : "N");
+		}else{
+			Env.setContext(Env.getCtx(), form.getWindowNo(), editor.getColumnName(), e.getNewValue()==null ? null : e.getNewValue().toString());
+		}
+
+		SearchButton.setEnabled(true);
+		SaveButton.setEnabled(false);
+		CreateButton.setEnabled(false);
+		ProcessButton.setEnabled(false);
+
+//		quickEntry = null;
+
+		simpleInputGrid.setVisible(false);
+
+		if(e.getNewValue()==null && editor.isMandatory())
+		{
+			editor.getLabel().setStyle("cursor: pointer; text-decoration: underline;color: #333; color:red;");
+		}else{
+			editor.getLabel().setStyle("cursor: pointer; text-decoration: underline;color: #333; ");
+		}
+
+
+		//Dynamic Validation
+		for(Map.Entry<String, WEditor> entry: searchEditorMap.entrySet())
+		{
+			WEditor otherEditor = entry.getValue();
+			GridField gridField = otherEditor.getGridField();
+
+			if(otherEditor.getColumnName().equals(editor.getColumnName()))
+			{
+				;
+			}else if(otherEditor instanceof WTableDirEditor || otherEditor instanceof WSearchEditor ){
+
+				if(gridField.getVFormat() != null && gridField.getVFormat().indexOf('@') != -1)
+				{
+					String validated = Env.parseContext(Env.getCtx(), form.getWindowNo(), gridField.getVFormat(), false);
+					((MLookup)gridField.getLookup()).getLookupInfo().ValidationCode=validated;
+
+				}else if(gridField.getLookup().getValidation().indexOf('@') != -1){
+
+					gridField.setVFormat(gridField.getLookup().getValidation());
+					String validated = Env.parseContext(Env.getCtx(), form.getWindowNo(), gridField.getVFormat(), false);
+					((MLookup)gridField.getLookup()).getLookupInfo().ValidationCode=validated;
+
+				}
+
+				if(otherEditor instanceof WTableDirEditor)
+					((WTableDirEditor)otherEditor).getLookup().refresh();
+
+			}//if
+
+		}//for
 	}
 
 	@Override

@@ -30,7 +30,7 @@ public class X_JP_SimpleInputWindow extends PO implements I_JP_SimpleInputWindow
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20151021L;
+	private static final long serialVersionUID = 20151027L;
 
     /** Standard Constructor */
     public X_JP_SimpleInputWindow (Properties ctx, int JP_SimpleInputWindow_ID, String trxName)
@@ -40,6 +40,8 @@ public class X_JP_SimpleInputWindow extends PO implements I_JP_SimpleInputWindow
         {
 			setAD_Tab_ID (0);
 			setAD_Window_ID (0);
+			setJP_FrozenField (0);
+// 0
 			setJP_PageSize (0);
 // 20
 			setJP_SimpleInputWindow_ID (0);
@@ -147,6 +149,23 @@ public class X_JP_SimpleInputWindow extends PO implements I_JP_SimpleInputWindow
 	public String getDescription () 
 	{
 		return (String)get_Value(COLUMNNAME_Description);
+	}
+
+	/** Set Frozen Field.
+		@param JP_FrozenField Frozen Field	  */
+	public void setJP_FrozenField (int JP_FrozenField)
+	{
+		set_Value (COLUMNNAME_JP_FrozenField, Integer.valueOf(JP_FrozenField));
+	}
+
+	/** Get Frozen Field.
+		@return Frozen Field	  */
+	public int getJP_FrozenField () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_JP_FrozenField);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
 	}
 
 	/** Set SQL JOIN.

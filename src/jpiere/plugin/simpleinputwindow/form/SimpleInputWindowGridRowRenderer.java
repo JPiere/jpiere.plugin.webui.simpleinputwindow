@@ -28,6 +28,8 @@ import org.adempiere.webui.adwindow.GridView;
 import org.adempiere.webui.adwindow.IADTabpanel;
 import org.adempiere.webui.component.Button;
 import org.adempiere.webui.component.Checkbox;
+import org.adempiere.webui.component.Datebox;
+import org.adempiere.webui.component.NumberBox;
 import org.adempiere.webui.editor.WButtonEditor;
 import org.adempiere.webui.editor.WEditor;
 import org.adempiere.webui.editor.WEditorPopupMenu;
@@ -549,24 +551,9 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 		List<Row> rowList = grid.getRows().getChildren();
 		currentRow = rowList.get(currentRowIndex);
 
-		Cell cell = (Cell) currentRow.getChildren().get(1);
-		if (cell != null) {
-			cell.setSclass("row-indicator-selected");
-		}
-
-
-
-		if (currentRowIndex == gridTab.getCurrentRow()) {
-			if (editing) {
-				stopEditing(false);
-				editCurrentRow();
-			}
-		} else {
-//			currentRowIndex = gridTab.getCurrentRow();
-			if (editing) {
-				stopEditing(true);
-				editCurrentRow();
-			}
+		if (editing) {
+			stopEditing(true);
+			editCurrentRow();
 		}
 
 		String script = "jq('#"+currentRow.getUuid()+"').addClass('highlight').siblings().removeClass('highlight')";
@@ -605,6 +592,12 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 	 * Enter edit mode
 	 */
 	public void editCurrentRow() {
+
+		Cell cell = (Cell) currentRow.getChildren().get(1);
+		if (cell != null) {
+			cell.setSclass("row-indicator-selected");
+		}
+
 		if (currentRow != null && currentRow.getParent() != null && currentRow.isVisible()
 				&& grid != null && grid.isVisible() && grid.getParent() != null && grid.getParent().isVisible()) {
 				GridField[] simpleInputFields = simpleInputWindow.getFields();
@@ -681,14 +674,30 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 							div.removeChild(editor.getComponent());
 						}
 
+						//control focus
 						if(i==currentColumnIndex)
-							div.focus();
+						{
+							if(div.getChildren().get(0) instanceof NumberBox)
+							{
+								NumberBox numberbox = (NumberBox)div.getChildren().get(0);
+			    	        	numberbox.focus();
+			    	        	numberbox.getDecimalbox().select();
+							}else if(div.getChildren().get(0) instanceof Datebox){
+
+								Datebox datebox = (Datebox)div.getChildren().get(0);
+								datebox.focus();
+								datebox.select();
+
+							}else{
+								div.focus();
+							}
+						}
+
 						editor.setReadWrite(simpleInputFields[i].isEditableGrid(true));
-					}
-				}
+
+					}//if (column.isVisible())
+				}//for
 				editing = true;
-
-
 
 				model.setEditing(true);
 

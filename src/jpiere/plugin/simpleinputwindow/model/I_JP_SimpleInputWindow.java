@@ -136,6 +136,15 @@ public interface I_JP_SimpleInputWindow
 	  */
 	public boolean isActive();
 
+    /** Column name JP_FrozenField */
+    public static final String COLUMNNAME_JP_FrozenField = "JP_FrozenField";
+
+	/** Set Frozen Field	  */
+	public void setJP_FrozenField (int JP_FrozenField);
+
+	/** Get Frozen Field	  */
+	public int getJP_FrozenField();
+
     /** Column name JP_JoinClause */
     public static final String COLUMNNAME_JP_JoinClause = "JP_JoinClause";
 
