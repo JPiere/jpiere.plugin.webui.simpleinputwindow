@@ -96,6 +96,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 	private GridView gridView = null;
 	private Row currentRow;
 	private Object[] currentValues;
+	private PO currentPO;
 	private boolean editing = false;
 	private int currentRowIndex = -1;
 	private int currentColumnIndex = -1;
@@ -557,6 +558,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 
 		currentRowIndex = rowListener.getRowIndex();
 		currentColumnIndex =rowListener.getColumnIndex();
+		currentPO =listModel.getPO(currentRowIndex);
 		List<Row> rowList = grid.getRows().getChildren();
 		currentRow = rowList.get(currentRowIndex);
 
@@ -601,6 +603,8 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 		return currentColumnIndex;
 	}
 
+
+
 	/**
 	 * Enter edit mode
 	 */
@@ -611,13 +615,11 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 			cell.setSclass("row-indicator-selected");
 		}
 
-		//TODO:現状レコードのアクティブフラグはＯＮの前提で実装している。要修正
-		Env.setContext(Env.getCtx(), form.getWindowNo(), 0, "IsActive", true);
+		Env.setContext(Env.getCtx(), form.getWindowNo(), 0, "IsActive", currentPO.get_ValueAsBoolean("IsActive"));
 
 		if (currentRow != null && currentRow.getParent() != null && currentRow.isVisible()
 				&& grid != null && grid.isVisible() && grid.getParent() != null && grid.getParent().isVisible()) {
 				GridField[] simpleInputFields = simpleInputWindow.getFields();
-				GridField[] gridTabFields = gridTab.getFields();
 
 				int columnCount = simpleInputFields.length;
 				org.zkoss.zul.Columns columns = grid.getColumns();
@@ -627,32 +629,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 				SimpleInputWindowListModel model = (SimpleInputWindowListModel) grid.getModel();
 				Object[] data =(Object[])model.getElementAt(currentRowIndex);
 
-//				if (!isGridViewCustomized) {
-//					for(int i = 0; i < gridTabFields.length; i++) {
-//						if (simpleInputFields[i].getAD_Field_ID() != gridTabFields[i].getAD_Field_ID()) {
-//							isGridViewCustomized = true;
-//							break;
-//						}
-//					}
-//				}
-
-
 				currentValues = data;
-
-//				if (!isGridViewCustomized) {
-//					currentValues = data;
-//				} else {
-//					List<Object> dataList = new ArrayList<Object>();
-//					for(GridField gridField : simpleInputFields) {
-//						for(int i = 0; i < gridTabFields.length; i++) {
-//							if (gridField.getAD_Field_ID() == gridTabFields[i].getAD_Field_ID()) {
-//								dataList.add(data[i]);
-//								break;
-//							}
-//						}
-//					}
-//					currentValues = dataList.toArray(new Object[0]);
-//				}
 
 				for (int i = 0; i < columnCount; i++) {
 					if (simpleInputFields[i].isToolbarOnlyButton()) {
@@ -721,17 +698,6 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 				model.setEditing(true);
 
 			}
-	}
-
-	private boolean isDetailPane() {
-//		Component parent = grid.getParent();
-//		while (parent != null) {
-//			if (parent instanceof DetailPane) {
-//				return true;
-//			}
-//			parent = parent.getParent();
-//		}
-		return false;
 	}
 
 	/**
@@ -889,13 +855,6 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 				String[] yx = ((Cell)event.getTarget()).getId().split("_");
 				rowIndex =Integer.valueOf(yx[0]).intValue();
 	            columnIndex =Integer.valueOf(yx[1]).intValue();
-
-//				Component comp =event.getTarget();
-//				Cell cell =(Cell)comp;
-//				List<Component> aa =cell.getChildren();
-//				Component parent = cell.getParent();
-//				Row row =(Row)parent;
-//				rowIndex = row.getIndex();
 			}
 
 			if (Events.ON_CLICK.equals(event.getName())) {
@@ -1014,6 +973,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 				}
 			}
 			currentRow = rowList.get(currentRowIndex);
+			currentPO =listModel.getPO(currentRowIndex);
 
 			stopEditing(true);
 			editCurrentRow();
@@ -1051,14 +1011,6 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 	{
 		this.simpleInputWindow = simpleInputWindow;
 	}
-
-//	private Grid simpleInputGrid  = null;
-//
-//	public void setGrid(Grid simpleInputGrid)
-//	{
-//		this.simpleInputGrid = simpleInputGrid;
-//	}
-
 
 	public void setGridTab(GridTab gridTab)
 	{
