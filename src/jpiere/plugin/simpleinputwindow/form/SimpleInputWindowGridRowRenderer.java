@@ -389,20 +389,22 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 			}
 		}
 
-		if (!isGridViewCustomized) {
-			currentValues = data;
-		} else {
-			List<Object> dataList = new ArrayList<Object>();
-			for(GridField gridField : gridPanelFields) {
-				for(int i = 0; i < gridTabFields.length; i++) {
-					if (gridField.getAD_Field_ID() == gridTabFields[i].getAD_Field_ID()) {
-						dataList.add(data[i]);
-						break;
-					}
-				}
-			}
-			currentValues = dataList.toArray(new Object[0]);
-		}
+		currentValues = data;
+
+//		if (!isGridViewCustomized) {
+//			currentValues = data;
+//		} else {
+//			List<Object> dataList = new ArrayList<Object>();
+//			for(GridField gridField : gridPanelFields) {
+//				for(int i = 0; i < gridTabFields.length; i++) {
+//					if (gridField.getAD_Field_ID() == gridTabFields[i].getAD_Field_ID()) {
+//						dataList.add(data[i]);
+//						break;
+//					}
+//				}
+//			}
+//			currentValues = dataList.toArray(new Object[0]);
+//		}
 
 
 		Grid grid = (Grid) row.getParent().getParent();
@@ -620,20 +622,23 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 					}
 				}
 
-				if (!isGridViewCustomized) {
-					currentValues = data;
-				} else {
-					List<Object> dataList = new ArrayList<Object>();
-					for(GridField gridField : simpleInputFields) {
-						for(int i = 0; i < gridTabFields.length; i++) {
-							if (gridField.getAD_Field_ID() == gridTabFields[i].getAD_Field_ID()) {
-								dataList.add(data[i]);
-								break;
-							}
-						}
-					}
-					currentValues = dataList.toArray(new Object[0]);
-				}
+
+				currentValues = data;
+
+//				if (!isGridViewCustomized) {
+//					currentValues = data;
+//				} else {
+//					List<Object> dataList = new ArrayList<Object>();
+//					for(GridField gridField : simpleInputFields) {
+//						for(int i = 0; i < gridTabFields.length; i++) {
+//							if (gridField.getAD_Field_ID() == gridTabFields[i].getAD_Field_ID()) {
+//								dataList.add(data[i]);
+//								break;
+//							}
+//						}
+//					}
+//					currentValues = dataList.toArray(new Object[0]);
+//				}
 
 				for (int i = 0; i < columnCount; i++) {
 					if ((!isGridViewCustomized && !simpleInputFields[i].isDisplayedGrid()) || simpleInputFields[i].isToolbarOnlyButton()) {
@@ -694,6 +699,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 						}
 
 						editor.setReadWrite(simpleInputFields[i].isEditableGrid(true));
+						editor.setReadWrite(true);
 
 					}//if (column.isVisible())
 				}//for

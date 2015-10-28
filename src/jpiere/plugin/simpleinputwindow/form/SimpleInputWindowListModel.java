@@ -19,7 +19,6 @@ import javax.swing.event.TableModelListener;
 
 import org.adempiere.webui.util.SortComparator;
 import org.compiere.model.GridField;
-import org.compiere.model.GridTable;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zul.AbstractListModel;
 import org.zkoss.zul.ListModel;
@@ -39,7 +38,7 @@ public class SimpleInputWindowListModel extends AbstractListModel<Object> implem
 	 *
 	 */
 	private static final long serialVersionUID = 698185856751242764L;
-	private GridTable tableModel;
+	private SimpleInputWindowGridTable tableModel;
 	@SuppressWarnings("unused")
 	private GridField[] gridField;
 	@SuppressWarnings("unused")
@@ -55,7 +54,7 @@ public class SimpleInputWindowListModel extends AbstractListModel<Object> implem
 	 * @param tableModel
 	 * @param windowNo
 	 */
-	public SimpleInputWindowListModel(GridTable tableModel, int windowNo) {
+	public SimpleInputWindowListModel(SimpleInputWindowGridTable tableModel, int windowNo) {
 		this.tableModel = tableModel;
 		this.windowNo = windowNo;
 		gridField = tableModel.getFields();
@@ -171,10 +170,10 @@ public class SimpleInputWindowListModel extends AbstractListModel<Object> implem
 		//use default zk comparator
 		if (cmpr instanceof ListitemComparator) {
 			ListitemComparator lic = (ListitemComparator) cmpr;
-			tableModel.sort(lic.getListheader().getColumnIndex(), ascending);
+//			tableModel.sort(lic.getListheader().getColumnIndex(), ascending);
 		} else if (cmpr instanceof SortComparator) {
 			SortComparator sc = (SortComparator)cmpr;
-			tableModel.sort(sc.getColumnIndex(), ascending);
+//			tableModel.sort(sc.getColumnIndex(), ascending);
 		}
 		fireEvent(ListDataEvent.CONTENTS_CHANGED, -1, -1);
 	}

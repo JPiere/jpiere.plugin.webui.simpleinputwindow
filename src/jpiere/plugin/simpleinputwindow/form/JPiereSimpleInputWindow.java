@@ -38,8 +38,8 @@ import org.adempiere.webui.adwindow.ADTabpanel;
 import org.adempiere.webui.adwindow.ADWindow;
 import org.adempiere.webui.adwindow.ADWindowContent;
 import org.adempiere.webui.adwindow.GridView;
-import org.adempiere.webui.adwindow.IADTabbox;
 import org.adempiere.webui.adwindow.ToolbarProcessButton;
+import org.adempiere.webui.apps.AEnv;
 import org.adempiere.webui.component.Button;
 import org.adempiere.webui.component.Checkbox;
 import org.adempiere.webui.component.Columns;
@@ -71,6 +71,8 @@ import org.adempiere.webui.util.SortComparator;
 import org.compiere.model.GridField;
 import org.compiere.model.GridTab;
 import org.compiere.model.GridTable;
+import org.compiere.model.GridWindow;
+import org.compiere.model.GridWindowVO;
 import org.compiere.model.MColumn;
 import org.compiere.model.MField;
 import org.compiere.model.MLookup;
@@ -177,7 +179,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 	private ADTabpanel adTabpanel;
 	private GridTab gridTab ;
 	private GridView gridView ;
-//	private GridField[] gridFields ;
 
 	private Grid simpleInputGrid  = new Grid();			//main component
 
@@ -253,32 +254,47 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		TABLE_NAME = MTable.get(Env.getCtx(), m_Tab.getAD_Table_ID()).getTableName();
 
 		//Create Window because of use Window info.
-		if(adWindow==null)
+//		if(adWindow==null)
+//		{
+//			adWindow = new ADWindow(Env.getCtx(),AD_WINDOW_ID, null);
+//			adWindow.createPart(window);
+//		}
+//		adWindowContent = adWindow.getADWindowContent();
+//		IADTabbox adTabbox = adWindowContent.getADTab();
+//		int tabCount = adTabbox.getTabCount();
+//		for(int i = 0; i < tabCount; i++)
+//		{
+//			if(adTabbox.getADTabpanel(i).getTableName().equals(m_Tab.getAD_Table().getTableName()))
+//			{
+//				adTabpanel =(ADTabpanel)adTabbox.getADTabpanel(i);
+//			}
+//		}
+//		if(adTabpanel == null)
+//		{
+//			;//Error
+//		}
+//
+//		gridTab = adTabpanel.getGridTab();
+//		gridTab.initTab(false);
+//		gridView = adTabpanel.getGridView();
+//		gridView.init(gridTab);
+
+
+		//Create Window because of use Window info.
+		GridWindowVO gridWindowVO =AEnv.getMWindowVO(form.getWindowNo(), m_simpleInputWindow.getAD_Window_ID(), 0);
+		GridWindow gridWindow = new GridWindow(gridWindowVO);
+		for(int i = 0; i < gridWindow.getTabCount(); i++)
 		{
-			adWindow = new ADWindow(Env.getCtx(),AD_WINDOW_ID, null);
-			adWindow.createPart(window);
-		}
-		adWindowContent = adWindow.getADWindowContent();
-		IADTabbox adTabbox = adWindowContent.getADTab();
-		int tabCount = adTabbox.getTabCount();
-		for(int i = 0; i < tabCount; i++)
-		{
-			if(adTabbox.getADTabpanel(i).getTableName().equals(m_Tab.getAD_Table().getTableName()))
+			GridTab gtab =gridWindow.getTab(i);
+			if(gtab.getAD_Tab_ID()==m_simpleInputWindow.getAD_Tab_ID())
 			{
-				adTabpanel =(ADTabpanel)adTabbox.getADTabpanel(i);
+				gridTab = gtab;
+				break;
 			}
 		}
-		if(adTabpanel == null)
-		{
-			;//Error
-		}
 
-		gridTab = adTabpanel.getGridTab();
-//		gridTab.initTab(false);
-		gridView = adTabpanel.getGridView();
-		gridView.init(gridTab);
-
-		setupFields(gridTab);
+		gridTab.initTab(false);
+		setupFields(gridTab);//Set up display field
 
 	}
 
@@ -565,7 +581,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
         for(MToolBarButton mToolbarButton : mToolbarButtons) {
         	Boolean access = MRole.getDefault().getProcessAccess(mToolbarButton.getAD_Process_ID());
         	if (access != null && access.booleanValue()) {
-        		ToolbarProcessButton toolbarProcessButton = new ToolbarProcessButton(mToolbarButton, adTabpanel, this, form.getWindowNo());
+        		ToolbarProcessButton toolbarProcessButton = new ToolbarProcessButton(mToolbarButton, null, this, form.getWindowNo());
         		toolbarProcessButtons.add(toolbarProcessButton);
         	}
         }
@@ -614,7 +630,9 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			simpleInputGrid.appendChild(frozen);
 		}
 
-		listModel = new SimpleInputWindowListModel(gridTab.getTableModel(), form.getWindowNo());
+		simpleInputWindowGridTable = createTableModel(m_POs);
+
+		listModel = new SimpleInputWindowListModel(simpleInputWindowGridTable, form.getWindowNo());
 		simpleInputGrid.setModel(listModel);
 
 		renderer = new SimpleInputWindowGridRowRenderer(gridTab, form);
@@ -627,6 +645,30 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		simpleInputGrid.addEventListener(Events.ON_CLICK, this);
 
 		return true;
+	}
+
+	SimpleInputWindowGridTable simpleInputWindowGridTable ;
+
+	/*
+	 * Map of PO Instance <ID of PO,PO>
+	 *
+	 *
+	 */
+	private SimpleInputWindowGridTable createTableModel(PO[] POs)
+	{
+
+		simpleInputWindowGridTable = new SimpleInputWindowGridTable();
+		simpleInputWindowGridTable.init(POs,gridFields);
+
+//		for(int i = 0; i < POs.length; i++)
+//		{
+//			for(int j=0; j < gridFields.length; j++)
+//			{
+//				simpleInputWindowGridTable.setValueAt(POs[i].get_ValueAsBoolean(gridFields[j].getColumnName()), i, j);
+//			}
+//		}
+
+		return simpleInputWindowGridTable;
 	}
 
 	private boolean init;
