@@ -14,6 +14,7 @@
 package jpiere.plugin.simpleinputwindow.form;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,7 @@ import org.adempiere.webui.component.Button;
 import org.adempiere.webui.component.Checkbox;
 import org.adempiere.webui.component.Datebox;
 import org.adempiere.webui.component.NumberBox;
+import org.adempiere.webui.component.Searchbox;
 import org.adempiere.webui.editor.WButtonEditor;
 import org.adempiere.webui.editor.WEditor;
 import org.adempiere.webui.editor.WEditorPopupMenu;
@@ -42,6 +44,7 @@ import org.adempiere.webui.panel.HelpController;
 import org.adempiere.webui.session.SessionManager;
 import org.compiere.model.GridField;
 import org.compiere.model.GridTab;
+import org.compiere.model.PO;
 import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
@@ -102,7 +105,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 	 * Flag detect this view has customized column or not
 	 * value is set at {@link #render(Row, Object[], int)}
 	 */
-	private boolean isGridViewCustomized = false;
+//	private boolean isGridViewCustomized = false;
 	/** DefaultFocusField		*/
 	private WEditor	defaultFocusField = null;
 
@@ -110,16 +113,20 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 
 	private JPiereSimpleInputWindow simpleInputWindow;
 
+	private SimpleInputWindowListModel listModel;
+
 	/**
 	 *
 	 * @param gridTab
 	 * @param form
 	 */
-	public SimpleInputWindowGridRowRenderer(GridTab gridTab ,CustomForm form)
+	public SimpleInputWindowGridRowRenderer(GridTab gridTab ,CustomForm form
+								,SimpleInputWindowListModel listModel,HashMap<Integer,PO> dirtyModel)
 	{
 		this.windowNo = form.getWindowNo();
 		this.form = form;
-		this.dataBinder = new SimpleInputWindowDataBinder(gridTab, this);
+		this.listModel = listModel;
+		this.dataBinder = new SimpleInputWindowDataBinder(gridTab, this, listModel, dirtyModel);
 	}
 
 	//TODO
@@ -235,7 +242,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 	 * @param isForceGetValue
 	 * @return
 	 */
-	private Component getDisplayComponent(int rowIndex, Object value, GridField gridField, boolean isForceGetValue) {
+	private Component getDisplayComponent(int rowIndex, Object value, GridField gridField) {
 		Component component;
 		if (gridField.getDisplayType() == DisplayType.YesNo) {
 			component = createReadonlyCheckbox(value);
@@ -248,7 +255,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 			editor.addActionListener(buttonListener);
 			component = editor.getComponent();
 		} else {
-			String text = getDisplayText(value, gridField, rowIndex, isForceGetValue);
+			String text = getDisplayText(value, gridField, rowIndex);
 			WEditor editor = getEditorCell(gridField);
 			if (editor.getDisplayComponent() == null){
 				Label label = new Label();
@@ -380,14 +387,14 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 		if (rowListener == null)
 			rowListener = new RowListener((Grid)row.getParent().getParent());
 
-		if (!isGridViewCustomized) {
-			for(int i = 0; i < gridTabFields.length; i++) {
-				if (gridPanelFields[i].getAD_Field_ID() != gridTabFields[i].getAD_Field_ID()) {
-					isGridViewCustomized = true;
-					break;
-				}
-			}
-		}
+//		if (!isGridViewCustomized) {
+//			for(int i = 0; i < gridTabFields.length; i++) {
+//				if (gridPanelFields[i].getAD_Field_ID() != gridTabFields[i].getAD_Field_ID()) {
+//					isGridViewCustomized = true;
+//					break;
+//				}
+//			}
+//		}
 
 		currentValues = data;
 
@@ -474,9 +481,9 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 			}
 
 			// IDEMPIERE-2148: when has tab customize, ignore check properties isDisplayedGrid
-			if ((!isGridViewCustomized && gridPanelFields[i].isDisplayedGrid()) || gridPanelFields[i].isToolbarOnlyButton()) {
-				continue;
-			}
+//			if ((!isGridViewCustomized && gridPanelFields[i].isDisplayedGrid()) || gridPanelFields[i].isToolbarOnlyButton()) {
+//				continue;
+//			}
 
 			colIndex ++;
 
@@ -484,7 +491,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 			String divStyle = CELL_DIV_STYLE;
 			org.zkoss.zul.Column column = (org.zkoss.zul.Column) columns.getChildren().get(colIndex);
 			if (column.isVisible()) {
-				Component component = getDisplayComponent(rowIndex, currentValues[i], gridPanelFields[i], isGridViewCustomized);
+				Component component = getDisplayComponent(rowIndex, currentValues[i], gridPanelFields[i]);
 				div.appendChild(component);
 				div.setAttribute("display.component", component);
 				div.setId(String.valueOf(row.getIndex())+"_"+String.valueOf(i));//Set RowIndex(Y-axis) and Column(X-axis) in ID of Cell(div)
@@ -590,6 +597,10 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 		return currentRowIndex;
 	}
 
+	public int getCurrentColumnIndex() {
+		return currentColumnIndex;
+	}
+
 	/**
 	 * Enter edit mode
 	 */
@@ -599,6 +610,9 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 		if (cell != null) {
 			cell.setSclass("row-indicator-selected");
 		}
+
+		//TODO:現状レコードのアクティブフラグはＯＮの前提で実装している。要修正
+		Env.setContext(Env.getCtx(), form.getWindowNo(), 0, "IsActive", true);
 
 		if (currentRow != null && currentRow.getParent() != null && currentRow.isVisible()
 				&& grid != null && grid.isVisible() && grid.getParent() != null && grid.getParent().isVisible()) {
@@ -613,14 +627,14 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 				SimpleInputWindowListModel model = (SimpleInputWindowListModel) grid.getModel();
 				Object[] data =(Object[])model.getElementAt(currentRowIndex);
 
-				if (!isGridViewCustomized) {
-					for(int i = 0; i < gridTabFields.length; i++) {
-						if (simpleInputFields[i].getAD_Field_ID() != gridTabFields[i].getAD_Field_ID()) {
-							isGridViewCustomized = true;
-							break;
-						}
-					}
-				}
+//				if (!isGridViewCustomized) {
+//					for(int i = 0; i < gridTabFields.length; i++) {
+//						if (simpleInputFields[i].getAD_Field_ID() != gridTabFields[i].getAD_Field_ID()) {
+//							isGridViewCustomized = true;
+//							break;
+//						}
+//					}
+//				}
 
 
 				currentValues = data;
@@ -641,7 +655,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 //				}
 
 				for (int i = 0; i < columnCount; i++) {
-					if ((!isGridViewCustomized && !simpleInputFields[i].isDisplayedGrid()) || simpleInputFields[i].isToolbarOnlyButton()) {
+					if (simpleInputFields[i].isToolbarOnlyButton()) {
 						continue;
 					}
 					colIndex ++;
@@ -699,7 +713,6 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 						}
 
 						editor.setReadWrite(simpleInputFields[i].isEditableGrid(true));
-						editor.setReadWrite(true);
 
 					}//if (column.isVisible())
 				}//for
@@ -975,7 +988,21 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 			boolean isLastPage =  maxRowIndex >= rowList.size() ? true : false;
 			maxRowIndex = maxRowIndex > rowList.size() ? rowList.size() : maxRowIndex;
 
-			currentRowIndex++;
+			if(event.getTarget().getParent() instanceof Searchbox)
+			{
+
+				Searchbox searchBox =(Searchbox)event.getTarget().getParent();
+				if(searchBox.getText().equals(""))
+				{
+					;//If you push Enter key at Blank Search field, iDempiere dispay Info Window. So, stay same row.
+				}else{
+					currentRowIndex++;
+				}
+
+			}else{
+				currentRowIndex++;
+			}
+
 			if(maxRowIndex <= currentRowIndex)
 			{
 				if(isLastPage)

@@ -30,7 +30,7 @@ public class X_JP_SimpleInputWindow extends PO implements I_JP_SimpleInputWindow
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20151027L;
+	private static final long serialVersionUID = 20151028L;
 
     /** Standard Constructor */
     public X_JP_SimpleInputWindow (Properties ctx, int JP_SimpleInputWindow_ID, String trxName)
@@ -248,6 +248,23 @@ public class X_JP_SimpleInputWindow extends PO implements I_JP_SimpleInputWindow
 	public String getName () 
 	{
 		return (String)get_Value(COLUMNNAME_Name);
+	}
+
+	/** Set Sql ORDER BY.
+		@param OrderByClause 
+		Fully qualified ORDER BY clause
+	  */
+	public void setOrderByClause (String OrderByClause)
+	{
+		set_Value (COLUMNNAME_OrderByClause, OrderByClause);
+	}
+
+	/** Get Sql ORDER BY.
+		@return Fully qualified ORDER BY clause
+	  */
+	public String getOrderByClause () 
+	{
+		return (String)get_Value(COLUMNNAME_OrderByClause);
 	}
 
 	/** Set Search Key.

@@ -194,6 +194,19 @@ public interface I_JP_SimpleInputWindow
 	  */
 	public String getName();
 
+    /** Column name OrderByClause */
+    public static final String COLUMNNAME_OrderByClause = "OrderByClause";
+
+	/** Set Sql ORDER BY.
+	  * Fully qualified ORDER BY clause
+	  */
+	public void setOrderByClause (String OrderByClause);
+
+	/** Get Sql ORDER BY.
+	  * Fully qualified ORDER BY clause
+	  */
+	public String getOrderByClause();
+
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";
 

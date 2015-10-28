@@ -18,6 +18,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -34,9 +35,6 @@ import jpiere.plugin.simpleinputwindow.model.MSimpleInputWindow;
 import org.adempiere.base.IModelFactory;
 import org.adempiere.base.Service;
 import org.adempiere.model.MTabCustomization;
-import org.adempiere.webui.adwindow.ADTabpanel;
-import org.adempiere.webui.adwindow.ADWindow;
-import org.adempiere.webui.adwindow.ADWindowContent;
 import org.adempiere.webui.adwindow.GridView;
 import org.adempiere.webui.adwindow.ToolbarProcessButton;
 import org.adempiere.webui.apps.AEnv;
@@ -67,7 +65,7 @@ import org.adempiere.webui.event.WTableModelListener;
 import org.adempiere.webui.panel.ADForm;
 import org.adempiere.webui.panel.CustomForm;
 import org.adempiere.webui.theme.ThemeManager;
-import org.adempiere.webui.util.SortComparator;
+import org.adempiere.webui.window.FDialog;
 import org.compiere.model.GridField;
 import org.compiere.model.GridTab;
 import org.compiere.model.GridTable;
@@ -88,6 +86,8 @@ import org.compiere.util.DB;
 import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
+import org.compiere.util.Trx;
+import org.compiere.util.TrxRunnable;
 import org.zkoss.zk.au.out.AuFocus;
 import org.zkoss.zk.ui.AbstractComponent;
 import org.zkoss.zk.ui.Component;
@@ -147,6 +147,9 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 	private PO[] m_POs;
 
+	//Map of PO Instance that have to save.<ID of PO,PO>
+	private HashMap<Integer,PO>  dirtyModel  = new HashMap<Integer,PO>();
+
 	/**********************************************************************
 	 * Parameter of Application Dictionary(System Client)
 	 **********************************************************************/
@@ -172,11 +175,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 	/****************************************************
 	 * Window Info
 	 ****************************************************/
-
-	private CustomForm window = new CustomForm();
-	private ADWindow adWindow;
-	private ADWindowContent adWindowContent;
-	private ADTabpanel adTabpanel;
 	private GridTab gridTab ;
 	private GridView gridView ;
 
@@ -252,33 +250,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		AD_WINDOW_ID = m_simpleInputWindow.getAD_Window_ID();
 		m_Tab = new MTab(Env.getCtx(), m_simpleInputWindow.getAD_Tab_ID(), null);
 		TABLE_NAME = MTable.get(Env.getCtx(), m_Tab.getAD_Table_ID()).getTableName();
-
-		//Create Window because of use Window info.
-//		if(adWindow==null)
-//		{
-//			adWindow = new ADWindow(Env.getCtx(),AD_WINDOW_ID, null);
-//			adWindow.createPart(window);
-//		}
-//		adWindowContent = adWindow.getADWindowContent();
-//		IADTabbox adTabbox = adWindowContent.getADTab();
-//		int tabCount = adTabbox.getTabCount();
-//		for(int i = 0; i < tabCount; i++)
-//		{
-//			if(adTabbox.getADTabpanel(i).getTableName().equals(m_Tab.getAD_Table().getTableName()))
-//			{
-//				adTabpanel =(ADTabpanel)adTabbox.getADTabpanel(i);
-//			}
-//		}
-//		if(adTabpanel == null)
-//		{
-//			;//Error
-//		}
-//
-//		gridTab = adTabpanel.getGridTab();
-//		gridTab.initTab(false);
-//		gridView = adTabpanel.getGridView();
-//		gridView.init(gridTab);
-
 
 		//Create Window because of use Window info.
 		GridWindowVO gridWindowVO =AEnv.getMWindowVO(form.getWindowNo(), m_simpleInputWindow.getAD_Window_ID(), 0);
@@ -635,11 +606,10 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		listModel = new SimpleInputWindowListModel(simpleInputWindowGridTable, form.getWindowNo());
 		simpleInputGrid.setModel(listModel);
 
-		renderer = new SimpleInputWindowGridRowRenderer(gridTab, form);
+		renderer = new SimpleInputWindowGridRowRenderer(gridTab, form, listModel, dirtyModel);
 		renderer.setGridView(gridView);
 		renderer.setSimpleInputWindow(this);
 		renderer.setGridTab(gridTab);
-//		renderer.setGrid(simpleInputGrid);
 
 		simpleInputGrid.setRowRenderer(renderer);
 		simpleInputGrid.addEventListener(Events.ON_CLICK, this);
@@ -659,14 +629,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		simpleInputWindowGridTable = new SimpleInputWindowGridTable();
 		simpleInputWindowGridTable.init(POs,gridFields);
-
-//		for(int i = 0; i < POs.length; i++)
-//		{
-//			for(int j=0; j < gridFields.length; j++)
-//			{
-//				simpleInputWindowGridTable.setValueAt(POs[i].get_ValueAsBoolean(gridFields[j].getColumnName()), i, j);
-//			}
-//		}
 
 		return simpleInputWindowGridTable;
 	}
@@ -780,9 +742,10 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				colnames.put(index, gridFields[i].getHeader());
 				index++;
 				org.zkoss.zul.Column column = new Column();
-				int colindex =tableModel.findColumn(gridFields[i].getColumnName());
-				column.setSortAscending(new SortComparator(colindex, true, Env.getLanguage(Env.getCtx())));
-				column.setSortDescending(new SortComparator(colindex, false, Env.getLanguage(Env.getCtx())));
+				//TODO:ソート処理の実装
+//				int colindex =tableModel.findColumn(gridFields[i].getColumnName());
+//				column.setSortAscending(new SortComparator(i, true, Env.getLanguage(Env.getCtx())));
+//				column.setSortDescending(new SortComparator(i, false, Env.getLanguage(Env.getCtx())));
 				column.setLabel(gridFields[i].getHeader());
 				if (columnWidthMap != null && columnWidthMap.get(gridFields[i].getAD_Field_ID()) != null && !columnWidthMap.get(gridFields[i].getAD_Field_ID()).equals("")) {
 					column.setWidth(columnWidthMap.get(gridFields[i].getAD_Field_ID()));
@@ -951,6 +914,11 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		sql.append(whereClause);
 
+		if(m_simpleInputWindow.getOrderByClause() != null)
+		{
+			sql.append(" ORDER BY "+ m_simpleInputWindow.getOrderByClause());
+		}
+
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		try
@@ -1071,7 +1039,11 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		Component comp = event.getTarget() ;
 
-		if (event.getTarget() == simpleInputGrid && Events.ON_CLICK.equals(event.getName()))
+		if (event == null)
+		{
+			return;
+		}
+		else if (event.getTarget() == simpleInputGrid && Events.ON_CLICK.equals(event.getName()))
 		{
 
 			Object data = event.getData();
@@ -1096,10 +1068,122 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		}else if (event.getTarget().equals(SearchButton) || event.getName().equals("onComplete")){//onCompolete from process dialog
 
 			if(!createView ())
-				return;
+			{
+				SearchButton.setEnabled(true);
+				SaveButton.setEnabled(false);
+				CreateButton.setEnabled(true);
+				ProcessButton.setEnabled(true);
+				simpleInputGrid.setVisible(false);
+				if(event.getTarget().equals(SearchButton))
+					throw new Exception(Msg.getMsg(Env.getCtx(), "NotFound"));
+				else
+					return;
+			}
+
+
+			SearchButton.setEnabled(false);
+			SaveButton.setEnabled(true);
+			CreateButton.setEnabled(true);
+			ProcessButton.setEnabled(true);
+
+		}else if(event.getTarget().equals(SaveButton)){
+
+			boolean isOK = saveData();
+
+			if(isOK)
+			{
+				dirtyModel.clear();
+
+				if(!createView ())
+				{
+					simpleInputGrid.setVisible(false);
+					throw new Exception(message.toString());
+				}
+
+			}else{
+				;//Nothing to do
+			}
+
 		}
 
 	}
+
+	private boolean saveData()
+	{
+		try
+		{
+
+			Trx.run(new TrxRunnable()
+			{
+				public void run(String trxName)
+				{
+
+					Collection<PO> POs = dirtyModel.values();
+					for(PO po :POs)
+					{
+						po.saveEx(trxName);
+					}
+
+					updateColumn();
+
+				}
+			});
+
+			return true;
+
+		}
+		catch (Exception e)
+		{
+			FDialog.error(form.getWindowNo(), form, "Error", e.getLocalizedMessage());
+			return false;
+		}finally{
+			;
+		}
+	}   //  saveData
+
+	String sum = Msg.getMsg(Env.getCtx(), "Sum");
+	private void updateColumn()
+	{
+//		org.zkoss.zul.Columns columns = matrixGrid.getColumns();
+//		List<Component>columnList =  columns.getChildren();
+//
+//		BigDecimal[] totalValues = new BigDecimal[columnList.size()];
+//		for(int i = 0 ; i < totalValues.length; i++)
+//			totalValues[i] = new BigDecimal(0);
+//
+//
+//		TreeMap<Integer,Object> columnDataMap = null;
+//		int columnDisplayType = 0;
+//		Object valuObj = null;
+//		for(Object rowKey :rowKeys)//get row
+//		{
+//			columnDataMap = viewModel.get(rowKey);
+//			for(int i = 0; i < totalValues.length; i++)//get columns
+//			{
+//				if(i==0)//Fix Column
+//				{
+//					;//Nothing to do;
+//				}else{
+//
+//					columnDisplayType = columnGridFieldMap.get(i).getDisplayType();
+//
+//					if(columnDisplayType == DisplayType.Number || columnDisplayType == DisplayType.Quantity
+//							|| columnDisplayType == DisplayType.Amount || columnDisplayType == DisplayType.CostPrice)
+//					{
+//						valuObj = columnDataMap.get(i);
+//						if(valuObj!=null)
+//							totalValues[i] = totalValues[i].add((BigDecimal)valuObj);
+//					}else if(columnDisplayType == DisplayType.Integer){
+//						valuObj = columnDataMap.get(i);
+//						if(valuObj!=null)
+//							totalValues[i] = totalValues[i].add(new BigDecimal(valuObj.toString()));
+//					}
+//					valuObj=null;
+//				}//if
+//			}//for
+//		}//for
+	}
+
 
 	/**
 	 * @param columnName

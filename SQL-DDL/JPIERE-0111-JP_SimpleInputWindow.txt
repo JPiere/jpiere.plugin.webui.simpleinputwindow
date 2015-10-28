@@ -19,6 +19,8 @@ CREATE TABLE adempiere.JP_SimpleInputWindow
   JP_PageSize numeric(10,0) NOT NULL DEFAULT (20)::numeric,
   WhereClause character varying(2000) DEFAULT NULL::character varying,
   JP_JoinClause character varying(2000) DEFAULT NULL::character varying,
+  JP_FrozenField numeric(10,0) NOT NULL DEFAULT 0::numeric,
+  OrderByClause character varying(2000) DEFAULT NULL::character varying,
 
   CONSTRAINT JP_SimpleInputWindow_pkey PRIMARY KEY (JP_SimpleInputWindow_ID)
 )

@@ -19,6 +19,7 @@ import javax.swing.event.TableModelListener;
 
 import org.adempiere.webui.util.SortComparator;
 import org.compiere.model.GridField;
+import org.compiere.model.PO;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zul.AbstractListModel;
 import org.zkoss.zul.ListModel;
@@ -79,6 +80,24 @@ public class SimpleInputWindowListModel extends AbstractListModel<Object> implem
 
 		return values;
 	}
+
+	public PO getPO(int rowIndex){
+		int columnCount = tableModel.getColumnCount();
+		Object[] values = new Object[columnCount];
+		if (pageSize > 0) {
+			rowIndex = (pageNo * pageSize) + rowIndex;
+		}
+		if (rowIndex < tableModel.getRowCount()) {
+			return tableModel.getPOs()[rowIndex];
+		}
+
+		return null;
+	}
+
+	public void setValueAt (Object value, int row, GridField gridField)
+	{
+		tableModel.setValueAt(value, row, gridField);
+	}	//	setValueAt
 
 	/**
 	 * set current page no ( starting from 0 )
@@ -170,10 +189,10 @@ public class SimpleInputWindowListModel extends AbstractListModel<Object> implem
 		//use default zk comparator
 		if (cmpr instanceof ListitemComparator) {
 			ListitemComparator lic = (ListitemComparator) cmpr;
-//			tableModel.sort(lic.getListheader().getColumnIndex(), ascending);
+			tableModel.sort(lic.getListheader().getColumnIndex(), ascending);
 		} else if (cmpr instanceof SortComparator) {
 			SortComparator sc = (SortComparator)cmpr;
-//			tableModel.sort(sc.getColumnIndex(), ascending);
+			tableModel.sort(sc.getColumnIndex(), ascending);
 		}
 		fireEvent(ListDataEvent.CONTENTS_CHANGED, -1, -1);
 	}
