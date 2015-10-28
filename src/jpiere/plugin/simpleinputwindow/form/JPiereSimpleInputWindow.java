@@ -135,7 +135,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 	protected Checkbox selectAll;
 
-	private GridField[] gridField;
+	private GridField[] gridFields;
 	private AbstractTableModel tableModel;
 	private int numColumns = 5;
 
@@ -177,7 +177,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 	private ADTabpanel adTabpanel;
 	private GridTab gridTab ;
 	private GridView gridView ;
-	private GridField[] gridFields ;
+//	private GridField[] gridFields ;
 
 	private Grid simpleInputGrid  = new Grid();			//main component
 
@@ -277,7 +277,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 //		gridTab.initTab(false);
 		gridView = adTabpanel.getGridView();
 		gridView.init(gridTab);
-		gridFields = gridTab.getFields();//TODO 要確認→これ必要？
+
+		setupFields(gridTab);
 
 	}
 
@@ -606,7 +607,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		org.zkoss.zul.Columns columns = simpleInputGrid.getColumns();
 		if(columns == null)
 		{
-			setupFields(gridTab);
 			setupColumns();
 
 			Frozen frozen = new Frozen();
@@ -660,11 +660,11 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 					}
 				}
 			}
-			gridField = fieldList.toArray(new GridField[0]);
+			gridFields = fieldList.toArray(new GridField[0]);
 			if (customComponent.length == 2) {
 				String[] widths = customComponent[1].split("[,]");
-				for(int i = 0; i< gridField.length && i<widths.length; i++) {
-					columnWidthMap.put(gridField[i].getAD_Field_ID(), widths[i]);
+				for(int i = 0; i< gridFields.length && i<widths.length; i++) {
+					columnWidthMap.put(gridFields[i].getAD_Field_ID(), widths[i]);
 				}
 			}
 		} else {
@@ -683,10 +683,10 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				}
 			});
 
-			gridField = new GridField[gridFieldList.size()];
-			gridFieldList.toArray(gridField);
+			gridFields = new GridField[gridFieldList.size()];
+			gridFieldList.toArray(gridFields);
 		}
-		numColumns = gridField.length;
+		numColumns = gridFields.length;
 	}
 
 	/**
@@ -694,7 +694,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 	 * this list container only customize list.
 	 */
 	public GridField[] getFields() {
-		return gridField;
+		return gridFields;
 	}
 
 	private void setupColumns()
@@ -733,29 +733,29 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		for (int i = 0; i < numColumns; i++)
 		{
 			// IDEMPIERE-2148: when has tab customize, ignore check properties isDisplayedGrid
-			if ((isHasCustomizeData || gridField[i].isDisplayedGrid()) && !gridField[i].isToolbarOnlyButton())
+			if ((isHasCustomizeData || gridFields[i].isDisplayedGrid()) && !gridFields[i].isToolbarOnlyButton())
 			{
-				colnames.put(index, gridField[i].getHeader());
+				colnames.put(index, gridFields[i].getHeader());
 				index++;
 				org.zkoss.zul.Column column = new Column();
-				int colindex =tableModel.findColumn(gridField[i].getColumnName());
+				int colindex =tableModel.findColumn(gridFields[i].getColumnName());
 				column.setSortAscending(new SortComparator(colindex, true, Env.getLanguage(Env.getCtx())));
 				column.setSortDescending(new SortComparator(colindex, false, Env.getLanguage(Env.getCtx())));
-				column.setLabel(gridField[i].getHeader());
-				if (columnWidthMap != null && columnWidthMap.get(gridField[i].getAD_Field_ID()) != null && !columnWidthMap.get(gridField[i].getAD_Field_ID()).equals("")) {
-					column.setWidth(columnWidthMap.get(gridField[i].getAD_Field_ID()));
+				column.setLabel(gridFields[i].getHeader());
+				if (columnWidthMap != null && columnWidthMap.get(gridFields[i].getAD_Field_ID()) != null && !columnWidthMap.get(gridFields[i].getAD_Field_ID()).equals("")) {
+					column.setWidth(columnWidthMap.get(gridFields[i].getAD_Field_ID()));
 				} else {
-					if (gridField[i].getDisplayType()==DisplayType.YesNo) {
+					if (gridFields[i].getDisplayType()==DisplayType.YesNo) {
 						if (i > 0) {
 							column.setHflex("min");
 						} else {
 							int estimatedWidth=60;
-							int headerWidth = (gridField[i].getHeader().length()+2) * 8;
+							int headerWidth = (gridFields[i].getHeader().length()+2) * 8;
 							if (headerWidth > estimatedWidth)
 								estimatedWidth = headerWidth;
 							column.setWidth(estimatedWidth+"px");
 						}
-					} else if (DisplayType.isNumeric(gridField[i].getDisplayType()) && "Line".equals(gridField[i].getColumnName())) {
+					} else if (DisplayType.isNumeric(gridFields[i].getDisplayType()) && "Line".equals(gridFields[i].getColumnName())) {
 						//special treatment for line
 						if (i > 0)
 							column.setHflex("min");
@@ -763,33 +763,33 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 							column.setWidth("60px");
 					} else {
 						int estimatedWidth = 0;
-						if (DisplayType.isNumeric(gridField[i].getDisplayType()))
+						if (DisplayType.isNumeric(gridFields[i].getDisplayType()))
 							estimatedWidth = MIN_NUMERIC_COL_WIDTH;
-						else if (DisplayType.isLookup(gridField[i].getDisplayType()))
+						else if (DisplayType.isLookup(gridFields[i].getDisplayType()))
 							estimatedWidth = MIN_COMBOBOX_WIDTH;
-						else if (DisplayType.isText(gridField[i].getDisplayType()))
-							estimatedWidth = gridField[i].getDisplayLength() * 8;
+						else if (DisplayType.isText(gridFields[i].getDisplayType()))
+							estimatedWidth = gridFields[i].getDisplayLength() * 8;
 						else
 							estimatedWidth = MIN_COLUMN_WIDTH;
 
-						int headerWidth = (gridField[i].getHeader().length()+2) * 8;
+						int headerWidth = (gridFields[i].getHeader().length()+2) * 8;
 						if (headerWidth > estimatedWidth)
 							estimatedWidth = headerWidth;
 
 						//hflex=min for first column not working well
 						if (i > 0)
 						{
-							if (DisplayType.isLookup(gridField[i].getDisplayType()))
+							if (DisplayType.isLookup(gridFields[i].getDisplayType()))
 							{
 								if (headerWidth > MIN_COMBOBOX_WIDTH)
 									column.setHflex("min");
 							}
-							else if (DisplayType.isNumeric(gridField[i].getDisplayType()))
+							else if (DisplayType.isNumeric(gridFields[i].getDisplayType()))
 							{
 								if (headerWidth > MIN_NUMERIC_COL_WIDTH)
 									column.setHflex("min");
 							}
-							else if (!DisplayType.isText(gridField[i].getDisplayType()))
+							else if (!DisplayType.isText(gridFields[i].getDisplayType()))
 							{
 								if (headerWidth > MIN_COLUMN_WIDTH)
 									column.setHflex("min");
