@@ -65,6 +65,7 @@ import org.adempiere.webui.event.WTableModelListener;
 import org.adempiere.webui.panel.ADForm;
 import org.adempiere.webui.panel.CustomForm;
 import org.adempiere.webui.theme.ThemeManager;
+import org.adempiere.webui.window.CustomizeGridViewDialog;
 import org.adempiere.webui.window.FDialog;
 import org.compiere.model.GridField;
 import org.compiere.model.GridTab;
@@ -187,6 +188,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 	private Button CreateButton;
 
 	private Button ProcessButton;
+
+	private Button CustomizeButton;
 
 	private SimpleInputWindowGridRowRenderer renderer;
 
@@ -492,6 +495,14 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				ProcessButton.setImage(ThemeManager.getThemeResource("images/Process16.png"));
 				if(toolbarProcessButtons.size()> 0 )
 					row.appendCellChild(ProcessButton);
+
+				CustomizeButton = new Button(Msg.getMsg(Env.getCtx(), "Customize"));
+				CustomizeButton.setId("CustomizeButton");
+				CustomizeButton.addActionListener(this);
+				CustomizeButton.setEnabled(false);
+				CustomizeButton.setImage(ThemeManager.getThemeResource("images/Customize16.png"));
+
+				row.appendCellChild(CustomizeButton);
 
 
 		//for space under Button
@@ -993,6 +1004,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 //		quickEntry = null;
 
 		simpleInputGrid.setVisible(false);
+		CustomizeButton.setEnabled(false);
 
 		if(e.getNewValue()==null && editor.isMandatory())
 		{
@@ -1037,8 +1049,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 	@Override
 	public void onEvent(Event event) throws Exception {
 
-		Component comp = event.getTarget() ;
-
 		if (event == null)
 		{
 			return;
@@ -1074,6 +1084,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				CreateButton.setEnabled(true);
 				ProcessButton.setEnabled(true);
 				simpleInputGrid.setVisible(false);
+				CustomizeButton.setEnabled(false);
 				if(event.getTarget().equals(SearchButton))
 					throw new Exception(Msg.getMsg(Env.getCtx(), "NotFound"));
 				else
@@ -1085,6 +1096,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			SaveButton.setEnabled(true);
 			CreateButton.setEnabled(true);
 			ProcessButton.setEnabled(true);
+			CustomizeButton.setEnabled(true);
 
 		}else if(event.getTarget().equals(SaveButton)){
 
@@ -1102,6 +1114,41 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 			}else{
 				;//Nothing to do
+			}
+
+		}else if(event.getTarget().equals(CustomizeButton)){
+
+//			ADTabpanel tabPanel = (ADTabpanel) getADTab().getSelectedTabpanel();
+//			Columns columns = tabPanel.getGridView().getListbox().getColumns();
+			org.zkoss.zul.Columns columns = simpleInputGrid.getColumns();
+			List<Component> columnList = columns.getChildren();
+//			GridField[] fields = tabPanel.getGridView().getFields();
+			Map<Integer, String> columnsWidth = new HashMap<Integer, String>();
+			ArrayList<Integer> gridFieldIds = new ArrayList<Integer>();
+			for (int i = 0; i < gridFields.length; i++) {
+				// 2 is offset of num of column in grid view and actual data fields.
+				// in grid view, add two function column, indicator column and selection (checkbox) column
+				// @see GridView#setupColumns
+				Column column = (Column) columnList.get(i+2);
+				String width = column.getWidth();
+				columnsWidth.put(gridFields[i].getAD_Field_ID(), width);
+				gridFieldIds.add(gridFields[i].getAD_Field_ID());
+
+			}
+			CustomizeGridViewDialog.showCustomize(0, m_simpleInputWindow.getAD_Tab_ID(), columnsWidth,gridFieldIds, gridView);
+
+			if(!createView ())
+			{
+				SearchButton.setEnabled(true);
+				SaveButton.setEnabled(false);
+				CreateButton.setEnabled(true);
+				ProcessButton.setEnabled(true);
+				simpleInputGrid.setVisible(false);
+				CustomizeButton.setEnabled(false);
+				if(event.getTarget().equals(SearchButton))
+					throw new Exception(Msg.getMsg(Env.getCtx(), "NotFound"));
+				else
+					return;
 			}
 
 		}
