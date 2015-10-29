@@ -12,6 +12,7 @@
  *****************************************************************************/
 package jpiere.plugin.simpleinputwindow.form;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 
 import javax.swing.event.TableModelEvent;
@@ -50,6 +51,8 @@ public class SimpleInputWindowListModel extends AbstractListModel<Object> implem
 
 	private boolean editing = false;
 
+	private ArrayList<Integer> selection = null;
+
 	/**
 	 *
 	 * @param tableModel
@@ -60,6 +63,8 @@ public class SimpleInputWindowListModel extends AbstractListModel<Object> implem
 		this.windowNo = windowNo;
 		gridField = tableModel.getFields();
 		tableModel.addTableModelListener(this);
+
+		selection = new ArrayList<Integer>();
 	}
 
 	/**
@@ -98,6 +103,26 @@ public class SimpleInputWindowListModel extends AbstractListModel<Object> implem
 	{
 		tableModel.setValueAt(value, row, gridField);
 	}	//	setValueAt
+
+	public void addToSelection(int rowIndex) {
+		if (!selection.contains(rowIndex))
+			selection.add(rowIndex);
+	}
+
+	public boolean removeFromSelection(int rowIndex) {
+		return selection.remove((Integer)rowIndex);
+	}
+
+	public int[] getSelections()
+	{
+		int[] selected = new int[selection.size()];
+		int i = 0;
+		for(Integer row : selection)
+		{
+			selected[i++] = row.intValue();
+		}
+		return selected;
+	}
 
 	/**
 	 * set current page no ( starting from 0 )

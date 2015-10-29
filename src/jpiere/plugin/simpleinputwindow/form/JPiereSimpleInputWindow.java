@@ -36,6 +36,7 @@ import jpiere.plugin.simpleinputwindow.window.SimpleInputWindowCustomizeGridView
 import org.adempiere.base.IModelFactory;
 import org.adempiere.base.Service;
 import org.adempiere.model.MTabCustomization;
+import org.adempiere.util.Callback;
 import org.adempiere.webui.adwindow.GridTabRowRenderer;
 import org.adempiere.webui.adwindow.GridView;
 import org.adempiere.webui.adwindow.ToolbarProcessButton;
@@ -508,13 +509,16 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 				row.appendCellChild(CustomizeButton);
 
-				DeleteButton = new Button(Msg.getMsg(Env.getCtx(), "Delete"));
-				DeleteButton.setId("DeleteButton");
-				DeleteButton.addActionListener(this);
-				DeleteButton.setEnabled(false);
-				DeleteButton.setImage(ThemeManager.getThemeResource("images/Delete16.png"));
+				if(!gridTab.isReadOnly())
+				{
+					DeleteButton = new Button(Msg.getMsg(Env.getCtx(), "Delete"));
+					DeleteButton.setId("DeleteButton");
+					DeleteButton.addActionListener(this);
+					DeleteButton.setEnabled(false);
+					DeleteButton.setImage(ThemeManager.getThemeResource("images/Delete16.png"));
 
-				row.appendCellChild(DeleteButton);
+					row.appendCellChild(DeleteButton);
+				}
 
 		//for space under Button
 		row = parameterLayoutRows.newRow();
@@ -1092,7 +1096,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			int rowIndex = (Integer) checkbox.getAttribute(GridTabRowRenderer.GRID_ROW_INDEX_ATTR);
 			if (checkbox.isChecked())
 			{
-				gridTab.addToSelection(rowIndex);
+				listModel.addToSelection(rowIndex);
 				if (!selectAll.isChecked() && isAllSelected())
 				{
 					selectAll.setChecked(true);
@@ -1100,7 +1104,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			}
 			else
 			{
-				gridTab.removeFromSelection(rowIndex);
+				listModel.removeFromSelection(rowIndex);
 				if (selectAll.isChecked())
 					selectAll.setChecked(false);
 			}
@@ -1200,21 +1204,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		}else if(event.getTarget().equals(DeleteButton)){
 
-			boolean isOK = saveData();
-
-			if(isOK)
-			{
-				dirtyModel.clear();
-
-				if(!createView ())
-				{
-					simpleInputGrid.setVisible(false);
-					throw new Exception(message.toString());
-				}
-
-			}else{
-				;//Nothing to do
-			}
+			onDelete();
 
 		}
 	}//onEvent
@@ -1233,9 +1223,9 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				checkbox.setChecked(b);
 				int rowIndex = (Integer) checkbox.getAttribute(GridTabRowRenderer.GRID_ROW_INDEX_ATTR);
 				if (b)
-					gridTab.addToSelection(rowIndex);
+					listModel.addToSelection(rowIndex);
 				else
-					gridTab.removeFromSelection(rowIndex);
+					listModel.removeFromSelection(rowIndex);
 			}
 		}
 	}
@@ -1293,6 +1283,132 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			;
 		}
 	}   //  saveData
+
+
+	private void onDelete()
+	{
+		 if (gridTab.isReadOnly())
+	        return;
+
+		 final int[] indices = listModel.getSelections();
+		 if (indices.length > 0 )
+		 {
+			 onDelete(indices);
+			return;
+		 }
+
+		 if(renderer.getCurrentRowIndex() < 0)
+		 {
+			 FDialog.error(form.getWindowNo(), "DeleteError");
+			 return;
+		 }
+
+		 PO po= simpleInputWindowGridTable.getPO(renderer.getCurrentRowIndex());
+		 if(po == null)
+		 {
+			 FDialog.error(form.getWindowNo(), "DeleteError");
+			 return;
+		 }
+
+		 String popupMsg = Msg.getMsg(Env.getCtx(), "DeleteRecord?");
+		 String lineNo = Msg.getElement(Env.getCtx(), "LineNo")+"　:　";
+		 popupMsg = popupMsg + System.lineSeparator() +  lineNo + (renderer.getCurrentRowIndex()+1);
+
+		 FDialog.ask(form.getWindowNo(), null, popupMsg, new Callback<Boolean>() {
+
+			@Override
+			public void onCallback(Boolean result)
+			{
+				if (result)
+				{
+					try{
+						po.deleteEx(false);
+					} catch (Exception e) {
+						FDialog.error(form.getWindowNo(), "DeleteError");
+					}
+
+					try {
+						createView ();
+					} catch (Exception e) {
+						FDialog.error(form.getWindowNo(), "Error");
+					}
+				}//if (result)
+
+	        }
+		});//FDialog.
+
+		 return;
+
+	}
+
+	private void onDelete(int[] indices)
+	{
+
+		String stringMsg = Msg.getMsg(Env.getCtx(), "DeleteRecord?") + System.lineSeparator()
+				+ Msg.getElement(Env.getCtx(), "LineNo") + " : " +System.lineSeparator() ;
+		StringBuilder stringBuilderMsg = new StringBuilder(stringMsg);
+		for(int i = 0; i < indices.length; i++)
+		{
+			stringBuilderMsg.append((indices[i]+1)+", ");
+			if(i%10 == 9)
+				stringBuilderMsg.append(System.lineSeparator());
+		}
+
+		 FDialog.ask(form.getWindowNo(), null, stringBuilderMsg.toString(), new Callback<Boolean>() {
+
+				@Override
+				public void onCallback(Boolean result)
+				{
+					if (result)
+					{
+						Trx trx = null;
+						String m_trxName = null;
+
+						try
+						{
+							StringBuilder l_trxname = new StringBuilder("SimpleInput_").append(gridTab.getTableName());
+							if (l_trxname.length() > 23)
+								l_trxname.setLength(23);
+							m_trxName = Trx.createTrxName(l_trxname.toString());
+							trx = Trx.get(m_trxName, true);
+
+							PO po = null;
+							for(int i = 0; i < indices.length; i++)
+							{
+								po= simpleInputWindowGridTable.getPO(indices[i]);
+								po.set_TrxName(m_trxName);
+								po.deleteEx(false);
+							}
+
+							trx.commit();
+
+						} catch (Exception e) {
+
+							trx.rollback();
+							FDialog.error(form.getWindowNo(), "DeleteError");
+
+						}finally{
+
+							trx = null;
+							m_trxName = null;
+
+						}
+
+						try {
+							createView ();
+						} catch (Exception e) {
+							FDialog.error(form.getWindowNo(), "Error");
+						}
+					}//if (result)
+
+		        }//onCallback(Boolean result)
+
+			});//FDialog.
+
+			 return;
+
+	}//onDelete(int[] indices)
+
 
 	String sum = Msg.getMsg(Env.getCtx(), "Sum");
 	private void updateColumn()
