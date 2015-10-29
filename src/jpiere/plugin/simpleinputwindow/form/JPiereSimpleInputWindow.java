@@ -149,7 +149,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 	private StringBuilder message = new StringBuilder();
 
-	private PO[] m_POs;
+	private ArrayList<PO> list_POs;
 
 	//Map of PO Instance that have to save.<ID of PO,PO>
 	private HashMap<Integer,PO>  dirtyModel  = new HashMap<Integer,PO>();
@@ -610,8 +610,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			return false;
 
 		//Create array of PO from where clause
-		m_POs = getPOs(whereClause,true);
-		if(m_POs.length==0)
+		list_POs = getPOs(whereClause,true);
+		if(list_POs.size()==0)
 		{
 			message.append(System.getProperty("line.separator") + Msg.getMsg(Env.getCtx(), "not.found"));
 			return false;
@@ -627,7 +627,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			simpleInputGrid.appendChild(frozen);
 		}
 
-		simpleInputWindowGridTable = createTableModel(m_POs);
+		simpleInputWindowGridTable = createTableModel(list_POs);
 
 		listModel = new SimpleInputWindowListModel(simpleInputWindowGridTable, form.getWindowNo());
 		simpleInputGrid.setModel(listModel);
@@ -650,7 +650,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 	 *
 	 *
 	 */
-	private SimpleInputWindowGridTable createTableModel(PO[] POs)
+	private SimpleInputWindowGridTable createTableModel(ArrayList<PO> POs)
 	{
 
 		simpleInputWindowGridTable = new SimpleInputWindowGridTable();
@@ -923,12 +923,12 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		return whereClause.toString();
 	}
 
-	private PO[] getPOs (String whereClause,boolean reload)
+	private ArrayList<PO> getPOs (String whereClause,boolean reload)
 	{
-		if (reload || m_POs == null || m_POs.length == 0)
+		if (reload || list_POs == null || list_POs.size() == 0)
 			;
 		else
-			return m_POs;
+			return list_POs;
 		//
 		ArrayList<PO> list = new ArrayList<PO>();
 
@@ -981,9 +981,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			rs = null; pstmt = null;
 		}
 
-		m_POs = new PO[list.size()];
-		list.toArray(m_POs);
-		return m_POs;
+		return list;
 	}	//	getPOs
 
 

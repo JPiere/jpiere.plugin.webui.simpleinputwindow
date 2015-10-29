@@ -93,7 +93,7 @@ public class SimpleInputWindowListModel extends AbstractListModel<Object> implem
 			rowIndex = (pageNo * pageSize) + rowIndex;
 		}
 		if (rowIndex < tableModel.getRowCount()) {
-			return tableModel.getPOs()[rowIndex];
+			return tableModel.getPOs().get(rowIndex);
 		}
 
 		return null;

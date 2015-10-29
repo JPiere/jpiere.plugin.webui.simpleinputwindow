@@ -2,6 +2,8 @@ package jpiere.plugin.simpleinputwindow.form;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.swing.table.AbstractTableModel;
@@ -38,7 +40,10 @@ public class SimpleInputWindowGridTable extends AbstractTableModel {
 	/** Inserted Row number         */
 	private int                 m_newRow = -1;
 
-	private PO[] POs;
+	private ArrayList<PO> list_POs;
+
+	private volatile Map<Integer, PO> map_POs = new HashMap<Integer, PO>(100);
+
 	private GridField[] gridFields;
 
 	public SimpleInputWindowGridTable() {
@@ -46,7 +51,7 @@ public class SimpleInputWindowGridTable extends AbstractTableModel {
 
 	@Override
 	public int getRowCount() {
-		return POs.length;
+		return list_POs.size();
 	}
 
 	@Override
@@ -57,17 +62,17 @@ public class SimpleInputWindowGridTable extends AbstractTableModel {
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		GridField gf = gridFields[columnIndex];
-		Object obj = POs[rowIndex].get_Value(gf.getColumnName());
-		return POs[rowIndex].get_Value(gf.getColumnName());
+//		Object obj = POs.get(rowIndex).get_Value(gf.getColumnName());
+		return list_POs.get(rowIndex).get_Value(gf.getColumnName());
 	}
 
-	public PO[] getPOs(){
-		return POs;
+	public ArrayList<PO>  getPOs(){
+		return list_POs;
 	}
 
 	public PO getPO(int rowIndex){
 
-		return POs[rowIndex];
+		return list_POs.get(rowIndex);
 	}
 
 	public GridField[] getFields()
@@ -75,9 +80,9 @@ public class SimpleInputWindowGridTable extends AbstractTableModel {
 		return gridFields;
 	}
 
-	public void init(PO[] POs, GridField[] gridFields)
+	public void init(ArrayList<PO> POs, GridField[] gridFields)
 	{
-		this.POs=POs;
+		this.list_POs=POs;
 		this.gridFields=gridFields;
 	}
 
@@ -91,7 +96,7 @@ public class SimpleInputWindowGridTable extends AbstractTableModel {
 	 */
 	public void setValueAt (Object value, int rowIndex, GridField gridField)
 	{
-		POs[rowIndex].set_ValueNoCheck(gridField.getColumnName(), value);
+		list_POs.get(rowIndex).set_ValueNoCheck(gridField.getColumnName(), value);
 	}	//	setValueAt
 
 	/**
