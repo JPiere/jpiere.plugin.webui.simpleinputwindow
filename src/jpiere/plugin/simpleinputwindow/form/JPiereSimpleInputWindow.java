@@ -193,6 +193,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 	private Button CustomizeButton;
 
+	private Button DeleteButton;
+
 	private SimpleInputWindowGridRowRenderer renderer;
 
 	private SimpleInputWindowListModel listModel;
@@ -506,6 +508,13 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 				row.appendCellChild(CustomizeButton);
 
+				DeleteButton = new Button(Msg.getMsg(Env.getCtx(), "Delete"));
+				DeleteButton.setId("DeleteButton");
+				DeleteButton.addActionListener(this);
+				DeleteButton.setEnabled(false);
+				DeleteButton.setImage(ThemeManager.getThemeResource("images/Delete16.png"));
+
+				row.appendCellChild(DeleteButton);
 
 		//for space under Button
 		row = parameterLayoutRows.newRow();
@@ -1007,6 +1016,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		simpleInputGrid.setVisible(false);
 		CustomizeButton.setEnabled(false);
+		DeleteButton.setEnabled(false);
 
 		if(e.getNewValue()==null && editor.isMandatory())
 		{
@@ -1076,7 +1086,27 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			}
 			event.stopPropagation();
 
-		}else if (event.getName().equals("onCustomizeGrid")){
+		}else if (event.getName().equals("onSelectRow")){
+
+			Checkbox checkbox = (Checkbox) event.getData();
+			int rowIndex = (Integer) checkbox.getAttribute(GridTabRowRenderer.GRID_ROW_INDEX_ATTR);
+			if (checkbox.isChecked())
+			{
+				gridTab.addToSelection(rowIndex);
+				if (!selectAll.isChecked() && isAllSelected())
+				{
+					selectAll.setChecked(true);
+				}
+			}
+			else
+			{
+				gridTab.removeFromSelection(rowIndex);
+				if (selectAll.isChecked())
+					selectAll.setChecked(false);
+			}
+		}
+
+		else if (event.getName().equals("onCustomizeGrid")){
 
 			setupFields(gridTab);
 
@@ -1096,8 +1126,10 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				ProcessButton.setEnabled(true);
 				simpleInputGrid.setVisible(false);
 				CustomizeButton.setEnabled(false);
+				DeleteButton.setEnabled(false);
 				return;
 			}
+
 
 		}else if(event.getTarget().equals(CustomizeButton)){
 
@@ -1142,6 +1174,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			CreateButton.setEnabled(true);
 			ProcessButton.setEnabled(true);
 			CustomizeButton.setEnabled(true);
+			DeleteButton.setEnabled(true);
 
 		}else if(event.getTarget().equals(SaveButton)){
 
@@ -1161,16 +1194,30 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				;//Nothing to do
 			}
 
-		}else if (event.getTarget() == selectAll)
-		{
+		}else if (event.getTarget().equals(selectAll)){
+
 			toggleSelectionForAll(selectAll.isChecked());
+
+		}else if(event.getTarget().equals(DeleteButton)){
+
+			boolean isOK = saveData();
+
+			if(isOK)
+			{
+				dirtyModel.clear();
+
+				if(!createView ())
+				{
+					simpleInputGrid.setVisible(false);
+					throw new Exception(message.toString());
+				}
+
+			}else{
+				;//Nothing to do
+			}
+
 		}
-
-		String aaaa = event.getName();
-
-		return;
-
-	}
+	}//onEvent
 
 	private void toggleSelectionForAll(boolean b) {
 		org.zkoss.zul.Rows rows = simpleInputGrid.getRows();
@@ -1191,6 +1238,27 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 					gridTab.removeFromSelection(rowIndex);
 			}
 		}
+	}
+
+	private boolean isAllSelected() {
+		org.zkoss.zul.Rows rows = simpleInputGrid.getRows();
+		List<Component> childs = rows.getChildren();
+		boolean all = false;
+		for(Component comp : childs) {
+			org.zkoss.zul.Row row = (org.zkoss.zul.Row) comp;
+			Component firstChild = row.getFirstChild();
+			if (firstChild instanceof Cell) {
+				firstChild = firstChild.getFirstChild();
+			}
+			if (firstChild instanceof Checkbox) {
+				Checkbox checkbox = (Checkbox) firstChild;
+				if (!checkbox.isChecked())
+					return false;
+				else
+					all = true;
+			}
+		}
+		return all;
 	}
 
 	private boolean saveData()

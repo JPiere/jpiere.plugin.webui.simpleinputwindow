@@ -937,6 +937,11 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 		} else if (event.getTarget() instanceof Checkbox) {
 			Executions.getCurrent().setAttribute("gridView.onSelectRow", Boolean.TRUE);
 			Checkbox checkBox = (Checkbox) event.getTarget();
+			try {
+				simpleInputWindow.onEvent(new Event("onSelectRow",null,checkBox));
+			} catch (Exception e) {
+				;
+			}
 //			Events.sendEvent(gridPanel, new Event("onSelectRow", gridPanel, checkBox));
 		}else if(event.getName().equals(Events.ON_OK)){
 
