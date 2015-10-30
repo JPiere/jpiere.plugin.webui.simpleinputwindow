@@ -516,16 +516,15 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 				row.appendCellChild(CustomizeButton);
 
-				if(!gridTab.isReadOnly())
-				{
-					DeleteButton = new Button(Msg.getMsg(Env.getCtx(), "Delete"));
-					DeleteButton.setId("DeleteButton");
-					DeleteButton.addActionListener(this);
-					DeleteButton.setEnabled(false);
-					DeleteButton.setImage(ThemeManager.getThemeResource("images/Delete16.png"));
 
+				DeleteButton = new Button(Msg.getMsg(Env.getCtx(), "Delete"));
+				DeleteButton.setId("DeleteButton");
+				DeleteButton.addActionListener(this);
+				DeleteButton.setEnabled(false);
+				DeleteButton.setImage(ThemeManager.getThemeResource("images/Delete16.png"));
+				if(!gridTab.isReadOnly() && m_simpleInputWindow.isDeleteable())
 					row.appendCellChild(DeleteButton);
-				}
+
 
 		//for space under Button
 		row = parameterLayoutRows.newRow();
@@ -926,6 +925,11 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		{
 			whereClause.append(" AND " + m_simpleInputWindow.getWhereClause() );
 		}
+
+		MRole role = MRole.get(Env.getCtx(), Env.getAD_Role_ID(Env.getCtx()));
+		String orgAccessSQL = role.getOrgWhere(false);
+		if( orgAccessSQL != null)
+			whereClause.append(" AND ").append(gridTab.getTableName()).append(".").append(orgAccessSQL);
 
 		return whereClause.toString();
 	}

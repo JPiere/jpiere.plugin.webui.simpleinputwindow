@@ -21,6 +21,7 @@ CREATE TABLE adempiere.JP_SimpleInputWindow
   JP_JoinClause character varying(2000) DEFAULT NULL::character varying,
   JP_FrozenField numeric(10,0) NOT NULL DEFAULT 0::numeric,
   OrderByClause character varying(2000) DEFAULT NULL::character varying,
+  IsDeleteable character(1) DEFAULT 'Y'::bpchar,
 
   CONSTRAINT JP_SimpleInputWindow_pkey PRIMARY KEY (JP_SimpleInputWindow_ID)
 )

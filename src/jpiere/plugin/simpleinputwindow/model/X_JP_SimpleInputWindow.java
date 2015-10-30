@@ -30,7 +30,7 @@ public class X_JP_SimpleInputWindow extends PO implements I_JP_SimpleInputWindow
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20151028L;
+	private static final long serialVersionUID = 20151030L;
 
     /** Standard Constructor */
     public X_JP_SimpleInputWindow (Properties ctx, int JP_SimpleInputWindow_ID, String trxName)
@@ -149,6 +149,30 @@ public class X_JP_SimpleInputWindow extends PO implements I_JP_SimpleInputWindow
 	public String getDescription () 
 	{
 		return (String)get_Value(COLUMNNAME_Description);
+	}
+
+	/** Set Records deletable.
+		@param IsDeleteable 
+		Indicates if records can be deleted from the database
+	  */
+	public void setIsDeleteable (boolean IsDeleteable)
+	{
+		set_Value (COLUMNNAME_IsDeleteable, Boolean.valueOf(IsDeleteable));
+	}
+
+	/** Get Records deletable.
+		@return Indicates if records can be deleted from the database
+	  */
+	public boolean isDeleteable () 
+	{
+		Object oo = get_Value(COLUMNNAME_IsDeleteable);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
 	}
 
 	/** Set Frozen Field.

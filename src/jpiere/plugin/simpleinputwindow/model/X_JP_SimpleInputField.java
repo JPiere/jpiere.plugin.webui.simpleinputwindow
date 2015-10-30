@@ -30,7 +30,7 @@ public class X_JP_SimpleInputField extends PO implements I_JP_SimpleInputField, 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20151028L;
+	private static final long serialVersionUID = 20151030L;
 
     /** Standard Constructor */
     public X_JP_SimpleInputField (Properties ctx, int JP_SimpleInputField_ID, String trxName)

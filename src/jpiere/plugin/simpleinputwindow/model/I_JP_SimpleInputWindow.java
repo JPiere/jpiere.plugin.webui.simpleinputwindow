@@ -136,6 +136,19 @@ public interface I_JP_SimpleInputWindow
 	  */
 	public boolean isActive();
 
+    /** Column name IsDeleteable */
+    public static final String COLUMNNAME_IsDeleteable = "IsDeleteable";
+
+	/** Set Records deletable.
+	  * Indicates if records can be deleted from the database
+	  */
+	public void setIsDeleteable (boolean IsDeleteable);
+
+	/** Get Records deletable.
+	  * Indicates if records can be deleted from the database
+	  */
+	public boolean isDeleteable();
+
     /** Column name JP_FrozenField */
     public static final String COLUMNNAME_JP_FrozenField = "JP_FrozenField";
 
