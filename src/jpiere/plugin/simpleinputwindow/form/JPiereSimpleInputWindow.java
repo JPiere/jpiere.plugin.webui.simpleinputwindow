@@ -41,6 +41,7 @@ import org.adempiere.base.Service;
 import org.adempiere.model.MTabCustomization;
 import org.adempiere.util.Callback;
 import org.adempiere.webui.AdempiereWebUI;
+import org.adempiere.webui.ISupportMask;
 import org.adempiere.webui.LayoutUtils;
 import org.adempiere.webui.adwindow.GridTabRowRenderer;
 import org.adempiere.webui.adwindow.GridView;
@@ -69,12 +70,14 @@ import org.adempiere.webui.editor.WebEditorFactory;
 import org.adempiere.webui.event.ActionEvent;
 import org.adempiere.webui.event.ActionListener;
 import org.adempiere.webui.event.ContextMenuListener;
+import org.adempiere.webui.event.DialogEvents;
 import org.adempiere.webui.event.ValueChangeEvent;
 import org.adempiere.webui.event.ValueChangeListener;
 import org.adempiere.webui.event.WTableModelEvent;
 import org.adempiere.webui.event.WTableModelListener;
 import org.adempiere.webui.panel.ADForm;
 import org.adempiere.webui.panel.CustomForm;
+import org.adempiere.webui.session.SessionManager;
 import org.adempiere.webui.theme.ThemeManager;
 import org.adempiere.webui.window.FDialog;
 import org.compiere.model.GridField;
@@ -85,6 +88,8 @@ import org.compiere.model.GridWindowVO;
 import org.compiere.model.MColumn;
 import org.compiere.model.MField;
 import org.compiere.model.MLookup;
+import org.compiere.model.MPInstance;
+import org.compiere.model.MProcess;
 import org.compiere.model.MRole;
 import org.compiere.model.MTab;
 import org.compiere.model.MTable;
@@ -97,6 +102,7 @@ import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
+import org.compiere.util.KeyNamePair;
 import org.compiere.util.Msg;
 import org.compiere.util.Trx;
 import org.compiere.util.TrxRunnable;
@@ -1042,7 +1048,21 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		ToolbarProcessButton button = (ToolbarProcessButton)event.getSource();
 
-		SimpleInputWindowProcessModelDialog dialog = new SimpleInputWindowProcessModelDialog(form.getWindowNo(),button.getProcess_ID(), 0, 0, false, this);
+		ProcessInfo pInfo = prepareProcess(button.getProcess_ID());
+		DB.createT_SelectionNew(pInfo.getAD_PInstance_ID() , getSaveKeys(pInfo.getAD_PInstance_ID()), null);
+
+
+		SimpleInputWindowProcessModelDialog dialog = new SimpleInputWindowProcessModelDialog(form.getWindowNo(),pInfo, false, this);
+
+		//Mask
+		Object window = SessionManager.getAppDesktop().findWindow(form.getWindowNo());
+		final ISupportMask parent = LayoutUtils.showWindowWithMask(dialog, (Component)window, LayoutUtils.OVERLAP_PARENT);
+		dialog.addEventListener(DialogEvents.ON_WINDOW_CLOSE, new EventListener<Event>() {
+			@Override
+			public void onEvent(Event event) throws Exception {
+				parent.hideMask();
+			}
+		});
 
 		if (dialog.isValid())
 		{
@@ -1058,8 +1078,43 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			//onRefresh(true, false);
 		}
 
+	}
+
+	 protected ProcessInfo prepareProcess (int processId){
+		 final MProcess m_process = MProcess.get(Env.getCtx(), processId);
+		 final ProcessInfo m_pi = new ProcessInfo(m_process.getName(), processId);
+		 m_pi.setAD_User_ID(Env.getAD_User_ID(Env.getCtx()));
+		 m_pi.setAD_Client_ID(Env.getAD_Client_ID(Env.getCtx()));
+
+		 MPInstance instance = new MPInstance(Env.getCtx(), processId, 0);
+		 instance.saveEx();
+		 final int pInstanceID = instance.getAD_PInstance_ID();
+		 // Execute Process
+		 m_pi.setAD_PInstance_ID(pInstanceID);
+		 m_pi.setAD_InfoWindow_ID(0);
+
+		 return m_pi;
+	 }
+
+	 /**
+	 * Save selected id, viewID of all process to map viewIDMap to save into T_Selection
+	 */
+	public Collection<KeyNamePair> getSaveKeys (int infoCulumnId)
+	{
+
+		int[]  selecttion = listModel.getSelections();
+		Collection<KeyNamePair> m_viewIDMap = new ArrayList <KeyNamePair>();
+
+		for(int i = 0; i < selecttion.length; i++)
+		{
+			PO po = listModel.getPO(i);
+			m_viewIDMap.add(new KeyNamePair(po.get_ID(),""));
+		}
+
+		 return m_viewIDMap;
 
 	}
+
 
 	@Override
 	public void tableChanged(WTableModelEvent event) {
@@ -1196,9 +1251,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				if (selectAll.isChecked())
 					selectAll.setChecked(false);
 			}
-		}
 
-		else if (event.getName().equals("onCustomizeGrid")){
+		}else if (event.getName().equals("onCustomizeGrid")){
 
 			setupFields(gridTab);
 

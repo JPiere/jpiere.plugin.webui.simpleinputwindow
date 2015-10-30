@@ -61,9 +61,11 @@ public class SimpleInputWindowProcessModelDialog extends ProcessModalDialog {
 
 	private boolean isParameterPage = true;
 
+	//TODO:多分これしか使わないかも…
 	public SimpleInputWindowProcessModelDialog(int WindowNo, ProcessInfo pi,
-			boolean autoStart) {
+			boolean autoStart,JPiereSimpleInputWindow simpleInputWindow) {
 		super(WindowNo, pi, autoStart);
+		this.simpleInputWindow = simpleInputWindow;
 	}
 
 	public SimpleInputWindowProcessModelDialog(EventListener<Event> listener,

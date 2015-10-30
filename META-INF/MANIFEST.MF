@@ -9,7 +9,8 @@ Bundle-ActivationPolicy: lazy
 Require-Bundle: org.adempiere.base;bundle-version="3.0.0",
  org.adempiere.plugin.utils;bundle-version="3.0.0",
  org.adempiere.ui.zk,
- org.zkoss.zk.library
+ org.zkoss.zk.library,
+ org.adempiere.ui;bundle-version="3.0.0"
 Bundle-Activator: org.adempiere.plugin.utils.AdempiereActivator
 Service-Component: OSGI-INF/jpierePluginSimpleInputWindowModelFactory.xml,
  OSGI-INF/jpierePluginSimpleInputWindowFormFactory.xml
