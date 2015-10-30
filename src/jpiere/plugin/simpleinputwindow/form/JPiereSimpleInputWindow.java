@@ -32,13 +32,18 @@ import jpiere.plugin.simpleinputwindow.model.MSimpleInputField;
 import jpiere.plugin.simpleinputwindow.model.MSimpleInputSearch;
 import jpiere.plugin.simpleinputwindow.model.MSimpleInputWindow;
 import jpiere.plugin.simpleinputwindow.window.SimpleInputWindowCustomizeGridViewDialog;
+import jpiere.plugin.simpleinputwindow.window.SimpleInputWindowFDialog;
+import jpiere.plugin.simpleinputwindow.window.SimpleInputWindowProcessModelDialog;
 
 import org.adempiere.base.IModelFactory;
 import org.adempiere.base.Service;
 import org.adempiere.model.MTabCustomization;
 import org.adempiere.util.Callback;
+import org.adempiere.webui.AdempiereWebUI;
+import org.adempiere.webui.LayoutUtils;
 import org.adempiere.webui.adwindow.GridTabRowRenderer;
 import org.adempiere.webui.adwindow.GridView;
+import org.adempiere.webui.adwindow.ProcessButtonPopup;
 import org.adempiere.webui.adwindow.ToolbarProcessButton;
 import org.adempiere.webui.apps.AEnv;
 import org.adempiere.webui.component.Button;
@@ -84,6 +89,7 @@ import org.compiere.model.MToolBarButton;
 import org.compiere.model.MToolBarButtonRestrict;
 import org.compiere.model.PO;
 import org.compiere.model.X_AD_ToolBarButton;
+import org.compiere.process.ProcessInfo;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.DisplayType;
@@ -94,6 +100,7 @@ import org.compiere.util.TrxRunnable;
 import org.zkoss.zk.au.out.AuFocus;
 import org.zkoss.zk.ui.AbstractComponent;
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.HtmlBasedComponent;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
@@ -986,7 +993,40 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 
 	@Override
-	public void actionPerformed(ActionEvent event) {
+	public void actionPerformed(ActionEvent event)
+	{
+
+		if(dirtyModel.size() > 0 )
+		{
+			boolean isOK = saveData();
+
+			if(isOK)
+			{
+				dirtyModel.clear();
+
+			}else{
+				;//Nothing to do
+			}
+		}
+
+		ToolbarProcessButton button = (ToolbarProcessButton)event.getSource();
+
+		SimpleInputWindowProcessModelDialog dialog = new SimpleInputWindowProcessModelDialog(form.getWindowNo(),button.getProcess_ID(), 0, 0, false, this);
+
+		if (dialog.isValid())
+		{
+			//dialog.setWidth("500px");
+			dialog.setBorder("normal");
+			form.getParent().appendChild(dialog);
+			//showBusyMask(dialog);
+			LayoutUtils.openOverlappedWindow(form.getParent(), dialog, "middle_center");
+			dialog.focus();
+		}
+		else
+		{
+			//onRefresh(true, false);
+		}
+
 
 	}
 
@@ -1178,6 +1218,14 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			CustomizeButton.setEnabled(true);
 			DeleteButton.setEnabled(true);
 
+			if(event.getName().equals("onComplete"))
+			{
+				SimpleInputWindowProcessModelDialog dialog = (SimpleInputWindowProcessModelDialog)event.getTarget();
+				HtmlBasedComponent  htmlLog = dialog.getInfoResultContent();
+				ProcessInfo pInfo = dialog.getProcessInfo();
+				SimpleInputWindowFDialog.info(form.getWindowNo(), htmlLog, pInfo.getSummary(), null, pInfo.getTitle());
+			}
+
 		}else if(event.getTarget().equals(SaveButton)){
 
 			boolean isOK = saveData();
@@ -1204,6 +1252,21 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 			onDelete();
 
+		}else if(event.getTarget().equals(ProcessButton)){
+
+			ProcessButtonPopup popup = new ProcessButtonPopup();
+			popup.setWidgetAttribute(AdempiereWebUI.WIDGET_INSTANCE_NAME, "processButtonPopup");
+
+			List<org.zkoss.zul.Button> buttonList = new ArrayList<org.zkoss.zul.Button>();
+			for(ToolbarProcessButton processButton : toolbarProcessButtons) {
+				if (processButton.getButton().isVisible()) {
+					buttonList.add(processButton.getButton());
+				}
+			}
+
+			popup.render(buttonList);
+
+			LayoutUtils.openPopupWindow(ProcessButton, popup, "after_start");
 		}
 	}//onEvent
 
