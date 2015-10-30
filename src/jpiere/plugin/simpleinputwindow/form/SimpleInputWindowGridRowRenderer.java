@@ -631,10 +631,19 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 				//skip selection and indicator column
 				int colIndex = 1;
 
-				SimpleInputWindowListModel model = (SimpleInputWindowListModel) grid.getModel();
-				Object[] data =(Object[])model.getElementAt(currentRowIndex);
+				currentValues =(Object[])listModel.getElementAt(currentRowIndex);
 
-				currentValues = data;
+				//TODO:Set Context コンテキストを設定するとすべて読取専用になってしまうので要調査
+//				Object obj = null;
+//				PO po =listModel.getPO(currentRowIndex);
+//				for(int p = 0; p < po.get_ColumnCount(); p++)
+//				{
+//					obj = po.get_Value(p);
+//					if(obj==null)
+//						Env.setContext(Env.getCtx(), form.getWindowNo(), 0, po.get_ColumnName(p), null);
+//					else
+//						Env.setContext(Env.getCtx(), form.getWindowNo(), 0, po.get_ColumnName(p), po.get_Value(p).toString());
+//				}
 
 				for (int i = 0; i < columnCount; i++) {
 					if (simpleInputFields[i].isToolbarOnlyButton()) {
@@ -715,7 +724,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 				}//for
 				editing = true;
 
-				model.setEditing(true);
+				listModel.setEditing(true);
 
 			}
 	}
@@ -1004,7 +1013,6 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 			editCurrentRow();
 
 			event.stopPropagation();
-
 
 			String script = "jq('#"+currentRow.getUuid()+"').addClass('highlight').siblings().removeClass('highlight')";
 

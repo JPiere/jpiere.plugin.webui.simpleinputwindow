@@ -987,6 +987,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		if(m_simpleInputWindow.getOrderByClause() != null)
 		{
 			sql.append(" ORDER BY "+ m_simpleInputWindow.getOrderByClause());
+		}else{
+			sql.append(" ORDER BY ").append(TABLE_NAME).append(".").append(TABLE_NAME).append("_ID");
 		}
 
 		PreparedStatement pstmt = null;
