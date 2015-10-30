@@ -29,6 +29,7 @@ import org.adempiere.webui.adwindow.GridView;
 import org.adempiere.webui.adwindow.IADTabpanel;
 import org.adempiere.webui.component.Button;
 import org.adempiere.webui.component.Checkbox;
+import org.adempiere.webui.component.Combobox;
 import org.adempiere.webui.component.Datebox;
 import org.adempiere.webui.component.NumberBox;
 import org.adempiere.webui.component.Searchbox;
@@ -603,6 +604,10 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 		return currentColumnIndex;
 	}
 
+	NumberBox numberbox ;
+	Datebox datebox ;
+	Searchbox searchbox ;
+	Combobox combobox;
 
 
 	/**
@@ -673,16 +678,31 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 						//control focus
 						if(i==currentColumnIndex)
 						{
+
+							Component cmp =div.getChildren().get(0);
+
 							if(div.getChildren().get(0) instanceof NumberBox)
 							{
-								NumberBox numberbox = (NumberBox)div.getChildren().get(0);
+								numberbox = (NumberBox)div.getChildren().get(0);
 			    	        	numberbox.focus();
 			    	        	numberbox.getDecimalbox().select();
 							}else if(div.getChildren().get(0) instanceof Datebox){
 
-								Datebox datebox = (Datebox)div.getChildren().get(0);
+								datebox = (Datebox)div.getChildren().get(0);
 								datebox.focus();
 								datebox.select();
+
+							}else if(div.getChildren().get(0) instanceof Combobox){
+
+								combobox = (Combobox)div.getChildren().get(0);
+								combobox.focus();
+								combobox.select();
+
+							}else if(div.getChildren().get(0) instanceof Searchbox){
+
+								searchbox = (Searchbox)div.getChildren().get(0);
+								searchbox.focus();
+								searchbox.getTextbox().select();
 
 							}else{
 								div.focus();

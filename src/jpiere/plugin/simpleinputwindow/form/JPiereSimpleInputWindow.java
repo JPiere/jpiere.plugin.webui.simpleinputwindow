@@ -14,6 +14,7 @@
 package jpiere.plugin.simpleinputwindow.form;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
@@ -52,6 +53,7 @@ import org.adempiere.webui.component.Columns;
 import org.adempiere.webui.component.EditorBox;
 import org.adempiere.webui.component.Grid;
 import org.adempiere.webui.component.GridFactory;
+import org.adempiere.webui.component.Label;
 import org.adempiere.webui.component.NumberBox;
 import org.adempiere.webui.component.Panel;
 import org.adempiere.webui.component.Row;
@@ -59,6 +61,7 @@ import org.adempiere.webui.component.Rows;
 import org.adempiere.webui.editor.IZoomableEditor;
 import org.adempiere.webui.editor.WEditor;
 import org.adempiere.webui.editor.WEditorPopupMenu;
+import org.adempiere.webui.editor.WNumberEditor;
 import org.adempiere.webui.editor.WSearchEditor;
 import org.adempiere.webui.editor.WTableDirEditor;
 import org.adempiere.webui.editor.WYesNoEditor;
@@ -202,6 +205,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 	private Button CustomizeButton;
 
 	private Button DeleteButton;
+
+	private WNumberEditor frozenNum;
 
 	private SimpleInputWindowGridRowRenderer renderer;
 
@@ -525,6 +530,12 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				if(!gridTab.isReadOnly() && m_simpleInputWindow.isDeleteable())
 					row.appendCellChild(DeleteButton);
 
+				row.appendCellChild(new Label(Msg.getElement(Env.getCtx(), "JP_FrozenField")).rightAlign(),1);
+				frozenNum= new WNumberEditor("JP_FrozenField", true, false, true, DisplayType.Integer, "");
+				frozenNum.setValue(m_simpleInputWindow.getJP_FrozenField());
+				frozenNum.addValueChangeListener(this);
+				row.appendCellChild(frozenNum.getComponent());
+
 
 		//for space under Button
 		row = parameterLayoutRows.newRow();
@@ -628,10 +639,26 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		{
 			setupColumns();
 
-			Frozen frozen = new Frozen();
-			frozen.setColumns(m_simpleInputWindow.getJP_FrozenField()+2);//freeze selection and indicator column
-			simpleInputGrid.appendChild(frozen);
+//			Frozen frozen = new Frozen();
+//			frozen.setColumns(((BigDecimal)frozenNum.getValue()).intValue() + 2);//freeze selection and indicator column
+//			simpleInputGrid.appendChild(frozen);
+		}else{
+			List<Component> cmpList = simpleInputGrid.getChildren();
+
+			for(Component cmp : cmpList)
+			{
+				if(cmp instanceof Frozen)
+				{
+					cmp.detach();
+					break;
+				}
+			}
+
 		}
+
+		Frozen frozen = new Frozen();
+		frozen.setColumns(((BigDecimal)frozenNum.getValue()).intValue() + 2);//freeze selection and indicator column
+		simpleInputGrid.appendChild(frozen);
 
 		simpleInputWindowGridTable = createTableModel(list_POs);
 
@@ -1044,6 +1071,23 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		WEditor editor = searchEditorMap.get(e.getPropertyName());
 
+		if(editor == null)
+		{
+			editor = frozenNum;
+			Integer integer = (Integer)e.getNewValue();
+			if(integer==null)
+			{
+				editor.setValue(m_simpleInputWindow.getJP_FrozenField());
+			}else if(gridFields.length <= integer.intValue()){
+				int aaa = gridFields.length;
+				editor.setValue(m_simpleInputWindow.getJP_FrozenField());
+			}else{
+				editor.setValue(e.getNewValue());
+			}
+
+			return;
+		}
+
 		editor.setValue(e.getNewValue());
 
 		if(editor instanceof WYesNoEditor)
@@ -1054,6 +1098,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		}
 
 		SearchButton.setEnabled(true);
+		frozenNum.setReadWrite(true);
+
 		SaveButton.setEnabled(false);
 		CreateButton.setEnabled(false);
 		ProcessButton.setEnabled(false);
@@ -1161,12 +1207,12 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			{
 				columns.detach();
 				setupColumns();
-
 			}
 
 			if(!createView ())
 			{
 				SearchButton.setEnabled(true);
+				frozenNum.setReadWrite(true);
 				SaveButton.setEnabled(false);
 				CreateButton.setEnabled(true);
 				ProcessButton.setEnabled(true);
@@ -1203,6 +1249,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			if(!createView ())
 			{
 				SearchButton.setEnabled(true);
+				frozenNum.setReadWrite(true);
 				SaveButton.setEnabled(false);
 				CreateButton.setEnabled(true);
 				ProcessButton.setEnabled(true);
@@ -1216,6 +1263,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 
 			SearchButton.setEnabled(false);
+			frozenNum.setReadWrite(false);
 			SaveButton.setEnabled(true);
 			CreateButton.setEnabled(true);
 			ProcessButton.setEnabled(true);
