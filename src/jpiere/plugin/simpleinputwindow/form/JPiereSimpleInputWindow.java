@@ -295,6 +295,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 	private void zkInit()
 	{
 		form.appendChild(mainLayout);
+		form.setHeight("100%");
 
 		/*Main Layout(Borderlayout)*/
 		mainLayout.setWidth("100%");
@@ -316,7 +317,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		{
 			row = parameterLayoutRows.newRow();
 				Groupbox searchGB = new Groupbox();
-				row.appendCellChild(searchGB,8);
+				row.appendCellChild(searchGB,10);
 				searchGB.appendChild(new Caption(Msg.getMsg(Env.getCtx(), "SearchCriteria")));
 				Grid searchGrid  = new Grid();
 				searchGrid.setStyle("background-color: #E9F0FF");

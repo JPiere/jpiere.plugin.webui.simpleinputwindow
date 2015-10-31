@@ -376,8 +376,13 @@ public class SimpleInputWindowCustomizeGridViewPanel extends Panel
 				lstGridMode.setSelectedValueNamePair(list[i]);
 		}
 
-		if (m_tabcust != null && m_tabcust.getCustom().indexOf("px") > 0)
-			chkSaveWidth.setChecked(true);
+		lstGridMode.setValue("Y");
+		lstGridMode.setEnabled(false);
+
+//		if (m_tabcust != null && m_tabcust.getCustom().indexOf("px") > 0)
+		chkSaveWidth.setChecked(true);
+		chkSaveWidth.setEnabled(false);
+
 	}	//	loadData
 
 	/**
