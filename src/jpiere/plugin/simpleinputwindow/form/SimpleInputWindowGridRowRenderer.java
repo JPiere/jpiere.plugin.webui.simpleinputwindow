@@ -21,6 +21,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
+import jpiere.plugin.simpleinputwindow.window.SimpleInputWindowProcessModelDialog;
+
+import org.adempiere.base.IModelFactory;
+import org.adempiere.base.Service;
 import org.adempiere.util.GridRowCtx;
 import org.adempiere.webui.LayoutUtils;
 import org.adempiere.webui.adwindow.ADWindow;
@@ -33,6 +37,7 @@ import org.adempiere.webui.component.Combobox;
 import org.adempiere.webui.component.Datebox;
 import org.adempiere.webui.component.NumberBox;
 import org.adempiere.webui.component.Searchbox;
+import org.adempiere.webui.component.Textbox;
 import org.adempiere.webui.editor.WButtonEditor;
 import org.adempiere.webui.editor.WEditor;
 import org.adempiere.webui.editor.WEditorPopupMenu;
@@ -49,7 +54,6 @@ import org.compiere.model.PO;
 import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
-import org.compiere.util.Util;
 import org.zkoss.zk.au.out.AuScript;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Executions;
@@ -117,18 +121,20 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 
 	private SimpleInputWindowListModel listModel;
 
+	private boolean isNewRecord = false;
+
 	/**
 	 *
 	 * @param gridTab
 	 * @param form
 	 */
 	public SimpleInputWindowGridRowRenderer(GridTab gridTab ,CustomForm form
-								,SimpleInputWindowListModel listModel,HashMap<Integer,PO> dirtyModel)
+								,SimpleInputWindowListModel listModel,HashMap<Integer,PO> dirtyModel,HashMap<Integer,Integer>dirtyLineNo)
 	{
 		this.windowNo = form.getWindowNo();
 		this.form = form;
 		this.listModel = listModel;
-		this.dataBinder = new SimpleInputWindowDataBinder(gridTab, this, listModel, dirtyModel);
+		this.dataBinder = new SimpleInputWindowDataBinder(gridTab, this, listModel, dirtyModel, dirtyLineNo);
 	}
 
 	//TODO
@@ -373,12 +379,11 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 		//don't render if not visible
 		int columnCount = 0;
 		GridField[] gridPanelFields = null;//Grid
-		GridField[] gridTabFields = null;
 
 		if (simpleInputWindow != null) {
 			gridPanelFields = simpleInputWindow.getFields();
 			columnCount = gridPanelFields.length;
-			gridTabFields = gridTab.getFields();
+
 		}else{
 
 		}
@@ -389,32 +394,8 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 		if (rowListener == null)
 			rowListener = new RowListener((Grid)row.getParent().getParent());
 
-//		if (!isGridViewCustomized) {
-//			for(int i = 0; i < gridTabFields.length; i++) {
-//				if (gridPanelFields[i].getAD_Field_ID() != gridTabFields[i].getAD_Field_ID()) {
-//					isGridViewCustomized = true;
-//					break;
-//				}
-//			}
-//		}
 
 		currentValues = data;
-
-//		if (!isGridViewCustomized) {
-//			currentValues = data;
-//		} else {
-//			List<Object> dataList = new ArrayList<Object>();
-//			for(GridField gridField : gridPanelFields) {
-//				for(int i = 0; i < gridTabFields.length; i++) {
-//					if (gridField.getAD_Field_ID() == gridTabFields[i].getAD_Field_ID()) {
-//						dataList.add(data[i]);
-//						break;
-//					}
-//				}
-//			}
-//			currentValues = dataList.toArray(new Object[0]);
-//		}
-
 
 		Grid grid = (Grid) row.getParent().getParent();
 		org.zkoss.zul.Columns columns = grid.getColumns();
@@ -442,9 +423,8 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 		row.appendChild(cell);
 
 		cell = new Cell();
-		cell.addEventListener(Events.ON_CLICK, this);
-		cell.setStyle("border: none;");
-		cell.setTooltiptext(Util.cleanAmp(Msg.getMsg(Env.getCtx(), "EditRecord")));
+		cell.appendChild(new Label(new Integer(index+1).toString()));
+		cell.setStyle(CELL_DIV_STYLE_ALIGN_RIGHT);
 
 		row.appendChild(cell);
 
@@ -543,6 +523,21 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 		}
 
 
+		if(isNewRecord)
+		{
+			currentRow = row;
+			currentRowIndex = index;
+			currentPO = listModel.getPO(index);
+
+			stopEditing(true);
+			editCurrentRow();
+		}
+
+	}
+
+	public void setIsNewRecord(boolean isNewRecord)
+	{
+		this.isNewRecord = isNewRecord;
 	}
 
 
@@ -608,19 +603,13 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 	Datebox datebox ;
 	Searchbox searchbox ;
 	Combobox combobox;
+	Textbox textbox ;
 
 
 	/**
 	 * Enter edit mode
 	 */
 	public void editCurrentRow() {
-
-		Cell cell = (Cell) currentRow.getChildren().get(1);
-		if (cell != null) {
-			cell.setSclass("row-indicator-selected");
-		}
-
-		Env.setContext(Env.getCtx(), form.getWindowNo(), 0, "IsActive", currentPO.get_ValueAsBoolean("IsActive"));
 
 		if (currentRow != null && currentRow.getParent() != null && currentRow.isVisible()
 				&& grid != null && grid.isVisible() && grid.getParent() != null && grid.getParent().isVisible()) {
@@ -634,16 +623,18 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 				currentValues =(Object[])listModel.getElementAt(currentRowIndex);
 
 				//TODO:Set Context コンテキストを設定するとすべて読取専用になってしまうので要調査
-//				Object obj = null;
-//				PO po =listModel.getPO(currentRowIndex);
-//				for(int p = 0; p < po.get_ColumnCount(); p++)
-//				{
-//					obj = po.get_Value(p);
-//					if(obj==null)
-//						Env.setContext(Env.getCtx(), form.getWindowNo(), 0, po.get_ColumnName(p), null);
-//					else
-//						Env.setContext(Env.getCtx(), form.getWindowNo(), 0, po.get_ColumnName(p), po.get_Value(p).toString());
-//				}
+				Object obj = null;
+				PO po =listModel.getPO(currentRowIndex);
+				for(int p = 0; p < po.get_ColumnCount(); p++)
+				{
+					obj = po.get_Value(p);
+					if(obj==null)
+						Env.setContext(Env.getCtx(), form.getWindowNo(), 0, po.get_ColumnName(p), null);
+					else
+						Env.setContext(Env.getCtx(), form.getWindowNo(), 0, po.get_ColumnName(p), po.get_Value(p).toString());
+				}
+
+				Env.setContext(Env.getCtx(), form.getWindowNo(), 0, "IsActive", currentPO.get_ValueAsBoolean("IsActive"));
 
 				for (int i = 0; i < columnCount; i++) {
 					if (simpleInputFields[i].isToolbarOnlyButton()) {
@@ -706,6 +697,11 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 								combobox = (Combobox)div.getChildren().get(0);
 								combobox.focus();
 								combobox.select();
+							}else if(div.getChildren().get(0) instanceof Textbox){
+
+								textbox = (Textbox)div.getChildren().get(0);
+								textbox.select();
+								div.focus();
 
 							}else if(div.getChildren().get(0) instanceof Searchbox){
 
@@ -1001,7 +997,43 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 				if(isLastPage)
 				{
 					//TODO:新規レコード追加?
-					currentRowIndex = minRowIndex;
+					if(isNewRecord)//登録モード判定
+					{
+						boolean isOK = simpleInputWindow.saveData(false);
+						if(!isOK)
+						{
+							event.stopPropagation();
+							return;
+						}
+
+						currentRowIndex++;
+
+						PO po = null;
+						List<IModelFactory> factoryList = Service.locator().list(IModelFactory.class).getServices();
+						if (factoryList == null)
+						{
+							;//
+						}
+
+						for(IModelFactory factory : factoryList) {
+							po = factory.getPO(gridTab.getTableName(), 0, null);//
+							if (po != null)
+							{
+								break;
+							}
+						}//for
+
+						listModel.setPO(po);
+						grid.setModel(listModel);
+						event.stopPropagation();
+						return;
+
+					}else{ //更新モード
+						currentRowIndex = minRowIndex;
+					}
+
+
+
 				}else{
 					currentRowIndex = minRowIndex;
 				}
@@ -1049,5 +1081,44 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 	{
 		this.gridTab = gridTab;
 	}
+
+
+	/**
+	 *
+	 * setADWindowPanel Method
+	 *
+	 * Need to Create Process Dialog
+	 *
+	 */
+	public void createRecordProcessDialog() {
+		if (buttonListener != null)
+			return;
+
+		buttonListener = new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				WButtonEditor editor = (WButtonEditor) event.getSource();
+				String stringRecord_ID = editor.getDisplay();//valueの取得
+
+				SimpleInputWindowProcessModelDialog dialog = new SimpleInputWindowProcessModelDialog(form.getWindowNo(), editor.getProcess_ID(), 0, Integer.parseInt(stringRecord_ID), false, simpleInputWindow);
+
+
+				if (dialog.isValid())
+				{
+					//dialog.setWidth("500px");
+					dialog.setBorder("normal");
+					form.getParent().appendChild(dialog);
+//					showBusyMask(dialog);
+					LayoutUtils.openOverlappedWindow(form.getParent(), dialog, "middle_center");
+					dialog.focus();
+				}
+				else
+				{
+//					onRefresh(true, false);
+				}
+
+			}
+		};
+	}
+
 
 }

@@ -29,7 +29,6 @@ import java.util.logging.Level;
 
 import javax.swing.table.AbstractTableModel;
 
-import jpiere.plugin.simpleinputwindow.model.MSimpleInputField;
 import jpiere.plugin.simpleinputwindow.model.MSimpleInputSearch;
 import jpiere.plugin.simpleinputwindow.model.MSimpleInputWindow;
 import jpiere.plugin.simpleinputwindow.window.SimpleInputWindowCustomizeGridViewDialog;
@@ -85,8 +84,6 @@ import org.compiere.model.GridTab;
 import org.compiere.model.GridTable;
 import org.compiere.model.GridWindow;
 import org.compiere.model.GridWindowVO;
-import org.compiere.model.MColumn;
-import org.compiere.model.MField;
 import org.compiere.model.MLookup;
 import org.compiere.model.MPInstance;
 import org.compiere.model.MProcess;
@@ -170,24 +167,22 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 	//Map of PO Instance that have to save.<ID of PO,PO>
 	private HashMap<Integer,PO>  dirtyModel  = new HashMap<Integer,PO>();
 
+	//Map that is ID of PO and LineNo for save.< ID of PO, LieNo>
+	private HashMap<Integer,Integer>  dirtyLineNo  = new HashMap<Integer,Integer>();
+
 	/**********************************************************************
 	 * Parameter of Application Dictionary(System Client)
 	 **********************************************************************/
 
 	//Model
 	private MSimpleInputWindow 	 m_simpleInputWindow;
-	private MSimpleInputField[]  m_simpleInputFields ;
 	private MSimpleInputSearch[] m_simpleInputSearches ;
 
 	private MTab			m_Tab;
-	private MField[]		m_contentFields;
-	private MColumn[]		m_contentColumns;
 
 	//Search Field Editor Map
 	private HashMap<String,WEditor> searchEditorMap = new HashMap<String,WEditor> ();
 
-	//AD_Window_ID
-	private int AD_WINDOW_ID = 0;
 
 	//Table Name
 	private String TABLE_NAME ;
@@ -205,6 +200,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 	private Button SaveButton;
 
 	private Button CreateButton;
+
+	private Button RefreshButton;
 
 	private Button ProcessButton;
 
@@ -229,6 +226,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 	private static final int MIN_COMBOBOX_WIDTH = 160;
 
 	private static final int MIN_NUMERIC_COL_WIDTH = 120;
+
+	private boolean isRefreshAfterSave = true;
 
 	/**
 	 * Constractor
@@ -270,10 +269,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			;//Error
 		}
 
-		m_simpleInputFields = m_simpleInputWindow.getSimpleInputFields();
 		m_simpleInputSearches = m_simpleInputWindow.getSimpleInputSearches();
 
-		AD_WINDOW_ID = m_simpleInputWindow.getAD_Window_ID();
 		m_Tab = new MTab(Env.getCtx(), m_simpleInputWindow.getAD_Tab_ID(), null);
 		TABLE_NAME = MTable.get(Env.getCtx(), m_Tab.getAD_Table_ID()).getTableName();
 
@@ -483,35 +480,40 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		//Create Button
 		row = parameterLayoutRows.newRow();
-				SearchButton = new Button(Msg.getMsg(Env.getCtx(), "search"));
+//				SearchButton = new Button(Msg.getMsg(Env.getCtx(), "search"));
+				SearchButton = new Button();
 				SearchButton.setId("SearchButton");
 				SearchButton.addActionListener(this);
 				SearchButton.setEnabled(true);
 				SearchButton.setImage(ThemeManager.getThemeResource("images/Find16.png"));
 				row.appendCellChild(SearchButton);
 
+//				CreateButton = new Button(Msg.getMsg(Env.getCtx(), "NewRecord"));
+				CreateButton = new Button();
+				CreateButton.setId("CreateButton");
+				CreateButton.addActionListener(this);
+				CreateButton.setEnabled(true);
+				CreateButton.setImage(ThemeManager.getThemeResource("images/New16.png"));
+				row.appendCellChild(CreateButton);
 
-
-				SaveButton = new Button(Msg.getMsg(Env.getCtx(), "save"));
+//				SaveButton = new Button(Msg.getMsg(Env.getCtx(), "save"));
+				SaveButton = new Button();
 				SaveButton.setId("SaveButton");
 				SaveButton.addActionListener(this);
 				SaveButton.setEnabled(false);
 				SaveButton.setImage(ThemeManager.getThemeResource("images/Save16.png"));
-
 				row.appendCellChild(SaveButton);
 
-				CreateButton = new Button(Msg.getMsg(Env.getCtx(), "NewRecord"));
-				CreateButton.setId("CreateButton");
-				CreateButton.addActionListener(this);
-				CreateButton.setEnabled(false);
-				CreateButton.setImage(ThemeManager.getThemeResource("images/New16.png"));
-//				if(m_simpleInputWindow.getJP_QuickEntryWindow_ID() > 0)
-//				{
-//					row.appendCellChild(CreateButton);
-//				}
+				RefreshButton = new Button();
+				RefreshButton.setId("RefreshButton");
+				RefreshButton.addActionListener(this);
+				RefreshButton.setEnabled(true);
+				RefreshButton.setImage(ThemeManager.getThemeResource("images/Refresh16.png"));
+				row.appendCellChild(RefreshButton);
 
 				loadToolbarButtons();
-				ProcessButton = new Button(Msg.getMsg(Env.getCtx(), "Process"));
+//				ProcessButton = new Button(Msg.getMsg(Env.getCtx(), "Process"));
+				ProcessButton = new Button();
 				ProcessButton.setId("ProcessButton");
 				ProcessButton.addActionListener(this);
 				ProcessButton.setEnabled(false);
@@ -519,16 +521,16 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				if(toolbarProcessButtons.size()> 0 )
 					row.appendCellChild(ProcessButton);
 
-				CustomizeButton = new Button(Msg.getMsg(Env.getCtx(), "Customize"));
+//				CustomizeButton = new Button(Msg.getMsg(Env.getCtx(), "Customize"));
+				CustomizeButton = new Button();
 				CustomizeButton.setId("CustomizeButton");
 				CustomizeButton.addActionListener(this);
 				CustomizeButton.setEnabled(false);
 				CustomizeButton.setImage(ThemeManager.getThemeResource("images/Customize16.png"));
-
 				row.appendCellChild(CustomizeButton);
 
-
-				DeleteButton = new Button(Msg.getMsg(Env.getCtx(), "Delete"));
+//				DeleteButton = new Button(Msg.getMsg(Env.getCtx(), "Delete"));
+				DeleteButton = new Button();
 				DeleteButton.setId("DeleteButton");
 				DeleteButton.addActionListener(this);
 				DeleteButton.setEnabled(false);
@@ -622,6 +624,65 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
         }
 	}
 
+	private boolean createNew() throws Exception {
+
+		simpleInputGrid.setVisible(true);
+
+		ArrayList<PO> list = new ArrayList<PO>();
+		List<IModelFactory> factoryList = Service.locator().list(IModelFactory.class).getServices();
+		if (factoryList == null)
+		{
+			;//
+		}
+		PO po = null;
+		for(IModelFactory factory : factoryList) {
+			po = factory.getPO(TABLE_NAME, 0, null);//
+			if (po != null)
+			{
+				list.add(po);
+				break;
+			}
+		}//for
+
+		simpleInputWindowGridTable = createTableModel(list);
+
+		org.zkoss.zul.Columns columns = simpleInputGrid.getColumns();
+		if(columns == null)
+		{
+			setupColumns();
+
+		}else{
+			List<Component> cmpList = simpleInputGrid.getChildren();
+
+			for(Component cmp : cmpList)
+			{
+				if(cmp instanceof Frozen)
+				{
+					cmp.detach();
+					break;
+				}
+			}//for
+		}//if
+
+		Frozen frozen = new Frozen();
+		frozen.setColumns(((BigDecimal)frozenNum.getValue()).intValue() + 2);//freeze selection and indicator column
+		simpleInputGrid.appendChild(frozen);
+
+		listModel = new SimpleInputWindowListModel(simpleInputWindowGridTable, form.getWindowNo());
+		simpleInputGrid.setModel(listModel);
+
+		renderer = new SimpleInputWindowGridRowRenderer(gridTab, form, listModel, dirtyModel, dirtyLineNo);
+		renderer.setGridView(gridView);
+		renderer.setSimpleInputWindow(this);
+		renderer.setGridTab(gridTab);
+		renderer.createRecordProcessDialog();
+
+		simpleInputGrid.setRowRenderer(renderer);
+		simpleInputGrid.addEventListener(Events.ON_CLICK, this);
+
+		return true;
+	}
+
 	//TODO
 	private boolean createView () throws Exception {
 
@@ -645,9 +706,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		{
 			setupColumns();
 
-//			Frozen frozen = new Frozen();
-//			frozen.setColumns(((BigDecimal)frozenNum.getValue()).intValue() + 2);//freeze selection and indicator column
-//			simpleInputGrid.appendChild(frozen);
 		}else{
 			List<Component> cmpList = simpleInputGrid.getChildren();
 
@@ -658,9 +716,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 					cmp.detach();
 					break;
 				}
-			}
-
-		}
+			}//for
+		}//if
 
 		Frozen frozen = new Frozen();
 		frozen.setColumns(((BigDecimal)frozenNum.getValue()).intValue() + 2);//freeze selection and indicator column
@@ -670,11 +727,13 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		listModel = new SimpleInputWindowListModel(simpleInputWindowGridTable, form.getWindowNo());
 		simpleInputGrid.setModel(listModel);
+		listModel.addTableModelListener(this);
 
-		renderer = new SimpleInputWindowGridRowRenderer(gridTab, form, listModel, dirtyModel);
+		renderer = new SimpleInputWindowGridRowRenderer(gridTab, form, listModel, dirtyModel,dirtyLineNo);
 		renderer.setGridView(gridView);
 		renderer.setSimpleInputWindow(this);
 		renderer.setGridTab(gridTab);
+		renderer.createRecordProcessDialog();
 
 		simpleInputGrid.setRowRenderer(renderer);
 		simpleInputGrid.addEventListener(Events.ON_CLICK, this);
@@ -777,7 +836,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		try{
 			selection.setSort("none");
 		} catch (Exception e) {}
-		selection.setStyle("border-right: none");
+//		selection.setStyle("border-right: none");
 		selectAll = new Checkbox();
 		selection.appendChild(selectAll);
 		selectAll.setId("selectAll");
@@ -785,12 +844,14 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		columns.appendChild(selection);
 
 		org.zkoss.zul.Column indicator = new Column();
-		indicator.setWidth("22px");
+		indicator.setWidth("28px");
 		try {
 			indicator.setSort("none");
 		} catch (Exception e) {}
-		indicator.setStyle("border-left: none");
+
+		indicator.setLabel(Msg.getElement(Env.getCtx(), "LineNo"));
 		columns.appendChild(indicator);
+
 		simpleInputGrid.appendChild(columns);
 		columns.setSizable(true);
 		columns.setMenupopup("none");
@@ -1037,15 +1098,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		if(dirtyModel.size() > 0 )
 		{
-			boolean isOK = saveData();
-
-			if(isOK)
-			{
-				dirtyModel.clear();
-
-			}else{
-				;//Nothing to do
-			}
+			saveData(isRefreshAfterSave);
 		}
 
 		ToolbarProcessButton button = (ToolbarProcessButton)event.getSource();
@@ -1120,7 +1173,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 	@Override
 	public void tableChanged(WTableModelEvent event) {
-
+		return;
 	}
 
 	@Override
@@ -1136,7 +1189,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			{
 				editor.setValue(m_simpleInputWindow.getJP_FrozenField());
 			}else if(gridFields.length <= integer.intValue()){
-				int aaa = gridFields.length;
 				editor.setValue(m_simpleInputWindow.getJP_FrozenField());
 			}else{
 				editor.setValue(e.getNewValue());
@@ -1154,18 +1206,16 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			Env.setContext(Env.getCtx(), form.getWindowNo(), editor.getColumnName(), e.getNewValue()==null ? null : e.getNewValue().toString());
 		}
 
-		SearchButton.setEnabled(true);
-		frozenNum.setReadWrite(true);
-
-		SaveButton.setEnabled(false);
-		CreateButton.setEnabled(false);
-		ProcessButton.setEnabled(false);
-
-//		quickEntry = null;
-
-		simpleInputGrid.setVisible(false);
-		CustomizeButton.setEnabled(false);
-		DeleteButton.setEnabled(false);
+//		SearchButton.setEnabled(true);
+//		frozenNum.setReadWrite(true);
+//
+//		SaveButton.setEnabled(false);
+//		CreateButton.setEnabled(false);
+//		ProcessButton.setEnabled(false);
+//
+//		simpleInputGrid.setVisible(false);
+//		CustomizeButton.setEnabled(false);
+//		DeleteButton.setEnabled(false);
 
 		if(e.getNewValue()==null && editor.isMandatory())
 		{
@@ -1298,59 +1348,95 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 			SimpleInputWindowCustomizeGridViewDialog.showCustomize(0, m_simpleInputWindow.getAD_Tab_ID(), columnsWidth,gridFieldIds, this);
 
+		}else if(event.getTarget().equals(RefreshButton)){
+
+			refresh();
 
 		/*JPiereMatrixWindowQuickEntry#ConfirmPanel*/
 		}else if (event.getTarget().equals(SearchButton) || event.getName().equals("onComplete")){//onCompolete from process dialog
 
-			if(!createView ())
+			if(dirtyModel.size()==0)
 			{
+
+				if(!createView ())
+				{
+					setInitialStatus();
+
+					if(event.getTarget().equals(SearchButton))
+					{
+						FDialog.warn(form.getWindowNo(), "NotFound");
+						return;
+					}else{
+						return;
+					}
+				}
+
+				//Set Status
+				renderer.setIsNewRecord(false);
+				isRefreshAfterSave=true;
+
+				//set Buttons
 				SearchButton.setEnabled(true);
-				frozenNum.setReadWrite(true);
-				SaveButton.setEnabled(false);
-				CreateButton.setEnabled(true);
+				CreateButton.setEnabled(false);
+				SaveButton.setEnabled(true);
 				ProcessButton.setEnabled(true);
-				simpleInputGrid.setVisible(false);
-				CustomizeButton.setEnabled(false);
-				if(event.getTarget().equals(SearchButton))
-					throw new Exception(Msg.getMsg(Env.getCtx(), "NotFound"));
-				else
-					return;
-			}
+				CustomizeButton.setEnabled(true);
+				DeleteButton.setEnabled(true);
+				frozenNum.setReadWrite(false);
 
+				if(event.getName().equals("onComplete"))
+				{
+					SimpleInputWindowProcessModelDialog dialog = (SimpleInputWindowProcessModelDialog)event.getTarget();
+					HtmlBasedComponent  htmlLog = dialog.getInfoResultContent();
+					ProcessInfo pInfo = dialog.getProcessInfo();
+					SimpleInputWindowFDialog.info(form.getWindowNo(), htmlLog, pInfo.getSummary(), null, pInfo.getTitle());
+				}
 
-			SearchButton.setEnabled(false);
-			frozenNum.setReadWrite(false);
-			SaveButton.setEnabled(true);
-			CreateButton.setEnabled(true);
-			ProcessButton.setEnabled(true);
-			CustomizeButton.setEnabled(true);
-			DeleteButton.setEnabled(true);
+			}else{
 
-			if(event.getName().equals("onComplete"))
-			{
-				SimpleInputWindowProcessModelDialog dialog = (SimpleInputWindowProcessModelDialog)event.getTarget();
-				HtmlBasedComponent  htmlLog = dialog.getInfoResultContent();
-				ProcessInfo pInfo = dialog.getProcessInfo();
-				SimpleInputWindowFDialog.info(form.getWindowNo(), htmlLog, pInfo.getSummary(), null, pInfo.getTitle());
+				FDialog.ask(form.getWindowNo(), null, "保存されていないデータがあります。保存しますか?", new Callback<Boolean>() {//TODO:多言語化
+
+					@Override
+					public void onCallback(Boolean result)
+					{
+						if (result)
+						{
+							saveData(isRefreshAfterSave);
+						}else{
+							;//Nothing to do;
+						}
+			        }
+
+				});//FDialog.
+
 			}
 
 		}else if(event.getTarget().equals(SaveButton)){
 
-			boolean isOK = saveData();
+			saveData(isRefreshAfterSave);
 
-			if(isOK)
+
+		}else if(event.getTarget().equals(CreateButton)){//TODO
+
+			isRefreshAfterSave = false;
+
+			if(!createNew())
 			{
-				dirtyModel.clear();
-
-				if(!createView ())
-				{
-					simpleInputGrid.setVisible(false);
-					throw new Exception(message.toString());
-				}
-
-			}else{
-				;//Nothing to do
+				;
 			}
+
+			//Set Status
+			renderer.setIsNewRecord(true);
+			isRefreshAfterSave=false;
+
+			//set Buttons
+			SearchButton.setEnabled(false);
+			CreateButton.setEnabled(false);
+			SaveButton.setEnabled(true);
+			ProcessButton.setEnabled(true);
+			CustomizeButton.setEnabled(false);
+			DeleteButton.setEnabled(true);
+			frozenNum.setReadWrite(false);
 
 		}else if (event.getTarget().equals(selectAll)){
 
@@ -1420,11 +1506,74 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		return all;
 	}
 
-	private boolean saveData()
+	public void setInitialStatus()
+	{
+		frozenNum.setValue(m_simpleInputWindow.getJP_FrozenField());
+		frozenNum.setReadWrite(true);
+		simpleInputGrid.setVisible(false);
+
+		//Set Status
+		renderer.setIsNewRecord(false);
+		isRefreshAfterSave=true;
+
+		//set Buttons
+		SearchButton.setEnabled(true);
+		CreateButton.setEnabled(true);
+		SaveButton.setEnabled(false);
+		ProcessButton.setEnabled(false);
+		CustomizeButton.setEnabled(false);
+		DeleteButton.setEnabled(false);
+		frozenNum.setReadWrite(true);
+
+	}
+
+	public void refresh()
+	{
+		if(dirtyModel.size() == 0)
+		{
+			for(Map.Entry<String, WEditor> entry: searchEditorMap.entrySet())
+			{
+				WEditor otherEditor = entry.getValue();
+				otherEditor.setValue(null);
+				;
+			}
+
+			setInitialStatus();
+
+		}else{
+
+			FDialog.ask(form.getWindowNo(), null, "保存されていないデータがあります。保存しますか?", new Callback<Boolean>() {//TODO:多言語化
+
+				@Override
+				public void onCallback(Boolean result)
+				{
+					if (result)
+					{
+						saveData(false);
+					}else{
+						dirtyModel.clear();
+						dirtyLineNo.clear();
+					}
+
+					for(Map.Entry<String, WEditor> entry: searchEditorMap.entrySet())
+					{
+						WEditor otherEditor = entry.getValue();
+						otherEditor.setValue(null);
+						;
+					}
+
+					setInitialStatus();
+
+		        }
+
+			});//FDialog.
+		}//else
+	}
+
+	public boolean saveData(boolean isRefreshAfterSave)
 	{
 		try
 		{
-
 			Trx.run(new TrxRunnable()
 			{
 				public void run(String trxName)
@@ -1437,21 +1586,53 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 					}
 
 					updateColumn();
-
 				}
 			});
 
-			return true;
+			dirtyModel.clear();
+			dirtyLineNo.clear();
 
+			if(isRefreshAfterSave)
+			{
+				if(!createView ())
+				{
+					simpleInputGrid.setVisible(false);
+					throw new Exception(message.toString());
+				}
+			}else{
+
+				//Delete "*"
+				Collection<Integer> lines = dirtyLineNo.values();
+				List<Row> rowList = simpleInputGrid.getRows().getChildren();
+				for(Integer lineNo :lines)
+				{
+					org.zkoss.zul.Row row = rowList.get(lineNo.intValue());
+					Cell lineNoCell = (Cell)row.getChildren().get(1);
+					org.zkoss.zul.Label lineNoLabel = (org.zkoss.zul.Label)lineNoCell.getChildren().get(0);
+					lineNoLabel.setValue(lineNoLabel.getValue().replace("*", ""));
+				}
+
+			}
+
+			return true;
 		}
 		catch (Exception e)
 		{
-			FDialog.error(form.getWindowNo(), form, "Error", e.getLocalizedMessage());
+			FDialog.error(form.getWindowNo(), form, "SaveError", e.getLocalizedMessage());
+
 			return false;
+
 		}finally{
 			;
 		}
 	}   //  saveData
+
+	//TODO:テストメッセージ
+	public void showMessage(String aaa)
+	{
+		FDialog.error(form.getWindowNo(), form, "SaveError", aaa);
+		return;
+	}
 
 
 	private void onDelete()
@@ -1640,7 +1821,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			}
 		}
 	}
-
 
 
 }

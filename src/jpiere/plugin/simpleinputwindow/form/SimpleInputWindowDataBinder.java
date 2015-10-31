@@ -22,6 +22,7 @@ import org.compiere.model.GridField;
 import org.compiere.model.GridTab;
 import org.compiere.model.PO;
 import org.compiere.util.CLogger;
+import org.zkoss.zul.Cell;
 
 /**
  * Transfer data from editor to GridTab
@@ -45,17 +46,21 @@ public class SimpleInputWindowDataBinder implements ValueChangeListener {
 	//Map of PO Instance that have to save.<ID of PO,PO>
 	private HashMap<Integer,PO> 	dirtyModel;
 
+	//Map that is ID of PO and LineNo for save.< ID of PO, LieNo>
+	private HashMap<Integer,Integer>  dirtyLineNo ;
+
 	/**
 	 *
 	 * @param gridTab
 	 */
 	public SimpleInputWindowDataBinder(GridTab gridTab, SimpleInputWindowGridRowRenderer rendere
-										,SimpleInputWindowListModel listModel,HashMap<Integer,PO> dirtyModel)
+					,SimpleInputWindowListModel listModel,HashMap<Integer,PO> dirtyModel,HashMap<Integer,Integer>dirtyLineNo)
 	{
 		this.gridTab = gridTab;
 		this.rendere = rendere;
 		this.listModel = listModel;
 		this.dirtyModel = dirtyModel;
+		this.dirtyLineNo = dirtyLineNo;
 	}
 
 
@@ -82,7 +87,20 @@ public class SimpleInputWindowDataBinder implements ValueChangeListener {
 
             //Step4:dirty model
             PO po = listModel.getPO(rendere.getCurrentRowIndex());
+            if(!dirtyModel.containsKey((Integer)po.get_ID()))
+            {
+            	Cell  lineNoCell =  (Cell)editor.getComponent().getParent().getParent().getChildren().get(1);
+            	org.zkoss.zul.Label lineNoLabel = (org.zkoss.zul.Label)lineNoCell.getChildren().get(0);
+            	lineNoLabel.setValue("*"+lineNoLabel.getValue());
+//            	listModel.setValueAt(lineNoLabel.getValue(), rendere.getCurrentRowIndex(), gridField);
+
+            }
+
             dirtyModel.put((Integer)po.get_ID(), po);
+            dirtyLineNo.put((Integer)po.get_ID(),rendere.getCurrentRowIndex());
+
+           return;
+
         }
 
     } // ValueChange

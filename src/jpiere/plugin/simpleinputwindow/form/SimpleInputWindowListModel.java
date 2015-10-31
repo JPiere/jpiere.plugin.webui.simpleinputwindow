@@ -18,6 +18,8 @@ import java.util.Comparator;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
+import org.adempiere.webui.event.WTableModelEvent;
+import org.adempiere.webui.event.WTableModelListener;
 import org.adempiere.webui.util.SortComparator;
 import org.compiere.model.GridField;
 import org.compiere.model.PO;
@@ -99,9 +101,17 @@ public class SimpleInputWindowListModel extends AbstractListModel<Object> implem
 		return null;
 	}
 
+	public void setPO(PO po){
+		tableModel.setPO(po);
+//		WTableModelEvent tcEvent = new WTableModelEvent(this, 0, 0);//TODO:要実装
+//		fireTableChange(tcEvent);
+	}
+
 	public void setValueAt (Object value, int row, GridField gridField)
 	{
 		tableModel.setValueAt(value, row, gridField);
+//		WTableModelEvent tcEvent = new WTableModelEvent(this, 0, 0);//TODO:要実装
+//		fireTableChange(tcEvent);
 	}	//	setValueAt
 
 	public void addToSelection(int rowIndex) {
@@ -220,6 +230,45 @@ public class SimpleInputWindowListModel extends AbstractListModel<Object> implem
 			tableModel.sort(sc.getColumnIndex(), ascending);
 		}
 		fireEvent(ListDataEvent.CONTENTS_CHANGED, -1, -1);
+	}
+
+	protected ArrayList<WTableModelListener> m_listeners = new ArrayList<WTableModelListener>();
+
+	/**
+	 * Send the specified <code>event</code> to all listeners.
+	 *
+	 * @param event	The event tofire
+	 */
+	private void fireTableChange(WTableModelEvent event)
+	{
+	    for (WTableModelListener listener : m_listeners)
+	    {
+	       listener.tableChanged(event);
+	    }
+
+	    return;
+	}
+
+	/**
+	 * Add a listener for events from the data model.
+     *
+     * The listener will only be added if it doesn't already exist.
+	 *
+	 * @param listener	A listener for changes in the table mode
+	 */
+	public void addTableModelListener(WTableModelListener listener)
+	{
+	    if (listener == null)
+	    {
+	    	return;
+	    }
+
+        if (!m_listeners.contains(listener))
+        {
+            m_listeners.add(listener);
+        }
+
+	    return;
 	}
 
 	/**

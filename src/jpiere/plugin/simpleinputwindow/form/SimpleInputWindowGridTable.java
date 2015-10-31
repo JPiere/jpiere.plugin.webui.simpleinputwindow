@@ -75,6 +75,12 @@ public class SimpleInputWindowGridTable extends AbstractTableModel {
 		return list_POs.get(rowIndex);
 	}
 
+	public void setPO(PO po)
+	{
+		list_POs.add(po);
+//		list_POs.add(1, po);
+	}
+
 	public GridField[] getFields()
 	{
 		return gridFields;
