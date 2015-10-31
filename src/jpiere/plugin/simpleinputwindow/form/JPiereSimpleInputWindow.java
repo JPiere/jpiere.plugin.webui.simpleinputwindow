@@ -103,6 +103,7 @@ import org.compiere.util.KeyNamePair;
 import org.compiere.util.Msg;
 import org.compiere.util.Trx;
 import org.compiere.util.TrxRunnable;
+import org.compiere.util.Util;
 import org.zkoss.zk.au.out.AuFocus;
 import org.zkoss.zk.ui.AbstractComponent;
 import org.zkoss.zk.ui.Component;
@@ -691,16 +692,25 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		//Create String where clause
 		whereClause = createWhere();
-		if(message.length() > 0)
+		if(!Util.isEmpty(message.toString()))
+		{
+			FDialog.info(form.getWindowNo(), null, message.toString());
+			message = new StringBuilder();
+			simpleInputGrid.setVisible(false);
 			return false;
+		}
 
 		//Create array of PO from where clause
 		list_POs = getPOs(whereClause,true);
 		if(list_POs.size()==0)
 		{
 			message.append(System.getProperty("line.separator") + Msg.getMsg(Env.getCtx(), "not.found"));
+			FDialog.info(form.getWindowNo(), null, message.toString());
+			message = new StringBuilder();
+			simpleInputGrid.setVisible(false);
 			return false;
 		}
+
 
 		org.zkoss.zul.Columns columns = simpleInputGrid.getColumns();
 		if(columns == null)
@@ -1261,6 +1271,14 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 	@Override
 	public void onEvent(Event event) throws Exception {
 
+		if(message != null && !Util.isEmpty(message.toString()))
+		{
+			FDialog.info(form.getWindowNo(), null, message.toString());
+			message = new StringBuilder();
+			return;
+		}
+
+
 		if (event == null)
 		{
 			return;
@@ -1360,17 +1378,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			{
 
 				if(!createView ())
-				{
-					setInitialStatus();
-
-					if(event.getTarget().equals(SearchButton))
-					{
-						FDialog.warn(form.getWindowNo(), "NotFound");
-						return;
-					}else{
-						return;
-					}
-				}
+					return;
 
 				//Set Status
 				renderer.setIsNewRecord(false);
