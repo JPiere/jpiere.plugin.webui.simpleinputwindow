@@ -16,7 +16,6 @@ package jpiere.plugin.simpleinputwindow.factory;
 
 import java.sql.ResultSet;
 
-import jpiere.plugin.simpleinputwindow.model.MSimpleInputField;
 import jpiere.plugin.simpleinputwindow.model.MSimpleInputSearch;
 import jpiere.plugin.simpleinputwindow.model.MSimpleInputWindow;
 
@@ -38,8 +37,6 @@ public class JPierePluginSimpleInputWindowModelFactory implements IModelFactory 
 	public Class<?> getClass(String tableName) {
 		if(tableName.equals(MSimpleInputWindow.Table_Name)){
 			return MSimpleInputWindow.class;
-		}else if(tableName.equals(MSimpleInputField.Table_Name)){
-			return MSimpleInputField.class;
 		}else if(tableName.equals(MSimpleInputSearch.Table_Name)){
 			return MSimpleInputSearch.class;
 		}
@@ -50,8 +47,6 @@ public class JPierePluginSimpleInputWindowModelFactory implements IModelFactory 
 	public PO getPO(String tableName, int Record_ID, String trxName) {
 		if(tableName.equals(MSimpleInputWindow.Table_Name)){
 			return  new MSimpleInputWindow(Env.getCtx(), Record_ID, trxName);
-		}else if(tableName.equals(MSimpleInputField.Table_Name)){
-			return  new MSimpleInputField(Env.getCtx(), Record_ID, trxName);
 		}else if(tableName.equals(MSimpleInputSearch.Table_Name)){
 			return  new MSimpleInputSearch(Env.getCtx(), Record_ID, trxName);
 		}
@@ -62,8 +57,6 @@ public class JPierePluginSimpleInputWindowModelFactory implements IModelFactory 
 	public PO getPO(String tableName, ResultSet rs, String trxName) {
 		if(tableName.equals(MSimpleInputWindow.Table_Name)){
 			return  new MSimpleInputWindow(Env.getCtx(), rs, trxName);
-		}else if(tableName.equals(MSimpleInputField.Table_Name)){
-			return  new MSimpleInputField(Env.getCtx(), rs, trxName);
 		}else if(tableName.equals(MSimpleInputSearch.Table_Name)){
 			return  new MSimpleInputSearch(Env.getCtx(), rs, trxName);
 		}

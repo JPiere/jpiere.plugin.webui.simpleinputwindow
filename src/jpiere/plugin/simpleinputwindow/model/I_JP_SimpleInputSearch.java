@@ -32,7 +32,7 @@ public interface I_JP_SimpleInputSearch
     /** TableName=JP_SimpleInputSearch */
     public static final String Table_Name = "JP_SimpleInputSearch";
 
-    /** AD_Table_ID=1000041 */
+    /** AD_Table_ID=1000040 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);

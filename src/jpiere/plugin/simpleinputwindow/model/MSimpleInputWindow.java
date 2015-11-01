@@ -30,7 +30,6 @@ import org.compiere.util.Util;
  */
 public class MSimpleInputWindow extends X_JP_SimpleInputWindow {
 
-	MSimpleInputField[] m_simpleInputFields ;
 	MSimpleInputSearch[] m_simpleInputSearches;
 
 	public MSimpleInputWindow(Properties ctx, int JP_SimpleInputWindow_ID,
@@ -58,54 +57,6 @@ public class MSimpleInputWindow extends X_JP_SimpleInputWindow {
 				.firstOnly();
 		return retValue;
 	}	//	get
-
-
-	public MSimpleInputField[] getSimpleInputFields(String whereClause, String orderClause)
-	{
-		StringBuilder whereClauseFinal = new StringBuilder(MSimpleInputField.COLUMNNAME_JP_SimpleInputWindow_ID+"=? AND IsActive='Y'");
-		if (!Util.isEmpty(whereClause, true))
-			whereClauseFinal.append(whereClause);
-		if (orderClause.length() == 0)
-			orderClause = MSimpleInputField.COLUMNNAME_SeqNo;
-		//
-		List<MSimpleInputField> list = new Query(getCtx(), I_JP_SimpleInputField.Table_Name, whereClauseFinal.toString(), get_TrxName())
-										.setParameters(get_ID())
-										.setOrderBy(orderClause)
-										.list();
-		//
-		return list.toArray(new MSimpleInputField[list.size()]);
-	}
-
-	/**
-	 * 	Get Simple Input Fields
-	 * 	@param requery requery
-	 * 	@param orderBy optional order by column
-	 * 	@return m_simpleInputFields
-	 */
-	public MSimpleInputField[] getSimpleInputFields(boolean requery, String orderBy)
-	{
-		if (m_simpleInputFields != null && !requery) {
-			set_TrxName(m_simpleInputFields, get_TrxName());
-			return m_simpleInputFields;
-		}
-		//
-		String orderClause = "";
-		if (orderBy != null && orderBy.length() > 0)
-			orderClause += orderBy;
-		else
-			orderClause += "SeqNo";
-
-		m_simpleInputFields = getSimpleInputFields(null, orderClause);
-		return m_simpleInputFields;
-	}
-
-	/**
-	 * 	Get Input Fields of Simple Input Window.
-	 */
-	public MSimpleInputField[] getSimpleInputFields()
-	{
-		return getSimpleInputFields(false, null);
-	}
 
 
 	public MSimpleInputSearch[] getSimpleInputSearches(String whereClause, String orderClause)
