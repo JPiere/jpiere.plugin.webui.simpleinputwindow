@@ -120,6 +120,8 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 
 	private JPiereSimpleInputWindow simpleInputWindow;
 
+	private int lastColumnIndex = 0;
+
 	private SimpleInputWindowListModel listModel;
 
 	//Map of PO Instance that have to save.<ID of PO,PO>
@@ -137,6 +139,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 	public SimpleInputWindowGridRowRenderer(JPiereSimpleInputWindow simpleInputWindow)
 	{
 		this.simpleInputWindow = simpleInputWindow;
+		this.lastColumnIndex = (simpleInputWindow.getFields().length - 1);
 
 		this.windowNo = simpleInputWindow.getForm().getWindowNo();
 		this.form = simpleInputWindow.getForm();
@@ -432,7 +435,14 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 		row.appendChild(cell);
 
 		cell = new Cell();
-		cell.appendChild(new Label(new Integer(index+1).toString()));
+		if(simpleInputWindow.getEditMode().equals(simpleInputWindow.EDIT_MODE_CREATE)
+				&& index == simpleInputWindow.getNewModelLineNo().intValue())
+		{
+			cell.appendChild(new Label("+*" + new Integer(index+1).toString()));
+		}else{
+			cell.appendChild(new Label(new Integer(index+1).toString()));
+		}
+
 		cell.setStyle(CELL_DIV_STYLE_ALIGN_RIGHT);
 
 		row.appendChild(cell);
@@ -508,7 +518,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 			row.appendChild(div);
 		}
 
-		if (rowIndex == gridTab.getCurrentRow()) {
+		if (rowIndex == getCurrentRowIndex()) {
 			setCurrentRow(row);
 		}
 
@@ -997,12 +1007,22 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 				currentRowIndex++;
 			}
 
-			if(maxRowIndex <= currentRowIndex)
+			if(maxRowIndex <= currentRowIndex)//judgement of last line in this page
 			{
 				if(isLastPage)
 				{
-					//TODO:新規レコード追加?
-					if(simpleInputWindow.getEditMode().equals(JPiereSimpleInputWindow.EDIT_MODE_CREATE))//登録モード判定
+					Cell cell = null;
+					if(event.getTarget().getParent() instanceof Cell)
+					{
+						cell = (Cell)event.getTarget().getParent();
+					}else{
+						cell = (Cell)event.getTarget().getParent().getParent();
+					}
+
+					String[] yx = cell.getId().split("_");
+					String ColumnIndex = yx[1];
+
+					if(new Integer(ColumnIndex).intValue() == lastColumnIndex)
 					{
 						boolean isOK = simpleInputWindow.saveData(false);
 						if(!isOK)
@@ -1022,22 +1042,28 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 								break;
 							}
 						}//for
-
 						listModel.setPO(po);
 						grid.setModel(listModel);
 						grid.setFocus(true);
 
 						currentRow = rowList.get(currentRowIndex);
 						currentPO =listModel.getPO(currentRowIndex);
-						dirtyModel.put(0, po);
-						dirtyLineNo.put(0,currentRowIndex);
+						simpleInputWindow.setNewModel(po);
+						simpleInputWindow.setNewModelLineNo(currentRowIndex);
+
+						if(simpleInputWindow.getEditMode().equals(JPiereSimpleInputWindow.EDIT_MODE_UPDATE))
+						{
+//							stopEditing(true);
+//							editCurrentRow();
+//							currentRow.setFocus(true);
+						}
 
 						event.stopPropagation();
-
 						return;
-
-					}else{ //更新モード
-						currentRowIndex = minRowIndex;
+					}else{
+						currentRowIndex--;
+						event.stopPropagation();
+						return;
 					}
 
 				}else{

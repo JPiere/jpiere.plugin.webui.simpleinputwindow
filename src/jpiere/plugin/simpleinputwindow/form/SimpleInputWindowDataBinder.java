@@ -90,17 +90,20 @@ public class SimpleInputWindowDataBinder implements ValueChangeListener {
 
             //Step4:dirty model
             PO po = listModel.getPO(rendere.getCurrentRowIndex());
-            if(!dirtyModel.containsKey((Integer)po.get_ID()))
+            if(!dirtyModel.containsKey((Integer)po.get_ID()) && po.get_ID()!=0)
             {
             	Cell  lineNoCell =  (Cell)editor.getComponent().getParent().getParent().getChildren().get(1);
             	org.zkoss.zul.Label lineNoLabel = (org.zkoss.zul.Label)lineNoCell.getChildren().get(0);
             	lineNoLabel.setValue("*"+lineNoLabel.getValue());
-//            	listModel.setValueAt(lineNoLabel.getValue(), rendere.getCurrentRowIndex(), gridField);
-
             }
 
-            dirtyModel.put((Integer)po.get_ID(), po);
-            dirtyLineNo.put((Integer)po.get_ID(),rendere.getCurrentRowIndex());
+            if(po.get_ID()==0)
+            {
+            	;
+            }else{
+	            dirtyModel.put((Integer)po.get_ID(), po);
+	            dirtyLineNo.put((Integer)po.get_ID(),rendere.getCurrentRowIndex());
+            }
 
            return;
 

@@ -170,6 +170,12 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 	//Map that is ID of PO and LineNo for save.< ID of PO, LieNo>
 	private HashMap<Integer,Integer>  dirtyLineNo  = new HashMap<Integer,Integer>();
 
+	//New data Model
+	private PO newModel  = null;
+
+	//New data Model line no
+	private Integer newModelLineNo  = null;
+
 	/**********************************************************************
 	 * Parameter of Application Dictionary(System Client)
 	 **********************************************************************/
@@ -201,7 +207,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 	private Button CreateButton;
 
-	private Button RefreshButton;
+	private Button HomeButton;
 
 	private Button ProcessButton;
 
@@ -509,12 +515,12 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				SaveButton.setImage(ThemeManager.getThemeResource("images/Save16.png"));
 				row.appendCellChild(SaveButton);
 
-				RefreshButton = new Button();
-				RefreshButton.setId("RefreshButton");
-				RefreshButton.addActionListener(this);
-				RefreshButton.setEnabled(true);
-				RefreshButton.setImage(ThemeManager.getThemeResource("images/Refresh16.png"));
-				row.appendCellChild(RefreshButton);
+				HomeButton = new Button();
+				HomeButton.setId("HomeButton");
+				HomeButton.addActionListener(this);
+				HomeButton.setEnabled(true);
+				HomeButton.setImage(ThemeManager.getThemeResource("images/Home16.png"));
+				row.appendCellChild(HomeButton);
 
 				loadToolbarButtons();
 //				ProcessButton = new Button(Msg.getMsg(Env.getCtx(), "Process"));
@@ -684,8 +690,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		simpleInputGrid.setRowRenderer(renderer);
 		simpleInputGrid.addEventListener(Events.ON_CLICK, this);
 
-		dirtyModel.put(0, po);
-		dirtyLineNo.put(0, 0);
+		newModel = po ;
+		newModelLineNo = 0;
 
 		return true;
 	}
@@ -698,6 +704,26 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 	public HashMap<Integer,PO> getDirtyModel()
 	{
 		return dirtyModel;
+	}
+
+	public PO getNewModel()
+	{
+		return newModel;
+	}
+
+	public void setNewModel(PO po)
+	{
+		newModel = po;
+	}
+
+	public Integer getNewModelLineNo()
+	{
+		return newModelLineNo;
+	}
+
+	public void setNewModelLineNo(Integer lineNo)
+	{
+		newModelLineNo = lineNo;
 	}
 
 	public HashMap<Integer,Integer> getDirtyLineNo()
@@ -768,7 +794,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		renderer = new SimpleInputWindowGridRowRenderer(this);
 		renderer.setGridView(gridView);
-//		renderer.setSimpleInputWindow(this);
 		renderer.setGridTab(gridTab);
 		renderer.createRecordProcessDialog();
 
@@ -1398,12 +1423,16 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 			SimpleInputWindowCustomizeGridViewDialog.showCustomize(0, m_simpleInputWindow.getAD_Tab_ID(), columnsWidth,gridFieldIds, this);
 
-		}else if(event.getTarget().equals(RefreshButton)){
+		}else if(event.getTarget().equals(HomeButton)){
 
 			refresh();
 
 		/*JPiereMatrixWindowQuickEntry#ConfirmPanel*/
 		}else if (event.getTarget().equals(SearchButton) || event.getName().equals("onComplete")){//onCompolete from process dialog
+
+			editMode = JPiereSimpleInputWindow.EDIT_MODE_UPDATE;
+			newModel = null;
+			newModelLineNo = null;
 
 			if(dirtyModel.size()==0)
 			{
@@ -1416,9 +1445,10 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				CreateButton.setEnabled(false);
 				SaveButton.setEnabled(true);
 				ProcessButton.setEnabled(true);
+
 				CustomizeButton.setEnabled(true);
 				DeleteButton.setEnabled(true);
-				frozenNum.setReadWrite(false);
+				frozenNum.setVisible(true);
 
 				if(event.getName().equals("onComplete"))
 				{
@@ -1466,6 +1496,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		}else if(event.getTarget().equals(CreateButton)){//TODO
 
 			setEditMode(EDIT_MODE_CREATE);
+			newModel = null;
+			newModelLineNo = null;
 
 			if(!createNew())
 			{
@@ -1628,6 +1660,9 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				public void run(String trxName)
 				{
 
+					if(newModel!=null)
+						newModel.saveEx(trxName);
+
 					Collection<PO> POs = dirtyModel.values();
 					for(PO po :POs)
 					{
@@ -1647,9 +1682,20 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				}
 			}else{
 
+				List<Row> rowList = simpleInputGrid.getRows().getChildren();
+
+				//Delete "+*"
+				if(newModel!=null)
+				{
+					Integer lineNo = newModelLineNo;
+					org.zkoss.zul.Row row = rowList.get(lineNo.intValue());
+					Cell lineNoCell = (Cell)row.getChildren().get(1);
+					org.zkoss.zul.Label lineNoLabel = (org.zkoss.zul.Label)lineNoCell.getChildren().get(0);
+					lineNoLabel.setValue(lineNoLabel.getValue().replace("+*", ""));
+				}
+
 				//Delete "*"
 				Collection<Integer> lines = dirtyLineNo.values();
-				List<Row> rowList = simpleInputGrid.getRows().getChildren();
 				for(Integer lineNo :lines)
 				{
 					org.zkoss.zul.Row row = rowList.get(lineNo.intValue());
@@ -1660,6 +1706,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 			}
 
+			newModel = null;
+			newModelLineNo = null;
 			dirtyModel.clear();
 			dirtyLineNo.clear();
 
@@ -1726,8 +1774,14 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 						FDialog.error(form.getWindowNo(), "DeleteError");
 					}
 
-					try {
-						createView ();
+					try
+					{
+						if(editMode.equals(JPiereSimpleInputWindow.EDIT_MODE_CREATE))
+						{
+							;
+						}else{
+							createView ();
+						}
 					} catch (Exception e) {
 						FDialog.error(form.getWindowNo(), "Error");
 					}
@@ -1772,14 +1826,28 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 							trx = Trx.get(m_trxName, true);
 
 							PO po = null;
+							ArrayList<Integer> deleteID = new ArrayList<Integer>();
 							for(int i = 0; i < indices.length; i++)
 							{
 								po= simpleInputWindowGridTable.getPO(indices[i]);
-								po.set_TrxName(m_trxName);
-								po.deleteEx(false);
+								deleteID.add(po.get_ID());
+								if(po.get_ID()!=0)
+								{
+									po.set_TrxName(m_trxName);
+									po.deleteEx(false);
+								}
 							}
 
 							trx.commit();
+
+							if(editMode.equals(JPiereSimpleInputWindow.EDIT_MODE_CREATE))
+							{
+								for(Integer id : deleteID)
+								{
+									dirtyModel.remove(id);
+									dirtyLineNo.remove(id);
+								}
+							}
 
 						} catch (Exception e) {
 
@@ -1793,8 +1861,21 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 						}
 
-						try {
-							createView ();
+						try
+						{
+							if(editMode.equals(JPiereSimpleInputWindow.EDIT_MODE_CREATE))
+							{
+								for(int i = 0; i < indices.length; i++)
+								{
+//									listModel.removeFromSelection(indices[i]);
+									List<Row> rowList = simpleInputGrid.getRows().getChildren();
+									rowList.remove(indices[i]);
+								}
+
+								selectAll.setChecked(false);
+							}else{
+								createView ();
+							}
 						} catch (Exception e) {
 							FDialog.error(form.getWindowNo(), "Error");
 						}
