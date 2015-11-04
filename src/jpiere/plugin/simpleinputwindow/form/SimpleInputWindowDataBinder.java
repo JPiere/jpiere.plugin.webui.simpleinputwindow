@@ -49,18 +49,21 @@ public class SimpleInputWindowDataBinder implements ValueChangeListener {
 	//Map that is ID of PO and LineNo for save.< ID of PO, LieNo>
 	private HashMap<Integer,Integer>  dirtyLineNo ;
 
+	private JPiereSimpleInputWindow simpleInputWindow;
+
+
 	/**
 	 *
 	 * @param gridTab
 	 */
-	public SimpleInputWindowDataBinder(GridTab gridTab, SimpleInputWindowGridRowRenderer rendere
-					,SimpleInputWindowListModel listModel,HashMap<Integer,PO> dirtyModel,HashMap<Integer,Integer>dirtyLineNo)
+	public SimpleInputWindowDataBinder(JPiereSimpleInputWindow simpleInputWindow, SimpleInputWindowGridRowRenderer rendere)
 	{
-		this.gridTab = gridTab;
+		this.simpleInputWindow = simpleInputWindow;
+		this.gridTab = simpleInputWindow.getGridTab();
 		this.rendere = rendere;
-		this.listModel = listModel;
-		this.dirtyModel = dirtyModel;
-		this.dirtyLineNo = dirtyLineNo;
+		this.listModel = simpleInputWindow.getListModel();
+		this.dirtyModel = simpleInputWindow.getDirtyModel();
+		this.dirtyLineNo = simpleInputWindow.getDirtyLineNo();
 	}
 
 

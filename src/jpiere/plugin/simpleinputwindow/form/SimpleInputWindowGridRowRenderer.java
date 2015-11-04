@@ -107,6 +107,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 	private int currentColumnIndex = -1;
 	private AbstractADWindowContent m_windowPanel;
 	private ActionListener buttonListener;
+
 	/**
 	 * Flag detect this view has customized column or not
 	 * value is set at {@link #render(Row, Object[], int)}
@@ -121,20 +122,28 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 
 	private SimpleInputWindowListModel listModel;
 
-	private boolean isNewRecord = false;
+	//Map of PO Instance that have to save.<ID of PO,PO>
+	private HashMap<Integer,PO> 	dirtyModel;
+
+	//Map that is ID of PO and LineNo for save.< ID of PO, LieNo>
+	private HashMap<Integer,Integer>  dirtyLineNo ;
+
 
 	/**
 	 *
-	 * @param gridTab
-	 * @param form
+	 * @param JPiereSimpleInputWindow
+	 *
 	 */
-	public SimpleInputWindowGridRowRenderer(GridTab gridTab ,CustomForm form
-								,SimpleInputWindowListModel listModel,HashMap<Integer,PO> dirtyModel,HashMap<Integer,Integer>dirtyLineNo)
+	public SimpleInputWindowGridRowRenderer(JPiereSimpleInputWindow simpleInputWindow)
 	{
-		this.windowNo = form.getWindowNo();
-		this.form = form;
-		this.listModel = listModel;
-		this.dataBinder = new SimpleInputWindowDataBinder(gridTab, this, listModel, dirtyModel, dirtyLineNo);
+		this.simpleInputWindow = simpleInputWindow;
+
+		this.windowNo = simpleInputWindow.getForm().getWindowNo();
+		this.form = simpleInputWindow.getForm();
+		this.listModel = simpleInputWindow.getListModel();
+		this.dirtyModel= simpleInputWindow.getDirtyModel();
+		this.dirtyLineNo = simpleInputWindow.getDirtyLineNo();
+		this.dataBinder = new SimpleInputWindowDataBinder(simpleInputWindow,this);
 	}
 
 	//TODO
@@ -523,7 +532,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 		}
 
 
-		if(isNewRecord)
+		if(simpleInputWindow.getEditMode().equals(JPiereSimpleInputWindow.EDIT_MODE_CREATE))
 		{
 			currentRow = row;
 			currentRowIndex = index;
@@ -535,10 +544,6 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 
 	}
 
-	public void setIsNewRecord(boolean isNewRecord)
-	{
-		this.isNewRecord = isNewRecord;
-	}
 
 
 	/**
@@ -997,25 +1002,20 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 				if(isLastPage)
 				{
 					//TODO:新規レコード追加?
-					if(isNewRecord)//登録モード判定
+					if(simpleInputWindow.getEditMode().equals(JPiereSimpleInputWindow.EDIT_MODE_CREATE))//登録モード判定
 					{
 						boolean isOK = simpleInputWindow.saveData(false);
 						if(!isOK)
 						{
+							currentRowIndex--;
 							event.stopPropagation();
 							return;
 						}
 
-						currentRowIndex++;
-
 						PO po = null;
 						List<IModelFactory> factoryList = Service.locator().list(IModelFactory.class).getServices();
-						if (factoryList == null)
+						for(IModelFactory factory : factoryList)
 						{
-							;//
-						}
-
-						for(IModelFactory factory : factoryList) {
 							po = factory.getPO(gridTab.getTableName(), 0, null);//
 							if (po != null)
 							{
@@ -1025,14 +1025,20 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 
 						listModel.setPO(po);
 						grid.setModel(listModel);
+						grid.setFocus(true);
+
+						currentRow = rowList.get(currentRowIndex);
+						currentPO =listModel.getPO(currentRowIndex);
+						dirtyModel.put(0, po);
+						dirtyLineNo.put(0,currentRowIndex);
+
 						event.stopPropagation();
+
 						return;
 
 					}else{ //更新モード
 						currentRowIndex = minRowIndex;
 					}
-
-
 
 				}else{
 					currentRowIndex = minRowIndex;
@@ -1070,11 +1076,6 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 	public void setGridView(GridView gridView)
 	{
 		this.gridView = gridView;
-	}
-
-	public void setSimpleInputWindow(JPiereSimpleInputWindow simpleInputWindow)
-	{
-		this.simpleInputWindow = simpleInputWindow;
 	}
 
 	public void setGridTab(GridTab gridTab)
@@ -1119,6 +1120,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 			}
 		};
 	}
+
 
 
 }
