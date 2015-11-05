@@ -435,8 +435,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 		row.appendChild(cell);
 
 		cell = new Cell();
-		if(simpleInputWindow.getEditMode().equals(simpleInputWindow.EDIT_MODE_CREATE)
-				&& index == simpleInputWindow.getNewModelLineNo().intValue())
+		if(listModel.getPO(index).get_ID()==0)
 		{
 			cell.appendChild(new Label("+*" + new Integer(index+1).toString()));
 		}else{
@@ -542,7 +541,8 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 		}
 
 
-		if(simpleInputWindow.getEditMode().equals(JPiereSimpleInputWindow.EDIT_MODE_CREATE))
+		//New Record
+		if(listModel.getPO(index).get_ID()==0)
 		{
 			currentRow = row;
 			currentRowIndex = index;
@@ -552,7 +552,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 			editCurrentRow();
 		}
 
-	}
+	}//render
 
 
 
