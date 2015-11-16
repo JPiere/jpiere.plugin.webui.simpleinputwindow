@@ -14,10 +14,16 @@
 package jpiere.plugin.simpleinputwindow.form;
 
 import java.util.HashMap;
+import java.util.List;
 
+import jpiere.plugin.simpleinputwindow.base.ISimpleInputWindowCallout;
+import jpiere.plugin.simpleinputwindow.base.ISimpleInputWindowCalloutFactory;
+
+import org.adempiere.base.Service;
 import org.adempiere.webui.editor.WEditor;
 import org.adempiere.webui.event.ValueChangeEvent;
 import org.adempiere.webui.event.ValueChangeListener;
+import org.adempiere.webui.window.FDialog;
 import org.compiere.model.GridField;
 import org.compiere.model.GridTab;
 import org.compiere.model.PO;
@@ -51,7 +57,6 @@ public class SimpleInputWindowDataBinder implements ValueChangeListener {
 
 	private JPiereSimpleInputWindow simpleInputWindow;
 
-
 	/**
 	 *
 	 * @param gridTab
@@ -83,6 +88,7 @@ public class SimpleInputWindowDataBinder implements ValueChangeListener {
         	GridField gridField = editor.getGridField();
 
             //Step2:Update ViewModel data for display data.Please refer to JPMatrixGridRowRenderer.editRow() method.
+        	Object oldValue = listModel.getValueAt(rendere.getCurrentRowIndex(), gridField);
             listModel.setValueAt (newValue, rendere.getCurrentRowIndex(), gridField);
 
             //Step3:Update Context : GridField.setValue method can update context
@@ -105,10 +111,72 @@ public class SimpleInputWindowDataBinder implements ValueChangeListener {
 	            dirtyLineNo.put((Integer)po.get_ID(),rendere.getCurrentRowIndex());
             }
 
+            //Callout
+			List<ISimpleInputWindowCalloutFactory> factories = Service.locator().list(ISimpleInputWindowCalloutFactory.class).getServices();
+			if (factories != null)
+			{
+				String calloutMessage = null;
+				for(ISimpleInputWindowCalloutFactory factory : factories)
+				{
+					ISimpleInputWindowCallout callout = factory.getCallout(po.get_TableName(), editor.getColumnName());
+					if(callout != null)
+					{
+						calloutMessage =callout.start(this, rendere.getCurrentRowIndex(), gridField, newValue, oldValue);
+						if(calloutMessage != null && !calloutMessage.equals(""))
+						{
+							FDialog.error(simpleInputWindow.getForm().getWindowNo(), calloutMessage);
+							logger.saveError("Error", new Exception(calloutMessage));
+						}
+
+					}
+
+				}//for
+
+			}//if (factories != null)
+			//Callout finish
+
            return;
 
         }
 
     } // ValueChange
+
+
+	public void setValue(int rowIndex, String columnName, Object newValue)
+	{
+    	//Step1:Update Editor Value for display data.
+		List<WEditor>  editors = rendere.getEditors();
+		for(WEditor editor : editors)
+		{
+			if(editor.getColumnName().equals(columnName))
+			{
+				editor.setValue(newValue);
+
+		        //Step2:Update ViewModel data for display data.Please refer to JPMatrixGridRowRenderer.editRow() method.
+		    	Object oldValue = listModel.getValueAt(rendere.getCurrentRowIndex(), editor.getGridField());
+		        listModel.setValueAt (newValue, rendere.getCurrentRowIndex(), editor.getGridField());
+
+	            //Step3:Update Context : GridField.setValue method can update context
+		        editor.getGridField().setValue(newValue, false);
+
+	            //Step4:dirty model
+	            PO po = listModel.getPO(rendere.getCurrentRowIndex());
+	            if(!dirtyModel.containsKey((Integer)po.get_ID()) && po.get_ID()!=0)
+	            {
+	            	Cell  lineNoCell =  (Cell)editor.getComponent().getParent().getParent().getChildren().get(1);
+	            	org.zkoss.zul.Label lineNoLabel = (org.zkoss.zul.Label)lineNoCell.getChildren().get(0);
+	            	lineNoLabel.setValue("*"+lineNoLabel.getValue());
+	            }
+
+		        break;
+			}
+		}//for
+
+	}
+
+	public Object getValue(int rowIndex, String columnName)
+	{
+		return listModel.getValueAt(rowIndex, columnName);
+	}
 
 }

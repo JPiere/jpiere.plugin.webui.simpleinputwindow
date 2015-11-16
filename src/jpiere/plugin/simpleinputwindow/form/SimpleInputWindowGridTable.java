@@ -66,6 +66,16 @@ public class SimpleInputWindowGridTable extends AbstractTableModel {
 		return list_POs.get(rowIndex).get_Value(gf.getColumnName());
 	}
 
+	public Object getValueAt (int rowIndex, GridField gridField)
+	{
+		return list_POs.get(rowIndex).get_Value(gridField.getColumnName());
+	}
+
+	public Object getValueAt (int rowIndex, String columnName)
+	{
+		return list_POs.get(rowIndex).get_Value(columnName);
+	}
+
 	public ArrayList<PO>  getPOs(){
 		return list_POs;
 	}

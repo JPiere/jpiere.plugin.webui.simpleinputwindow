@@ -114,6 +114,15 @@ public class SimpleInputWindowListModel extends AbstractListModel<Object> implem
 //		fireTableChange(tcEvent);
 	}	//	setValueAt
 
+	public Object getValueAt(int rowIndex, GridField gridField) {
+
+		return tableModel.getValueAt(rowIndex, gridField);
+	}
+
+	public Object getValueAt(int rowIndex, String columnName) {
+		return tableModel.getValueAt(rowIndex, columnName);
+	}
+
 	public void addToSelection(int rowIndex) {
 		if (!selection.contains(rowIndex))
 			selection.add(rowIndex);
