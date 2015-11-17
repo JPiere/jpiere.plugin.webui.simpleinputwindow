@@ -552,7 +552,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 
 
 		//New Record
-		if(currentRowIndex < index)
+		if(listModel.getPO(index).get_ID()==0)
 		{
 			currentRow = row;
 			currentRowIndex = index;
@@ -1075,13 +1075,6 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 						currentPO =listModel.getPO(currentRowIndex);
 						simpleInputWindow.setNewModel(po);
 						simpleInputWindow.setNewModelLineNo(currentRowIndex);
-
-						if(simpleInputWindow.getEditMode().equals(JPiereSimpleInputWindow.EDIT_MODE_UPDATE))
-						{
-//							stopEditing(true);
-//							editCurrentRow();
-//							currentRow.setFocus(true);
-						}
 
 						event.stopPropagation();
 						return;

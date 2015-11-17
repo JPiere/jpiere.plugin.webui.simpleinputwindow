@@ -233,11 +233,11 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 	private static final int MIN_NUMERIC_COL_WIDTH = 120;
 
-	private String editMode = EDIT_MODE_UPDATE;
-
-	public static final String EDIT_MODE_CREATE = "create";
-	public static final String EDIT_MODE_UPDATE = "update";
-	public static final String EDIT_MODE_READONLY = "readonly";
+//	private String editMode = EDIT_MODE_UPDATE;
+//
+//	public static final String EDIT_MODE_CREATE = "create";
+//	public static final String EDIT_MODE_UPDATE = "update";
+//	public static final String EDIT_MODE_READONLY = "readonly";
 
 	/**
 	 * Constractor
@@ -1188,12 +1188,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		if(dirtyModel.size() > 0 )
 		{
-			if(editMode.equals(JPiereSimpleInputWindow.EDIT_MODE_CREATE))
-			{
-				saveData(false);
-			}else{
-				saveData(true);
-			}
+			saveData(false);
 		}
 
 		ToolbarProcessButton button = (ToolbarProcessButton)event.getSource();
@@ -1482,13 +1477,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 					{
 						if (result)
 						{
-							if(editMode.equals(JPiereSimpleInputWindow.EDIT_MODE_CREATE))
-							{
-								saveData(false);
-							}else{
-								saveData(true);
-							}
-
+							saveData(true);
 						}else{
 							;//Nothing to do;
 						}
@@ -1562,16 +1551,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			LayoutUtils.openPopupWindow(ProcessButton, popup, "after_start");
 		}
 	}//onEvent
-
-	public void setEditMode(String editMode) {
-
-		this.editMode = editMode;
-
-	}
-
-	public String getEditMode(){
-		return editMode;
-	}
 
 	private void toggleSelectionForAll(boolean b) {
 		org.zkoss.zul.Rows rows = simpleInputGrid.getRows();
@@ -1792,23 +1771,29 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			{
 				if (result)
 				{
-					try{
+					try
+					{
+						int poID = po.get_ID();
 						po.deleteEx(false);
+
+						dirtyModel.remove(poID);
+						dirtyLineNo.remove(poID);
+						if(newModelLineNo != null && newModelLineNo.intValue() == renderer.getCurrentRowIndex())
+						{
+							newModel = null;
+							newModelLineNo = null;
+						}
+
 					} catch (Exception e) {
 						FDialog.error(form.getWindowNo(), "DeleteError");
 					}
 
-					try
-					{
-						if(editMode.equals(JPiereSimpleInputWindow.EDIT_MODE_CREATE))
-						{
-							;
-						}else{
-							createView ();
-						}
-					} catch (Exception e) {
-						FDialog.error(form.getWindowNo(), "Error");
-					}
+					listModel.removePO(renderer.getCurrentRowIndex());
+
+					List<Row> rowList = simpleInputGrid.getRows().getChildren();
+					rowList.remove(renderer.getCurrentRowIndex());
+					simpleInputGrid.setModel(listModel);
+
 				}//if (result)
 
 	        }
