@@ -19,6 +19,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -1809,6 +1810,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		String stringMsg = Msg.getMsg(Env.getCtx(), "DeleteRecord?") + System.lineSeparator()
 				+ Msg.getElement(Env.getCtx(), "LineNo") + " : " +System.lineSeparator() ;
 		StringBuilder stringBuilderMsg = new StringBuilder(stringMsg);
+		Arrays.sort(indices);//Sort Ascending
 		for(int i = 0; i < indices.length; i++)
 		{
 			stringBuilderMsg.append((indices[i]+1)+", ");
@@ -1836,7 +1838,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 							PO po = null;
 							ArrayList<Integer> deleteID = new ArrayList<Integer>();
-							for(int i = 0; i < indices.length; i++)
+							for(int i = indices.length-1; i >= 0; i--)//delete descending
 							{
 								if(newModelLineNo != null && newModelLineNo.intValue() == indices[i])
 								{
@@ -1873,7 +1875,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 						try
 						{
-							for(int i = 0; i < indices.length; i++)
+							for(int i = indices.length-1; i >= 0; i--)//delete descending
 							{
 								listModel.removeFromSelection(indices[i]);
 								listModel.removePO(indices[i]);
