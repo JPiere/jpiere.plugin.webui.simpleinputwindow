@@ -1410,7 +1410,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			List<Component> columnList = columns.getChildren();
 			Map<Integer, String> columnsWidth = new HashMap<Integer, String>();
 			ArrayList<Integer> gridFieldIds = new ArrayList<Integer>();
-			for (int i = 0; i < gridFields.length; i++) {
+			for (int i = 0; i < gridFields.length; i++)
+			{
 				// 2 is offset of num of column in grid view and actual data fields.
 				// in grid view, add two function column, indicator column and selection (checkbox) column
 				// @see GridView#setupColumns

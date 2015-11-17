@@ -30,7 +30,7 @@ public class SimpleInputWindowSampleCallout implements ISimpleInputWindowCallout
 		BigDecimal qty = (BigDecimal)dataBinder.getValue(rowIndex, "QtyEntered");
 		dataBinder.setValue(rowIndex, "GrandTotal", rate.multiply(qty));
 
-		return "error";
+		return "";
 	}
 
 }

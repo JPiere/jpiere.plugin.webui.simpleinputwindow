@@ -103,8 +103,8 @@ public class SimpleInputWindowListModel extends AbstractListModel<Object> implem
 
 	public void setPO(PO po){
 		tableModel.setPO(po);
-//		WTableModelEvent tcEvent = new WTableModelEvent(this, 0, 0);//TODO:要実装
-//		fireTableChange(tcEvent);
+		WTableModelEvent tcEvent = new WTableModelEvent(this, 0, 0);
+		fireTableChange(tcEvent);
 	}
 
 	public void setValueAt (Object value, int row, GridField gridField)
