@@ -130,6 +130,11 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 	//Map that is ID of PO and LineNo for save.< ID of PO, LieNo>
 	private HashMap<Integer,Integer>  dirtyLineNo ;
 
+	//Search Field Editor Map
+	private HashMap<String,WEditor> searchEditorMap = new HashMap<String,WEditor> ();
+
+	private GridField[] gridFields;
+
 
 	/**
 	 *
@@ -147,6 +152,8 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 		this.dirtyModel= simpleInputWindow.getDirtyModel();
 		this.dirtyLineNo = simpleInputWindow.getDirtyLineNo();
 		this.dataBinder = new SimpleInputWindowDataBinder(simpleInputWindow,this);
+		this.searchEditorMap = simpleInputWindow.getSearchEditorMap();
+		this.gridFields = simpleInputWindow.getFields();
 	}
 
 	//TODO
@@ -542,7 +549,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 
 
 		//New Record
-		if(listModel.getPO(index).get_ID()==0)
+		if(currentRowIndex < index)
 		{
 			currentRow = row;
 			currentRowIndex = index;
@@ -1039,9 +1046,24 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 							po = factory.getPO(gridTab.getTableName(), 0, null);//
 							if (po != null)
 							{
+								for(int i = 0; i < gridFields.length; i++)
+								{
+									Object defaultValue = gridFields[i].getDefault();
+									if(defaultValue!=null)
+									{
+										po.set_ValueNoCheck(gridFields[i].getColumnName(), defaultValue);
+									}
+								}
+
+								for(Map.Entry<String, WEditor> entry: searchEditorMap.entrySet())
+								{
+									if(entry.getValue().getValue() != null && po.get_ColumnIndex(entry.getKey()) != -1)
+										po.set_ValueNoCheck(entry.getKey(), entry.getValue().getValue());
+								}
 								break;
 							}
 						}//for
+
 						listModel.setPO(po);
 						grid.setModel(listModel);
 						grid.setFocus(true);

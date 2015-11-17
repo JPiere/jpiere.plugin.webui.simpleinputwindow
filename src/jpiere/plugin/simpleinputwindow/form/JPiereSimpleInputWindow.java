@@ -328,7 +328,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			row = parameterLayoutRows.newRow();
 				Groupbox searchGB = new Groupbox();
 				row.appendCellChild(searchGB,10);
-				searchGB.appendChild(new Caption(Msg.getMsg(Env.getCtx(), "SearchCriteria")));
+				searchGB.appendChild(new Caption(Msg.getMsg(Env.getCtx(), "SearchCriteria")+" & " + Msg.getMsg(Env.getCtx(), "ValuePreference")));
 				Grid searchGrid  = new Grid();
 				searchGrid.setStyle("background-color: #E9F0FF");
 				searchGrid.setStyle("border: none");
@@ -648,14 +648,30 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			;//
 		}
 		PO po = null;
-		for(IModelFactory factory : factoryList) {
+		for(IModelFactory factory : factoryList)
+		{
 			po = factory.getPO(TABLE_NAME, 0, null);//
 			if (po != null)
 			{
-				list.add(po);
+				for(int i = 0; i < gridFields.length; i++)
+				{
+					Object defaultValue = gridFields[i].getDefault();
+					if(defaultValue!=null)
+					{
+						po.set_ValueNoCheck(gridFields[i].getColumnName(), defaultValue);
+					}
+				}
+
+				for(Map.Entry<String, WEditor> entry: searchEditorMap.entrySet())
+				{
+					if(entry.getValue().getValue() != null && po.get_ColumnIndex(entry.getKey()) != -1)
+						po.set_ValueNoCheck(entry.getKey(), entry.getValue().getValue());
+				}
 				break;
 			}
 		}//for
+
+		list.add(po);
 
 		simpleInputWindowGridTable = createTableModel(list);
 
@@ -1953,6 +1969,11 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				break;
 			}
 		}
+	}
+
+	public HashMap<String,WEditor> getSearchEditorMap()
+	{
+		return searchEditorMap;
 	}
 
 
