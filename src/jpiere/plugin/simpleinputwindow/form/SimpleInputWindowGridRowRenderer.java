@@ -1022,7 +1022,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 					String[] yx = cell.getId().split("_");
 					String ColumnIndex = yx[1];
 
-					if(new Integer(ColumnIndex).intValue() == lastColumnIndex)
+					if(new Integer(ColumnIndex).intValue() == lastColumnIndex && !gridTab.isReadOnly() && gridTab.isInsertRecord())
 					{
 						boolean isOK = simpleInputWindow.saveData(false);
 						if(!isOK)

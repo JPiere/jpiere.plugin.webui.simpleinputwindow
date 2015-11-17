@@ -505,7 +505,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				CreateButton.addActionListener(this);
 				CreateButton.setEnabled(true);
 				CreateButton.setImage(ThemeManager.getThemeResource("images/New16.png"));
-				row.appendCellChild(CreateButton);
+				if(!gridTab.isReadOnly() && gridTab.isInsertRecord())
+					row.appendCellChild(CreateButton);
 
 //				SaveButton = new Button(Msg.getMsg(Env.getCtx(), "save"));
 				SaveButton = new Button();
@@ -513,7 +514,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				SaveButton.addActionListener(this);
 				SaveButton.setEnabled(false);
 				SaveButton.setImage(ThemeManager.getThemeResource("images/Save16.png"));
-				row.appendCellChild(SaveButton);
+				if(!gridTab.isReadOnly())
+					row.appendCellChild(SaveButton);
 
 				HomeButton = new Button();
 				HomeButton.setId("HomeButton");
