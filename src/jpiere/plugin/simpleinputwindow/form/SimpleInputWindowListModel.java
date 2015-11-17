@@ -107,6 +107,11 @@ public class SimpleInputWindowListModel extends AbstractListModel<Object> implem
 		fireTableChange(tcEvent);
 	}
 
+	public void removePO(int rowIndex)
+	{
+		tableModel.removePO(rowIndex);
+	}
+
 	public void setValueAt (Object value, int row, GridField gridField)
 	{
 		tableModel.setValueAt(value, row, gridField);

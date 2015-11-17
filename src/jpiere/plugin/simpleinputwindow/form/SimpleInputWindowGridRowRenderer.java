@@ -446,7 +446,10 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 		{
 			cell.appendChild(new Label("+*" + new Integer(index+1).toString()));
 		}else{
-			cell.appendChild(new Label(new Integer(index+1).toString()));
+			if(dirtyModel.containsKey(listModel.getPO(index).get_ID()))
+				cell.appendChild(new Label("*" + new Integer(index+1).toString()));
+			else
+				cell.appendChild(new Label(new Integer(index+1).toString()));
 		}
 
 		cell.setStyle(CELL_DIV_STYLE_ALIGN_RIGHT);

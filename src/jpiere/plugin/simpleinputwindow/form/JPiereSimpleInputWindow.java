@@ -711,6 +711,16 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		newModel = po ;
 		newModelLineNo = 0;
 
+		//set Buttons
+		SearchButton.setEnabled(true);
+		CreateButton.setEnabled(true);
+		SaveButton.setEnabled(true);
+		ProcessButton.setEnabled(true);
+		CustomizeButton.setEnabled(false);
+		DeleteButton.setEnabled(true);
+		frozenNum.setReadWrite(false);
+
+
 		return true;
 	}
 
@@ -1291,16 +1301,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			Env.setContext(Env.getCtx(), form.getWindowNo(), editor.getColumnName(), e.getNewValue()==null ? null : e.getNewValue().toString());
 		}
 
-//		SearchButton.setEnabled(true);
-//		frozenNum.setReadWrite(true);
-//
-//		SaveButton.setEnabled(false);
-//		CreateButton.setEnabled(false);
-//		ProcessButton.setEnabled(false);
-//
-//		simpleInputGrid.setVisible(false);
-//		CustomizeButton.setEnabled(false);
-//		DeleteButton.setEnabled(false);
 
 		if(e.getNewValue()==null && editor.isMandatory())
 		{
@@ -1449,11 +1449,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		/*JPiereMatrixWindowQuickEntry#ConfirmPanel*/
 		}else if (event.getTarget().equals(SearchButton) || event.getName().equals("onComplete")){//onCompolete from process dialog
 
-			editMode = JPiereSimpleInputWindow.EDIT_MODE_UPDATE;
-			newModel = null;
-			newModelLineNo = null;
-
-			if(dirtyModel.size()==0)
+			if(dirtyModel.size()==0 && newModel==null)
 			{
 
 				if(!createView ())
@@ -1461,7 +1457,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 				//set Buttons
 				SearchButton.setEnabled(true);
-				CreateButton.setEnabled(false);
+				CreateButton.setEnabled(true);
 				SaveButton.setEnabled(true);
 				ProcessButton.setEnabled(true);
 
@@ -1504,33 +1500,42 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		}else if(event.getTarget().equals(SaveButton)){
 
-			if(editMode.equals(JPiereSimpleInputWindow.EDIT_MODE_CREATE))
-			{
 				saveData(false);
-			}else{
-				saveData(true);
-			}
-
 
 		}else if(event.getTarget().equals(CreateButton)){//TODO
 
-			setEditMode(EDIT_MODE_CREATE);
-			newModel = null;
-			newModelLineNo = null;
-
-			if(!createNew())
+			if(dirtyModel.size()==0 && newModel==null)
 			{
-				;
+				if(!createNew())
+				{
+					;
+				}
+
+			}else{
+
+				FDialog.ask(form.getWindowNo(), null, "保存されていないデータがあります。保存しますか?", new Callback<Boolean>() {//TODO:多言語化
+
+					@Override
+					public void onCallback(Boolean result)
+					{
+						if (result)
+						{
+							saveData(false);
+							try {
+								createNew();
+							} catch (Exception e) {
+								// TODO 自動生成された catch ブロック
+								e.printStackTrace();
+							}
+						}else{
+							;//Nothing to do;
+						}
+			        }
+
+				});//FDialog.
 			}
 
-			//set Buttons
-			SearchButton.setEnabled(false);
-			CreateButton.setEnabled(false);
-			SaveButton.setEnabled(true);
-			ProcessButton.setEnabled(true);
-			CustomizeButton.setEnabled(false);
-			DeleteButton.setEnabled(true);
-			frozenNum.setReadWrite(false);
+
 
 		}else if (event.getTarget().equals(selectAll)){
 
@@ -1848,6 +1853,12 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 							ArrayList<Integer> deleteID = new ArrayList<Integer>();
 							for(int i = 0; i < indices.length; i++)
 							{
+								if(newModelLineNo != null && newModelLineNo.intValue() == indices[i])
+								{
+									newModel = null;
+									newModelLineNo = null;
+								}
+
 								po= simpleInputWindowGridTable.getPO(indices[i]);
 								deleteID.add(po.get_ID());
 								if(po.get_ID()!=0)
@@ -1859,13 +1870,10 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 							trx.commit();
 
-							if(editMode.equals(JPiereSimpleInputWindow.EDIT_MODE_CREATE))
+							for(Integer id : deleteID)
 							{
-								for(Integer id : deleteID)
-								{
-									dirtyModel.remove(id);
-									dirtyLineNo.remove(id);
-								}
+								dirtyModel.remove(id);
+								dirtyLineNo.remove(id);
 							}
 
 						} catch (Exception e) {
@@ -1874,27 +1882,23 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 							FDialog.error(form.getWindowNo(), "DeleteError");
 
 						}finally{
-
 							trx = null;
 							m_trxName = null;
-
 						}
 
 						try
 						{
-							if(editMode.equals(JPiereSimpleInputWindow.EDIT_MODE_CREATE))
+							for(int i = 0; i < indices.length; i++)
 							{
-								for(int i = 0; i < indices.length; i++)
-								{
-//									listModel.removeFromSelection(indices[i]);
-									List<Row> rowList = simpleInputGrid.getRows().getChildren();
-									rowList.remove(indices[i]);
-								}
+								listModel.removeFromSelection(indices[i]);
+								listModel.removePO(indices[i]);
 
-								selectAll.setChecked(false);
-							}else{
-								createView ();
+								List<Row> rowList = simpleInputGrid.getRows().getChildren();
+								rowList.remove(indices[i]);
 							}
+							selectAll.setChecked(false);
+							simpleInputGrid.setModel(listModel);
+
 						} catch (Exception e) {
 							FDialog.error(form.getWindowNo(), "Error");
 						}

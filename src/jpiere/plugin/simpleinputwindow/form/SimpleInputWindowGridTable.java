@@ -85,6 +85,10 @@ public class SimpleInputWindowGridTable extends AbstractTableModel {
 		return list_POs.get(rowIndex);
 	}
 
+	public void removePO(int rowIndex){
+		list_POs.remove(rowIndex);
+	}
+
 	public void setPO(PO po)
 	{
 		list_POs.add(po);
