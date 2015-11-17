@@ -233,11 +233,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 	private static final int MIN_NUMERIC_COL_WIDTH = 120;
 
-//	private String editMode = EDIT_MODE_UPDATE;
-//
-//	public static final String EDIT_MODE_CREATE = "create";
-//	public static final String EDIT_MODE_UPDATE = "update";
-//	public static final String EDIT_MODE_READONLY = "readonly";
 
 	/**
 	 * Constractor
@@ -958,11 +953,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				colnames.put(index, gridFields[i].getHeader());
 				index++;
 				org.zkoss.zul.Column column = new Column();
-				//TODO:ソート処理の実装
-//				int colindex =tableModel.findColumn(gridFields[i].getColumnName());
-//				column.setSortAscending(new SortComparator(i, true, Env.getLanguage(Env.getCtx())));
-//				column.setSortDescending(new SortComparator(i, false, Env.getLanguage(Env.getCtx())));
 				column.setLabel(gridFields[i].getHeader());
+
 				if (columnWidthMap != null && columnWidthMap.get(gridFields[i].getAD_Field_ID()) != null && !columnWidthMap.get(gridFields[i].getAD_Field_ID()).equals("")) {
 					column.setWidth(columnWidthMap.get(gridFields[i].getAD_Field_ID()));
 				} else {
@@ -1458,7 +1450,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 				CustomizeButton.setEnabled(true);
 				DeleteButton.setEnabled(true);
-				frozenNum.setVisible(true);
+				frozenNum.setReadWrite(false);
 
 				if(event.getName().equals("onComplete"))
 				{
@@ -1493,6 +1485,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		}else if(event.getTarget().equals(CreateButton)){//TODO
 
+			frozenNum.setReadWrite(false);
+
 			if(dirtyModel.size()==0 && newModel==null)
 			{
 				if(!createNew())
@@ -1509,12 +1503,13 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 					{
 						if (result)
 						{
-							saveData(false);
-							try {
-								createNew();
-							} catch (Exception e) {
-								// TODO 自動生成された catch ブロック
-								e.printStackTrace();
+							if(saveData(false))
+							{
+								try {
+									onEvent(event);
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
 							}
 						}else{
 							;//Nothing to do;
@@ -1613,7 +1608,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 	public void refresh()
 	{
-		if(dirtyModel.size() == 0)
+		if(dirtyModel.size()==0 && newModel==null)
 		{
 			for(Map.Entry<String, WEditor> entry: searchEditorMap.entrySet())
 			{
@@ -1631,12 +1626,17 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				@Override
 				public void onCallback(Boolean result)
 				{
+					boolean isOK = false;
 					if (result)
 					{
-						saveData(false);
+						if(!saveData(false))
+							return ;
+
 					}else{
 						dirtyModel.clear();
 						dirtyLineNo.clear();
+						newModel = null;
+						newModelLineNo = null;
 					}
 
 					for(Map.Entry<String, WEditor> entry: searchEditorMap.entrySet())
