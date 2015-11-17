@@ -530,14 +530,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				if(toolbarProcessButtons.size()> 0 )
 					row.appendCellChild(ProcessButton);
 
-//				CustomizeButton = new Button(Msg.getMsg(Env.getCtx(), "Customize"));
-				CustomizeButton = new Button();
-				CustomizeButton.setId("CustomizeButton");
-				CustomizeButton.addActionListener(this);
-				CustomizeButton.setEnabled(false);
-				CustomizeButton.setImage(ThemeManager.getThemeResource("images/Customize16.png"));
-				row.appendCellChild(CustomizeButton);
-
 //				DeleteButton = new Button(Msg.getMsg(Env.getCtx(), "Delete"));
 				DeleteButton = new Button();
 				DeleteButton.setId("DeleteButton");
@@ -546,6 +538,16 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				DeleteButton.setImage(ThemeManager.getThemeResource("images/Delete16.png"));
 				if(!gridTab.isReadOnly() && m_simpleInputWindow.isDeleteable())
 					row.appendCellChild(DeleteButton);
+
+//				CustomizeButton = new Button(Msg.getMsg(Env.getCtx(), "Customize"));
+				CustomizeButton = new Button();
+				CustomizeButton.setId("CustomizeButton");
+				CustomizeButton.addActionListener(this);
+				CustomizeButton.setEnabled(false);
+				CustomizeButton.setImage(ThemeManager.getThemeResource("images/Customize16.png"));
+				row.appendCellChild(CustomizeButton);
+
+
 
 				row.appendCellChild(new Label(Msg.getElement(Env.getCtx(), "JP_FrozenField")).rightAlign(),1);
 				frozenNum= new WNumberEditor("JP_FrozenField", true, false, true, DisplayType.Integer, "");
@@ -1396,39 +1398,36 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				setupColumns();
 			}
 
-			if(!createView ())
-			{
-				SearchButton.setEnabled(true);
-				frozenNum.setReadWrite(true);
-				SaveButton.setEnabled(false);
-				CreateButton.setEnabled(true);
-				ProcessButton.setEnabled(true);
-				simpleInputGrid.setVisible(false);
-				CustomizeButton.setEnabled(false);
-				DeleteButton.setEnabled(false);
-				return;
-			}
-
+//			simpleInputGrid.setVisible(false);
+			listModel =null;
+			simpleInputGrid.setModel(listModel);
 
 		}else if(event.getTarget().equals(CustomizeButton)){
 
-			org.zkoss.zul.Columns columns = simpleInputGrid.getColumns();
-			List<Component> columnList = columns.getChildren();
-			Map<Integer, String> columnsWidth = new HashMap<Integer, String>();
-			ArrayList<Integer> gridFieldIds = new ArrayList<Integer>();
-			for (int i = 0; i < gridFields.length; i++)
+			if(dirtyModel.size()==0 && newModel==null)
 			{
-				// 2 is offset of num of column in grid view and actual data fields.
-				// in grid view, add two function column, indicator column and selection (checkbox) column
-				// @see GridView#setupColumns
-				Column column = (Column) columnList.get(i+2);
-				String width = column.getWidth();
-				columnsWidth.put(gridFields[i].getAD_Field_ID(), width);
-				gridFieldIds.add(gridFields[i].getAD_Field_ID());
+				org.zkoss.zul.Columns columns = simpleInputGrid.getColumns();
+				List<Component> columnList = columns.getChildren();
+				Map<Integer, String> columnsWidth = new HashMap<Integer, String>();
+				ArrayList<Integer> gridFieldIds = new ArrayList<Integer>();
+				for (int i = 0; i < gridFields.length; i++)
+				{
+					// 2 is offset of num of column in grid view and actual data fields.
+					// in grid view, add two function column, indicator column and selection (checkbox) column
+					// @see GridView#setupColumns
+					Column column = (Column) columnList.get(i+2);
+					String width = column.getWidth();
+					columnsWidth.put(gridFields[i].getAD_Field_ID(), width);
+					gridFieldIds.add(gridFields[i].getAD_Field_ID());
 
+				}
+
+				SimpleInputWindowCustomizeGridViewDialog.showCustomize(0, m_simpleInputWindow.getAD_Tab_ID(), columnsWidth,gridFieldIds, this);
+
+			}else{
+
+				FDialog.info(form.getWindowNo(), null, "データを保存してから実行して下さい");//FDialog.
 			}
-
-			SimpleInputWindowCustomizeGridViewDialog.showCustomize(0, m_simpleInputWindow.getAD_Tab_ID(), columnsWidth,gridFieldIds, this);
 
 		}else if(event.getTarget().equals(HomeButton)){
 
