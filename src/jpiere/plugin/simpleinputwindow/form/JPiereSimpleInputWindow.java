@@ -1145,7 +1145,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		//
 		ArrayList<PO> list = new ArrayList<PO>();
 
-		StringBuilder sql = new StringBuilder("SELECT " + TABLE_NAME+".* FROM " + TABLE_NAME );
+		StringBuilder sql = new StringBuilder("SELECT " + TABLE_NAME+"."+TABLE_NAME+"_ID" + " FROM " + TABLE_NAME );
 		if(m_simpleInputWindow.getJP_JoinClause() != null)
 		{
 			sql.append(" "+ m_simpleInputWindow.getJP_JoinClause());
@@ -1176,7 +1176,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			while (rs.next())
 			{
 				for(IModelFactory factory : factoryList) {
-					po = factory.getPO(TABLE_NAME, rs, null);//
+					po = factory.getPO(TABLE_NAME, rs.getInt(1), null);//
 					if (po != null)
 					{
 						list.add(po);
