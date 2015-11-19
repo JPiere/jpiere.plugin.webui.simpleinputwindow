@@ -64,6 +64,7 @@ import org.adempiere.webui.editor.WEditor;
 import org.adempiere.webui.editor.WEditorPopupMenu;
 import org.adempiere.webui.editor.WNumberEditor;
 import org.adempiere.webui.editor.WSearchEditor;
+import org.adempiere.webui.editor.WStringEditor;
 import org.adempiere.webui.editor.WTableDirEditor;
 import org.adempiere.webui.editor.WYesNoEditor;
 import org.adempiere.webui.editor.WebEditorFactory;
@@ -267,7 +268,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 	private void prepare(String JP_SimpleInputWindow_ID) throws Exception
 	{
-
 		//Create Models that is used by Simple Input Window
 		m_simpleInputWindow = MSimpleInputWindow.get(Env.getCtx(), JP_SimpleInputWindow_ID);
 		if(m_simpleInputWindow == null)
@@ -321,9 +321,19 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		if(m_simpleInputSearches.length > 0)
 		{
+			//Caluculate max colspan
+			int maxColspan = 0;
+			int tmpColspan = 0;
+			for(int i = 0; i < m_simpleInputSearches.length; i++)
+			{
+				tmpColspan = m_simpleInputSearches[i].getXPosition() + m_simpleInputSearches[i].getColumnSpan();
+				if(maxColspan < tmpColspan)
+					maxColspan = tmpColspan;
+			}
+
 			row = parameterLayoutRows.newRow();
 				Groupbox searchGB = new Groupbox();
-				row.appendCellChild(searchGB,10);
+				row.appendCellChild(searchGB, maxColspan >= 10?  maxColspan+2 : 10);
 				searchGB.appendChild(new Caption(Msg.getMsg(Env.getCtx(), "SearchCriteria")+" & " + Msg.getMsg(Env.getCtx(), "ValuePreference")));
 				Grid searchGrid  = new Grid();
 				searchGrid.setStyle("background-color: #E9F0FF");
@@ -408,6 +418,11 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 							editor.getLabel().setStyle("cursor: pointer; text-decoration: underline;color: #333; color:red;");
 						else
 							editor.getLabel().setStyle("cursor: pointer; text-decoration: underline;color: #333;");
+					}else if (editor instanceof WStringEditor){
+
+						String stringValue = (String)editor.getValue();
+						if(m_simpleInputSearches[i].isMandatory() && Util.isEmpty(stringValue))
+							editor.getLabel().setStyle("color:red;");
 					}
 
 					editor.setMandatory(m_simpleInputSearches[i].isMandatory());
@@ -1034,7 +1049,15 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		for(Map.Entry<String, WEditor> entry: searchEditorMap.entrySet())
 		{
-			if(entry.getValue().getValue()!=null)
+			Object value = entry.getValue().getValue();
+			if(entry.getValue() instanceof WStringEditor)
+			{
+				String stringValue = (String)entry.getValue().getValue();
+				if(Util.isEmpty(stringValue))
+					value = null;
+			}
+
+			if(value != null)
 			{
 
 				String tableName = null;
@@ -1297,6 +1320,31 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			editor.getLabel().setStyle("cursor: pointer; text-decoration: underline;color: #333; color:red;");
 		}else{
 			editor.getLabel().setStyle("cursor: pointer; text-decoration: underline;color: #333; ");
+		}
+
+		if(e.getNewValue()==null)
+		{
+			if(editor.isMandatory() && (editor instanceof WSearchEditor
+					|| editor instanceof WTableDirEditor))
+			{
+				editor.getLabel().setStyle("cursor: pointer; text-decoration: underline;color: #333; color:red;");
+			}
+
+		}else{
+
+			if(editor.isMandatory() && (editor instanceof WSearchEditor
+					|| editor instanceof WTableDirEditor))
+			{
+				editor.getLabel().setStyle("cursor: pointer; text-decoration: underline;color: #333; ");
+			}else if (editor.isMandatory() && editor instanceof WStringEditor){
+
+				String stringValue =(String)e.getNewValue();
+				if(Util.isEmpty(stringValue))
+					editor.getLabel().setStyle("color:red;");
+				else
+					editor.getLabel().setStyle("color:#333;");;
+			}
+
 		}
 
 
@@ -1610,12 +1658,39 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 	{
 		if(dirtyModel.size()==0 && newModel==null)
 		{
+			String columnName = null;
+			WEditor otherEditor = null;
+			String DefaultValue = null;
+
 			for(Map.Entry<String, WEditor> entry: searchEditorMap.entrySet())
 			{
-				WEditor otherEditor = entry.getValue();
-				otherEditor.setValue(null);
-				;
-			}
+				columnName = entry.getKey();
+				otherEditor = entry.getValue();
+				for(int i = 0; i < m_simpleInputSearches.length; i++)
+				{
+					if(columnName.equals(m_simpleInputSearches[i].getAD_Field().getAD_Column().getColumnName()))
+					{
+						DefaultValue = m_simpleInputSearches[i].getDefaultValue();
+						if(!Util.isEmpty(DefaultValue))
+						{
+							String value = Env.parseContext(Env.getCtx(), form.getWindowNo(), DefaultValue, false);
+							Env.setContext(Env.getCtx(), form.getWindowNo(), otherEditor.getColumnName(), value);
+							otherEditor.setValue(Env.parseContext(Env.getCtx(), form.getWindowNo(), DefaultValue, false));
+
+							if(otherEditor instanceof WTableDirEditor)
+							{
+								((WTableDirEditor) otherEditor).actionRefresh();
+								((WTableDirEditor) otherEditor).getLookup().setSelectedItem("");
+							}
+						}else{
+							otherEditor.setValue(null);
+							Env.setContext(Env.getCtx(), form.getWindowNo(), otherEditor.getColumnName(), "");
+						}
+					}
+
+				}//for i
+
+			}//for
 
 			setInitialStatus();
 
