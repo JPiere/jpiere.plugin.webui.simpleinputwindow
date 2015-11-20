@@ -41,6 +41,8 @@ import org.adempiere.webui.component.Textbox;
 import org.adempiere.webui.editor.WButtonEditor;
 import org.adempiere.webui.editor.WEditor;
 import org.adempiere.webui.editor.WEditorPopupMenu;
+import org.adempiere.webui.editor.WSearchEditor;
+import org.adempiere.webui.editor.WTableDirEditor;
 import org.adempiere.webui.editor.WebEditorFactory;
 import org.adempiere.webui.event.ActionEvent;
 import org.adempiere.webui.event.ActionListener;
@@ -50,6 +52,7 @@ import org.adempiere.webui.panel.HelpController;
 import org.adempiere.webui.session.SessionManager;
 import org.compiere.model.GridField;
 import org.compiere.model.GridTab;
+import org.compiere.model.MLookup;
 import org.compiere.model.PO;
 import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
@@ -522,10 +525,12 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 			div.setStyle(divStyle);
 			div.setWidth("100%");
 			div.setAttribute("columnName", gridPanelFields[i].getColumnName());
+
 			div.addEventListener(Events.ON_CLICK, rowListener);
 //			div.addEventListener(Events.ON_DOUBLE_CLICK, rowListener);
+
 			row.appendChild(div);
-		}
+		}//for
 
 		if (rowIndex == getCurrentRowIndex()) {
 			setCurrentRow(row);
@@ -677,6 +682,31 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 						editor.setValue(currentValues[i]);
 						editor.getComponent().addEventListener(Events.ON_OK, this);//OnEvent()
 
+
+						if(editor instanceof WTableDirEditor)
+						{
+							//Need refresh
+		        			((WTableDirEditor)editor).getLookup().refresh();
+
+						}else if(editor instanceof WSearchEditor){
+
+							//Dynamic validation of  WsearchEditor can not parse with TabNo, Please check  WsearchEditor.getWhereClause() method.
+							//Matrix window need to parse with TabNo Info.
+							//So,set Dynamic validation  to VFormat for evacuation,and Lookupinfo modify directly.
+							if(editor.getGridField().getVFormat() != null && editor.getGridField().getVFormat().indexOf('@') != -1)
+							{
+								String validated = Env.parseContext(Env.getCtx(), editor.getGridField().getGridTab().getWindowNo(), editor.getGridField().getGridTab().getTabNo(), editor.getGridField().getVFormat(), false);
+								((MLookup)editor.getGridField().getLookup()).getLookupInfo().ValidationCode=validated;
+
+							}else if(editor.getGridField().getLookup().getValidation().indexOf('@') != -1){
+
+								editor.getGridField().setVFormat(editor.getGridField().getLookup().getValidation());
+								String validated = Env.parseContext(Env.getCtx(), editor.getGridField().getGridTab().getWindowNo(), editor.getGridField().getGridTab().getTabNo(), editor.getGridField().getVFormat(), false);
+								((MLookup)editor.getGridField().getLookup()).getLookupInfo().ValidationCode=validated;
+
+							}
+						}
+
 						if (div.getChildren().isEmpty() || !(div.getChildren().get(0) instanceof Button))
 							div.getChildren().clear();
 						else if (!div.getChildren().isEmpty()) {
@@ -722,6 +752,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 								combobox = (Combobox)div.getChildren().get(0);
 								combobox.focus();
 								combobox.select();
+
 							}else if(div.getChildren().get(0) instanceof Textbox){
 
 								textbox = (Textbox)div.getChildren().get(0);

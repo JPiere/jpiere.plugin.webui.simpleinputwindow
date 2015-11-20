@@ -1398,7 +1398,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			if (row != null)
 			{
 				renderer.setCurrentRow(renderer.getCurrentRow());
-				renderer.editCurrentRow();
+				if(!renderer.isEditing())
+					renderer.editCurrentRow();
 			}
 			event.stopPropagation();
 
@@ -1716,12 +1717,43 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 						newModelLineNo = null;
 					}
 
+					String columnName = null;
+					WEditor editor = null;
+					String DefaultValue = null;
+
 					for(Map.Entry<String, WEditor> entry: searchEditorMap.entrySet())
 					{
-						WEditor otherEditor = entry.getValue();
-						otherEditor.setValue(null);
-						;
-					}
+						columnName = entry.getKey();
+						editor = entry.getValue();
+						for(int i = 0; i < m_simpleInputSearches.length; i++)
+						{
+							if(columnName.equals(m_simpleInputSearches[i].getAD_Field().getAD_Column().getColumnName()))
+							{
+								DefaultValue = m_simpleInputSearches[i].getDefaultValue();
+								if(!Util.isEmpty(DefaultValue))
+								{
+									String value = Env.parseContext(Env.getCtx(), form.getWindowNo(), DefaultValue, false);
+									Env.setContext(Env.getCtx(), form.getWindowNo(), editor.getColumnName(), value);
+									editor.setValue(Env.parseContext(Env.getCtx(), form.getWindowNo(), DefaultValue, false));
+
+									if(editor instanceof WTableDirEditor)
+									{
+										((WTableDirEditor) editor).actionRefresh();
+										((WTableDirEditor) editor).getLookup().setSelectedItem("");
+									}
+
+
+								}else{
+									editor.setValue(null);
+									Env.setContext(Env.getCtx(), form.getWindowNo(), editor.getColumnName(), "");
+								}
+
+								setCSS(editor);
+							}
+
+						}//for i
+
+					}//for
 
 					setInitialStatus();
 
