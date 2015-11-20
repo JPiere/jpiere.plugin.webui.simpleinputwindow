@@ -235,6 +235,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 	private static final int MIN_NUMERIC_COL_WIDTH = 120;
 
+	private boolean isVirtualColumn = false;
+
 
 	/**
 	 * Constractor
@@ -295,6 +297,11 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		gridTab.initTab(false);
 		setupFields(gridTab);//Set up display field
+		for(int i = 0; i < gridFields.length; i++)
+		{
+			if(gridFields[i].isVirtualColumn())
+				isVirtualColumn= true;
+		}
 
 	}
 
@@ -1145,7 +1152,12 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		//
 		ArrayList<PO> list = new ArrayList<PO>();
 
-		StringBuilder sql = new StringBuilder("SELECT " + TABLE_NAME+"."+TABLE_NAME+"_ID" + " FROM " + TABLE_NAME );
+		StringBuilder sql = null;
+		if(isVirtualColumn)
+			sql = new StringBuilder("SELECT " + TABLE_NAME+"."+TABLE_NAME+"_ID" + " FROM " + TABLE_NAME );
+		else
+			sql = new StringBuilder("SELECT " + TABLE_NAME+".*" + " FROM " + TABLE_NAME );
+
 		if(m_simpleInputWindow.getJP_JoinClause() != null)
 		{
 			sql.append(" "+ m_simpleInputWindow.getJP_JoinClause());
@@ -1173,18 +1185,32 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				;//
 			}
 			PO po = null;
-			while (rs.next())
+			if(isVirtualColumn)
 			{
-				for(IModelFactory factory : factoryList) {
-					po = factory.getPO(TABLE_NAME, rs.getInt(1), null);//
-					if (po != null)
-					{
-						list.add(po);
-						break;
-					}
-				}//for
-			}//while
-
+				while (rs.next())
+				{
+					for(IModelFactory factory : factoryList) {
+						po = factory.getPO(TABLE_NAME, rs.getInt(1), null);//
+						if (po != null)
+						{
+							list.add(po);
+							break;
+						}
+					}//for
+				}//while
+			}else{
+				while (rs.next())
+				{
+					for(IModelFactory factory : factoryList) {
+						po = factory.getPO(TABLE_NAME, rs, null);//
+						if (po != null)
+						{
+							list.add(po);
+							break;
+						}
+					}//for
+				}//while
+			}//if(isVirtualColumn)
 		}
 		catch (Exception e)
 		{
@@ -1438,6 +1464,18 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		}else if (event.getName().equals("onCustomizeGrid")){
 
 			setupFields(gridTab);
+			int VirtualColumnNum = 0;
+			for(int i = 0; i < gridFields.length; i++)
+			{
+				if(gridFields[i].isVirtualColumn())
+				{
+					isVirtualColumn= true;
+					VirtualColumnNum++;
+				}
+			}
+
+			if(VirtualColumnNum==0)
+				isVirtualColumn=false;
 
 			org.zkoss.zul.Columns columns = simpleInputGrid.getColumns();
 			if(columns != null)
