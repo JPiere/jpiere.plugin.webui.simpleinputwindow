@@ -1367,7 +1367,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 	}
 
 	@Override
-	public void onEvent(Event event) throws Exception {
+	public void onEvent(final Event event) throws Exception {
 
 		if(message != null && !Util.isEmpty(message.toString()))
 		{
@@ -1862,7 +1862,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			 return;
 		 }
 
-		 PO po= simpleInputWindowGridTable.getPO(renderer.getCurrentRowIndex());
+		 final PO po= simpleInputWindowGridTable.getPO(renderer.getCurrentRowIndex());
 		 if(po == null)
 		 {
 			 FDialog.error(form.getWindowNo(), "DeleteError");
@@ -1912,7 +1912,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 	}
 
-	private void onDelete(int[] indices)
+	private void onDelete(final int[] indices)
 	{
 
 		String stringMsg = Msg.getMsg(Env.getCtx(), "DeleteRecord?") + System.lineSeparator()
