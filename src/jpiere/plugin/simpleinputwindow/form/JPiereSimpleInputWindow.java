@@ -421,18 +421,10 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 							|| editor instanceof WTableDirEditor)
 					{
 						editor.getLabel().addEventListener(Events.ON_CLICK, new ZoomListener((IZoomableEditor) editor));
-						if(m_simpleInputSearches[i].isMandatory() && editor.getValue()==null)
-							editor.getLabel().setStyle("cursor: pointer; text-decoration: underline;color: #333; color:red;");
-						else
-							editor.getLabel().setStyle("cursor: pointer; text-decoration: underline;color: #333;");
-					}else if (editor instanceof WStringEditor){
-
-						String stringValue = (String)editor.getValue();
-						if(m_simpleInputSearches[i].isMandatory() && Util.isEmpty(stringValue))
-							editor.getLabel().setStyle("color:red;");
 					}
 
 					editor.setMandatory(m_simpleInputSearches[i].isMandatory());
+					setCSS(editor);
 
 					//positioning
 					row.appendCellChild(editor.getLabel().rightAlign(),1);
@@ -1340,39 +1332,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			Env.setContext(Env.getCtx(), form.getWindowNo(), editor.getColumnName(), e.getNewValue()==null ? null : e.getNewValue().toString());
 		}
 
-
-		if(e.getNewValue()==null && editor.isMandatory())
-		{
-			editor.getLabel().setStyle("cursor: pointer; text-decoration: underline;color: #333; color:red;");
-		}else{
-			editor.getLabel().setStyle("cursor: pointer; text-decoration: underline;color: #333; ");
-		}
-
-		if(e.getNewValue()==null)
-		{
-			if(editor.isMandatory() && (editor instanceof WSearchEditor
-					|| editor instanceof WTableDirEditor))
-			{
-				editor.getLabel().setStyle("cursor: pointer; text-decoration: underline;color: #333; color:red;");
-			}
-
-		}else{
-
-			if(editor.isMandatory() && (editor instanceof WSearchEditor
-					|| editor instanceof WTableDirEditor))
-			{
-				editor.getLabel().setStyle("cursor: pointer; text-decoration: underline;color: #333; ");
-			}else if (editor.isMandatory() && editor instanceof WStringEditor){
-
-				String stringValue =(String)e.getNewValue();
-				if(Util.isEmpty(stringValue))
-					editor.getLabel().setStyle("color:red;");
-				else
-					editor.getLabel().setStyle("color:#333;");;
-			}
-
-		}
-
+		setCSS(editor);
 
 		//Dynamic Validation
 		for(Map.Entry<String, WEditor> entry: searchEditorMap.entrySet())
@@ -1697,13 +1657,13 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		if(dirtyModel.size()==0 && newModel==null)
 		{
 			String columnName = null;
-			WEditor otherEditor = null;
+			WEditor editor = null;
 			String DefaultValue = null;
 
 			for(Map.Entry<String, WEditor> entry: searchEditorMap.entrySet())
 			{
 				columnName = entry.getKey();
-				otherEditor = entry.getValue();
+				editor = entry.getValue();
 				for(int i = 0; i < m_simpleInputSearches.length; i++)
 				{
 					if(columnName.equals(m_simpleInputSearches[i].getAD_Field().getAD_Column().getColumnName()))
@@ -1712,18 +1672,22 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 						if(!Util.isEmpty(DefaultValue))
 						{
 							String value = Env.parseContext(Env.getCtx(), form.getWindowNo(), DefaultValue, false);
-							Env.setContext(Env.getCtx(), form.getWindowNo(), otherEditor.getColumnName(), value);
-							otherEditor.setValue(Env.parseContext(Env.getCtx(), form.getWindowNo(), DefaultValue, false));
+							Env.setContext(Env.getCtx(), form.getWindowNo(), editor.getColumnName(), value);
+							editor.setValue(Env.parseContext(Env.getCtx(), form.getWindowNo(), DefaultValue, false));
 
-							if(otherEditor instanceof WTableDirEditor)
+							if(editor instanceof WTableDirEditor)
 							{
-								((WTableDirEditor) otherEditor).actionRefresh();
-								((WTableDirEditor) otherEditor).getLookup().setSelectedItem("");
+								((WTableDirEditor) editor).actionRefresh();
+								((WTableDirEditor) editor).getLookup().setSelectedItem("");
 							}
+
+
 						}else{
-							otherEditor.setValue(null);
-							Env.setContext(Env.getCtx(), form.getWindowNo(), otherEditor.getColumnName(), "");
+							editor.setValue(null);
+							Env.setContext(Env.getCtx(), form.getWindowNo(), editor.getColumnName(), "");
 						}
+
+						setCSS(editor);
 					}
 
 				}//for i
@@ -2055,6 +2019,31 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 //		}//for
 	}
 
+	/**
+	 * setCSS
+	 *
+	 * Please call after set value and isMandatory to WEditor
+	 *
+	 */
+	private void setCSS(WEditor editor)
+	{
+		//Set CSS of Label
+		if(editor instanceof WSearchEditor
+				|| editor instanceof WTableDirEditor)
+		{
+			if(editor.isMandatory() && editor.getValue()==null)
+				editor.getLabel().setStyle("cursor: pointer; text-decoration: underline;color: #333; color:red;");
+			else
+				editor.getLabel().setStyle("cursor: pointer; text-decoration: underline;color: #333;");
+		}else if (editor instanceof WStringEditor){
+
+			String stringValue = (String)editor.getValue();
+			if(editor.isMandatory() && Util.isEmpty(stringValue))
+				editor.getLabel().setStyle("color:red;");
+			else
+				editor.getLabel().setStyle("color:#333;");
+		}
+	}
 
 	/**
 	 * @param columnName

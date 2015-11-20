@@ -148,6 +148,11 @@ public class SimpleInputWindowListModel extends AbstractListModel<Object> implem
 		return selected;
 	}
 
+	public boolean isSelected(int rowIndex)
+	{
+		return selection.contains(rowIndex);
+	}
+
 	/**
 	 * set current page no ( starting from 0 )
 	 * @param pg

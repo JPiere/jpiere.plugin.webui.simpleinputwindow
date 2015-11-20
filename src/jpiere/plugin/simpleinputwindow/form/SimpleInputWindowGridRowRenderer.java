@@ -428,7 +428,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 		cell.setTooltiptext(Msg.getMsg(Env.getCtx(), "Select"));
 		Checkbox selection = new Checkbox();
 		selection.setAttribute(GRID_ROW_INDEX_ATTR, rowIndex);
-		selection.setChecked(gridTab.isSelected(rowIndex));
+		selection.setChecked(listModel.isSelected(rowIndex));
 		cell.setStyle("border: none;");
 		selection.addEventListener(Events.ON_CHECK, this);
 
