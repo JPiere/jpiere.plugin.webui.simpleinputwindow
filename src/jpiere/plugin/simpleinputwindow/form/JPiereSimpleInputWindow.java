@@ -124,7 +124,6 @@ import org.zkoss.zul.Frozen;
 import org.zkoss.zul.Groupbox;
 import org.zkoss.zul.Menuitem;
 import org.zkoss.zul.North;
-import org.zkoss.zul.Space;
 import org.zkoss.zul.Tab;
 import org.zkoss.zul.Tabpanels;
 import org.zkoss.zul.Tabs;
@@ -559,13 +558,9 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				frozenNum.addValueChangeListener(this);
 				row.appendCellChild(frozenNum.getComponent());
 
-
-		//for space under Button
-		row = parameterLayoutRows.newRow();
-				row.appendCellChild(new Space(),1);
-
 		//Edit Area
 		Center center = new Center();
+		center.setStyle("margin-top: 12px");
 		mainLayout.appendChild(center);
 		center.appendChild(displayDataPanel);
 		displayDataPanel.appendChild(displayDataLayout);//Borderlayout
