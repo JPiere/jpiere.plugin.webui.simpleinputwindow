@@ -492,7 +492,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		//Create Button
 		row = parameterLayoutRows.newRow();
-//				SearchButton = new Button(Msg.getMsg(Env.getCtx(), "search"));
 				SearchButton = new Button();
 				SearchButton.setId("SearchButton");
 				SearchButton.addActionListener(this);
@@ -500,7 +499,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				SearchButton.setImage(ThemeManager.getThemeResource("images/Find16.png"));
 				row.appendCellChild(SearchButton);
 
-//				CreateButton = new Button(Msg.getMsg(Env.getCtx(), "NewRecord"));
 				CreateButton = new Button();
 				CreateButton.setId("CreateButton");
 				CreateButton.addActionListener(this);
@@ -509,7 +507,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				if(!gridTab.isReadOnly() && gridTab.isInsertRecord())
 					row.appendCellChild(CreateButton);
 
-//				SaveButton = new Button(Msg.getMsg(Env.getCtx(), "save"));
 				SaveButton = new Button();
 				SaveButton.setId("SaveButton");
 				SaveButton.addActionListener(this);
@@ -526,7 +523,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				row.appendCellChild(HomeButton);
 
 				loadToolbarButtons();
-//				ProcessButton = new Button(Msg.getMsg(Env.getCtx(), "Process"));
 				ProcessButton = new Button();
 				ProcessButton.setId("ProcessButton");
 				ProcessButton.addActionListener(this);
@@ -535,7 +531,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				if(toolbarProcessButtons.size()> 0 )
 					row.appendCellChild(ProcessButton);
 
-//				DeleteButton = new Button(Msg.getMsg(Env.getCtx(), "Delete"));
 				DeleteButton = new Button();
 				DeleteButton.setId("DeleteButton");
 				DeleteButton.addActionListener(this);
@@ -544,14 +539,12 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				if(!gridTab.isReadOnly() && m_simpleInputWindow.isDeleteable())
 					row.appendCellChild(DeleteButton);
 
-//				CustomizeButton = new Button(Msg.getMsg(Env.getCtx(), "Customize"));
 				CustomizeButton = new Button();
 				CustomizeButton.setId("CustomizeButton");
 				CustomizeButton.addActionListener(this);
 				CustomizeButton.setEnabled(false);
 				CustomizeButton.setImage(ThemeManager.getThemeResource("images/Customize16.png"));
 				row.appendCellChild(CustomizeButton);
-
 
 
 				row.appendCellChild(new Label(Msg.getElement(Env.getCtx(), "JP_FrozenField")).rightAlign(),1);
@@ -768,7 +761,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 	}
 
 
-	//TODO
 	private boolean createView () throws Exception {
 
 		simpleInputGrid.setVisible(true);
@@ -1480,7 +1472,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 			}else{
 
-				FDialog.ask(form.getWindowNo(), null, "保存されていないデータがあります。保存しますか?", new Callback<Boolean>() {//TODO:多言語化
+				FDialog.ask(form.getWindowNo(), null, Msg.getMsg(Env.getCtx(), "SaveChanges?"), new Callback<Boolean>() {//Do you want to save changes?
 
 					@Override
 					public void onCallback(Boolean result)
@@ -1501,7 +1493,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 				saveData(false);
 
-		}else if(event.getTarget().equals(CreateButton)){//TODO
+		}else if(event.getTarget().equals(CreateButton)){
 
 			frozenNum.setReadWrite(false);
 
@@ -1514,7 +1506,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 			}else{
 
-				FDialog.ask(form.getWindowNo(), null, "保存されていないデータがあります。保存しますか?", new Callback<Boolean>() {//TODO:多言語化
+				FDialog.ask(form.getWindowNo(), null, Msg.getMsg(Env.getCtx(), "SaveChanges?"), new Callback<Boolean>() {//Do you want to save changes?
 
 					@Override
 					public void onCallback(Boolean result)
@@ -1670,12 +1662,11 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		}else{
 
-			FDialog.ask(form.getWindowNo(), null, "保存されていないデータがあります。保存しますか?", new Callback<Boolean>() {//TODO:多言語化
+			FDialog.ask(form.getWindowNo(), null, Msg.getMsg(Env.getCtx(), "SaveChanges?"), new Callback<Boolean>() {//Do you want to save changes?
 
 				@Override
 				public void onCallback(Boolean result)
 				{
-					boolean isOK = false;
 					if (result)
 					{
 						if(!saveData(false))
@@ -1806,14 +1797,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			;
 		}
 	}   //  saveData
-
-	//TODO:テストメッセージ
-	public void showMessage(String aaa)
-	{
-		FDialog.error(form.getWindowNo(), form, "SaveError", aaa);
-		return;
-	}
-
 
 	private void onDelete()
 	{
