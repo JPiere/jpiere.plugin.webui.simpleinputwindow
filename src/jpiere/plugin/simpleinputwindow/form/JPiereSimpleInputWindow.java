@@ -59,6 +59,8 @@ import org.adempiere.webui.component.NumberBox;
 import org.adempiere.webui.component.Panel;
 import org.adempiere.webui.component.Row;
 import org.adempiere.webui.component.Rows;
+import org.adempiere.webui.component.Tabbox;
+import org.adempiere.webui.component.Tabpanel;
 import org.adempiere.webui.editor.IZoomableEditor;
 import org.adempiere.webui.editor.WEditor;
 import org.adempiere.webui.editor.WEditorPopupMenu;
@@ -123,6 +125,9 @@ import org.zkoss.zul.Groupbox;
 import org.zkoss.zul.Menuitem;
 import org.zkoss.zul.North;
 import org.zkoss.zul.Space;
+import org.zkoss.zul.Tab;
+import org.zkoss.zul.Tabpanels;
+import org.zkoss.zul.Tabs;
 import org.zkoss.zul.impl.XulElement;
 
 /**
@@ -153,6 +158,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 	//Display Data
 	private Panel displayDataPanel = new Panel();
 	private Borderlayout displayDataLayout = new Borderlayout();
+	private Tabbox tabbox = new Tabbox();
 
 	protected Checkbox selectAll;
 
@@ -573,17 +579,31 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 				//Contents
 				center = new Center();
-				displayDataLayout.appendChild(center);
-				center.appendChild(simpleInputGrid);
 				center.setStyle("border: none");
+				displayDataLayout.appendChild(center);
+				tabbox.setParent(center);
+				tabbox.setWidth("100%");
+			    tabbox.setHeight("100%");
+			    tabbox.setVflex("1");
+			    tabbox.setHflex("1");
+
+				Tabs tabs = new Tabs();
+				tabbox.appendChild(tabs);
+				Tabpanels tabpanels = new Tabpanels();
+				tabbox.appendChild(tabpanels);
+
+				//set first Tab
+				tabs.appendChild(new Tab(gridTab.getName()));
+				Tabpanel tabpanel1 = new Tabpanel();
+				tabpanels.appendChild(tabpanel1);
+				tabpanel1.appendChild(simpleInputGrid);
+
 				simpleInputGrid.setWidth("100%");
 				simpleInputGrid.setHeight("100%");
 				simpleInputGrid.setVflex(true);
 				simpleInputGrid.setVisible(false);
 				simpleInputGrid.setMold("paging");
 				simpleInputGrid.setPageSize(m_simpleInputWindow.getJP_PageSize());
-
-
 	}
 
 	static class ZoomListener implements EventListener<Event>
@@ -761,8 +781,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 	}
 
 
-	private boolean createView () throws Exception {
-
+	private boolean createView () throws Exception
+	{
 		simpleInputGrid.setVisible(true);
 
 		//Create String where clause
