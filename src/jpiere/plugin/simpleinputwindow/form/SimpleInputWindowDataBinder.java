@@ -71,6 +71,16 @@ public class SimpleInputWindowDataBinder implements ValueChangeListener {
 		this.dirtyLineNo = simpleInputWindow.getDirtyLineNo();
 	}
 
+	public SimpleInputWindowDataBinder(JPiereSimpleInputWindow simpleInputWindow, SimpleInputWindowGridRowRenderer rendere, SimpleInputWindowListModel listModel)
+	{
+		this.simpleInputWindow = simpleInputWindow;
+		this.gridTab = simpleInputWindow.getGridTab();
+		this.rendere = rendere;
+		this.listModel = listModel;
+		this.dirtyModel = simpleInputWindow.getDirtyModel();
+		this.dirtyLineNo = simpleInputWindow.getDirtyLineNo();
+	}
+
 
 	/**
 	 * @param e

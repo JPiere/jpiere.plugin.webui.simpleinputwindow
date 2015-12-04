@@ -87,6 +87,7 @@ import org.compiere.model.GridTab;
 import org.compiere.model.GridTable;
 import org.compiere.model.GridWindow;
 import org.compiere.model.GridWindowVO;
+import org.compiere.model.I_AD_Field;
 import org.compiere.model.MLookup;
 import org.compiere.model.MPInstance;
 import org.compiere.model.MProcess;
@@ -157,7 +158,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 	//Display Data
 	private Panel displayDataPanel = new Panel();
 	private Borderlayout displayDataLayout = new Borderlayout();
-	private Tabbox tabbox = new Tabbox();
+	private Tabbox tabbox;
 
 	protected Checkbox selectAll;
 
@@ -168,8 +169,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 	private String whereClause ;
 
 	private StringBuilder message = new StringBuilder();
-
-	private ArrayList<PO> list_POs;
 
 	//Map of PO Instance that have to save.<ID of PO,PO>
 	private HashMap<Integer,PO>  dirtyModel  = new HashMap<Integer,PO>();
@@ -206,7 +205,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 	private GridTab gridTab ;
 	private GridView gridView ;
 
-	private Grid simpleInputGrid  = new Grid();			//main component
+	private Grid simpleInputGrid  = new Grid();			//TODO:削除対象
+	private HashMap<Integer,SimpleInputWindowGridView> simpleInputWindowGridViewMap = new HashMap<Integer,SimpleInputWindowGridView> ();
 
 	private Button SearchButton;
 
@@ -239,6 +239,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 	private static final int MIN_COMBOBOX_WIDTH = 160;
 
 	private static final int MIN_NUMERIC_COL_WIDTH = 120;
+
+	private Center editArea = new Center();
 
 	/**
 	 * Constractor
@@ -572,33 +574,19 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		displayDataLayout.setHeight("100%");
 		displayDataLayout.setStyle("border: none");
 
-				//Contents
-				center = new Center();
-				center.setStyle("border: none");
-				displayDataLayout.appendChild(center);
-				tabbox.setParent(center);
-				tabbox.setWidth("100%");
-			    tabbox.setHeight("100%");
-			    tabbox.setVflex("1");
-			    tabbox.setHflex("1");
-
-				Tabs tabs = new Tabs();
-				tabbox.appendChild(tabs);
-				Tabpanels tabpanels = new Tabpanels();
-				tabbox.appendChild(tabpanels);
-
-				//set first Tab
-				tabs.appendChild(new Tab(gridTab.getName()));
-				Tabpanel tabpanel1 = new Tabpanel();
-				tabpanels.appendChild(tabpanel1);
-				tabpanel1.appendChild(simpleInputGrid);
-
-				simpleInputGrid.setWidth("100%");
-				simpleInputGrid.setHeight("100%");
-				simpleInputGrid.setVflex(true);
-				simpleInputGrid.setVisible(false);
-				simpleInputGrid.setMold("paging");
-				simpleInputGrid.setPageSize(m_simpleInputWindow.getJP_PageSize());
+				//Edit Area
+				editArea.setStyle("border: none");
+				displayDataLayout.appendChild(editArea);
+//				tabbox.setParent(editArea);
+//				tabbox.setWidth("100%");
+//			    tabbox.setHeight("100%");
+//			    tabbox.setVflex("1");
+//			    tabbox.setHflex("1");
+//
+//				Tabs tabs = new Tabs();
+//				tabbox.appendChild(tabs);
+//				Tabpanels tabpanels = new Tabpanels();
+//				tabbox.appendChild(tabpanels);
 	}
 
 	static class ZoomListener implements EventListener<Event>
@@ -650,7 +638,25 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 	private boolean createNew() throws Exception {
 
-		simpleInputGrid.setVisible(true);
+		if(tabbox != null)
+			editArea.removeChild(tabbox);
+
+		tabbox = new Tabbox();
+		tabbox.setParent(editArea);
+		tabbox.setWidth("100%");
+	    tabbox.setHeight("100%");
+	    tabbox.setVflex("1");
+	    tabbox.setHflex("1");
+
+		Tabs tabs = new Tabs();
+		tabbox.appendChild(tabs);
+		Tabpanels tabpanels = new Tabpanels();
+		tabbox.appendChild(tabpanels);
+
+		Tab tab  = new Tab(gridTab.getName());
+		tabbox.getTabs().appendChild(tab);
+		org.zkoss.zul.Tabpanel tabpanel = new Tabpanel();
+		tabbox.getTabpanels().appendChild(tabpanel);
 
 		ArrayList<PO> list = new ArrayList<PO>();
 		List<IModelFactory> factoryList = Service.locator().list(IModelFactory.class).getServices();
@@ -684,15 +690,15 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		list.add(po);
 
-		simpleInputWindowGridTable = createTableModel(list);
+		Grid grid = new Grid();
 
-		org.zkoss.zul.Columns columns = simpleInputGrid.getColumns();
+		org.zkoss.zul.Columns columns = grid.getColumns();
 		if(columns == null)
 		{
-			setupColumns();
+			setupColumns(grid, 0);
 
 		}else{
-			List<Component> cmpList = simpleInputGrid.getChildren();
+			List<Component> cmpList = grid.getChildren();
 
 			for(Component cmp : cmpList)
 			{
@@ -706,18 +712,30 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		Frozen frozen = new Frozen();
 		frozen.setColumns(((BigDecimal)frozenNum.getValue()).intValue() + 2);//freeze selection and indicator column
-		simpleInputGrid.appendChild(frozen);
+		grid.appendChild(frozen);
 
-		listModel = new SimpleInputWindowListModel(simpleInputWindowGridTable, form.getWindowNo());
-		simpleInputGrid.setModel(listModel);
+		SimpleInputWindowGridTable SIWGridTable = createTableModel(list);
+		SimpleInputWindowListModel listModel = new SimpleInputWindowListModel(SIWGridTable, form.getWindowNo());
+		grid.setModel(listModel);
 
-		renderer = new SimpleInputWindowGridRowRenderer(this);
+		SimpleInputWindowGridRowRenderer renderer = new SimpleInputWindowGridRowRenderer(this,listModel);
 		renderer.setGridView(gridView);
 		renderer.setGridTab(gridTab);
 		renderer.createRecordProcessDialog();
 
-		simpleInputGrid.setRowRenderer(renderer);
-		simpleInputGrid.addEventListener(Events.ON_CLICK, this);
+		grid.setRowRenderer(renderer);
+		grid.addEventListener(Events.ON_CLICK, this);
+
+		grid.setWidth("100%");
+		grid.setHeight("100%");
+		grid.setVflex(true);
+		grid.setMold("paging");
+		grid.setVisible(true);
+		grid.setPageSize(m_simpleInputWindow.getJP_PageSize());
+
+		tabpanel.appendChild(grid);
+		simpleInputWindowGridViewMap.put(0, new SimpleInputWindowGridView(SIWGridTable,listModel,renderer,grid));
+
 
 		newModel = po ;
 		newModelLineNo = 0;
@@ -775,10 +793,22 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		return gridTab;
 	}
 
-
 	private boolean createView () throws Exception
 	{
-		simpleInputGrid.setVisible(true);
+		if(tabbox != null)
+			editArea.removeChild(tabbox);
+
+		tabbox = new Tabbox();
+		tabbox.setParent(editArea);
+		tabbox.setWidth("100%");
+	    tabbox.setHeight("100%");
+	    tabbox.setVflex("1");
+	    tabbox.setHflex("1");
+
+		Tabs tabs = new Tabs();
+		tabbox.appendChild(tabs);
+		Tabpanels tabpanels = new Tabpanels();
+		tabbox.appendChild(tabpanels);
 
 		//Create String where clause
 		whereClause = createWhere();
@@ -786,29 +816,70 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		{
 			FDialog.info(form.getWindowNo(), null, message.toString());
 			message = new StringBuilder();
-			simpleInputGrid.setVisible(false);
 			return false;
 		}
 
 		//Create array of PO from where clause
-		list_POs = getPOs(whereClause,true);
-		if(list_POs.size()==0)
+		ArrayList<PO> allPOs  = getPOs(whereClause);
+		if(allPOs.size()==0)
 		{
 			message.append(System.getProperty("line.separator") + Msg.getMsg(Env.getCtx(), "not.found"));
 			FDialog.info(form.getWindowNo(), null, message.toString());
 			message = new StringBuilder();
-			simpleInputGrid.setVisible(false);
 			return false;
 		}
 
+		ArrayList<PO> listPOs = new ArrayList<PO>();
+		Object tabFieldValue = null;
+		if(m_simpleInputWindow.getJP_TabField_ID()!=0)
+			tabFieldValue = allPOs.get(0).get_Value(m_simpleInputWindow.getJP_TabField().getAD_Column().getColumnName());
+		int tabIndex = 0;
+		for(PO po:allPOs)
+		{
+			if(tabFieldValue == null) //Not use tab Fields
+			{
+				listPOs.add(po);
+			}
+			else
+			{
+				if(tabFieldValue.equals(po.get_Value(m_simpleInputWindow.getJP_TabField().getAD_Column().getColumnName())))
+				{
+					listPOs.add(po);
+				}else{
+					boolean isOK = createSimpleInputWindowGridView(tabIndex, listPOs, tabFieldValue.toString());
+					tabIndex++;
+					tabFieldValue = po.get_Value(m_simpleInputWindow.getJP_TabField().getAD_Column().getColumnName());
+					listPOs = new ArrayList<PO>();
+					listPOs.add(po);
+				}
+			}
+		}//for
 
-		org.zkoss.zul.Columns columns = simpleInputGrid.getColumns();
+		//last tab
+		boolean isOK = createSimpleInputWindowGridView(tabIndex, listPOs, tabFieldValue == null? gridTab.getName():tabFieldValue.toString());
+
+		return true;
+
+	}
+
+	private boolean createSimpleInputWindowGridView(int tabIndex, ArrayList<PO> listPOs, String tabTitle)
+	{
+		Tab tab  = new Tab(tabTitle);
+		tabbox.getTabs().appendChild(tab);
+		org.zkoss.zul.Tabpanel tabpanel = new Tabpanel();
+		tabbox.getTabpanels().appendChild(tabpanel);
+
+		Grid grid  = new Grid();
+
+		grid.setId(new Integer(tabIndex).toString());
+
+		org.zkoss.zul.Columns columns = grid.getColumns();
 		if(columns == null)
 		{
-			setupColumns();
+			setupColumns(grid, tabIndex);
 
 		}else{
-			List<Component> cmpList = simpleInputGrid.getChildren();
+			List<Component> cmpList = grid.getChildren();
 
 			for(Component cmp : cmpList)
 			{
@@ -818,30 +889,41 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 					break;
 				}
 			}//for
-		}//if
+		}//if(columns == null)
 
 		Frozen frozen = new Frozen();
 		frozen.setColumns(((BigDecimal)frozenNum.getValue()).intValue() + 2);//freeze selection and indicator column
-		simpleInputGrid.appendChild(frozen);
+		grid.appendChild(frozen);
 
-		simpleInputWindowGridTable = createTableModel(list_POs);
+		SimpleInputWindowGridTable SIWGridTable = createTableModel(listPOs);
 
-		listModel = new SimpleInputWindowListModel(simpleInputWindowGridTable, form.getWindowNo());
-		simpleInputGrid.setModel(listModel);
+		SimpleInputWindowListModel listModel = new SimpleInputWindowListModel(SIWGridTable, form.getWindowNo());
+		grid.setModel(listModel);
 		listModel.addTableModelListener(this);
 
-		renderer = new SimpleInputWindowGridRowRenderer(this);
+		SimpleInputWindowGridRowRenderer renderer = new SimpleInputWindowGridRowRenderer(this,listModel);
 		renderer.setGridView(gridView);
 		renderer.setGridTab(gridTab);
 		renderer.createRecordProcessDialog();
 
-		simpleInputGrid.setRowRenderer(renderer);
-		simpleInputGrid.addEventListener(Events.ON_CLICK, this);
+		grid.setRowRenderer(renderer);
+		grid.addEventListener(Events.ON_CLICK, this);
+
+		grid.setWidth("100%");
+		grid.setHeight("100%");
+		grid.setVflex(true);
+		grid.setVisible(true);
+		grid.setMold("paging");
+		grid.setPageSize(m_simpleInputWindow.getJP_PageSize());
+
+		//TODO:最後にタブにGridをアペンドするのがヌルポをさけるポイントっぽい
+		tabpanel.appendChild(grid);
+		simpleInputWindowGridViewMap.put(tabIndex, new SimpleInputWindowGridView(SIWGridTable, listModel, renderer, grid));
 
 		return true;
 	}
 
-	SimpleInputWindowGridTable simpleInputWindowGridTable ;
+	SimpleInputWindowGridTable simpleInputWindowGridTable ;//TODO:削除
 
 	/*
 	 * Map of PO Instance <ID of PO,PO>
@@ -850,11 +932,9 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 	 */
 	private SimpleInputWindowGridTable createTableModel(ArrayList<PO> POs)
 	{
-
-		simpleInputWindowGridTable = new SimpleInputWindowGridTable();
-		simpleInputWindowGridTable.init(POs,gridFields);
-
-		return simpleInputWindowGridTable;
+		SimpleInputWindowGridTable SIWGridTable= new SimpleInputWindowGridTable();
+		SIWGridTable.init(POs, gridFields);
+		return SIWGridTable;
 	}
 
 	private boolean init;
@@ -925,7 +1005,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		return gridFields;
 	}
 
-	private void setupColumns()
+
+	private void setupColumns(org.zkoss.zul.Grid grid, int tabNo)
 	{
 		if (init) return;
 
@@ -937,9 +1018,9 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			selection.setSort("none");
 		} catch (Exception e) {}
 //		selection.setStyle("border-right: none");
-		selectAll = new Checkbox();
+		Checkbox selectAll = new Checkbox();
 		selection.appendChild(selectAll);
-		selectAll.setId("selectAll");
+		selectAll.setId("selectAll"+"_"+tabNo);
 		selectAll.addEventListener(Events.ON_CHECK, this);
 		columns.appendChild(selection);
 
@@ -952,7 +1033,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		indicator.setLabel(Msg.getElement(Env.getCtx(), "LineNo"));
 		columns.appendChild(indicator);
 
-		simpleInputGrid.appendChild(columns);
+		grid.appendChild(columns);
 		columns.setSizable(true);
 		columns.setMenupopup("none");
 		columns.setColumnsgroup(false);
@@ -1038,7 +1119,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			}
 		}
 	}
-
 
 	private String createWhere()
 	{
@@ -1133,12 +1213,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		return whereClause.toString();
 	}
 
-	private ArrayList<PO> getPOs (String whereClause,boolean reload)
+	private ArrayList<PO> getPOs (String whereClause)
 	{
-		if (reload || list_POs == null || list_POs.size() == 0)
-			;
-		else
-			return list_POs;
 		//
 		ArrayList<PO> list = new ArrayList<PO>();
 
@@ -1207,6 +1283,64 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		return list;
 	}	//	getPOs
+
+	private ArrayList<Object>  getTabFields(String whereClause,boolean reload)
+	{
+		ArrayList<Object> list = new ArrayList<Object>();
+
+		StringBuilder sql = null;
+		sql = new StringBuilder("SELECT DISTINCT ");
+
+		I_AD_Field tabField = m_simpleInputWindow.getJP_TabField();
+		if(Util.isEmpty(tabField.getAD_Column().getColumnSQL()))
+		{
+			sql.append(TABLE_NAME + "." + tabField.getAD_Column().getColumnName());
+		}else{//Virtual Column
+			sql.append(tabField.getAD_Column().getColumnSQL() + " AS " + tabField.getAD_Column().getColumnName());
+		}
+
+		sql.append(" FROM " + TABLE_NAME );
+
+		if(m_simpleInputWindow.getJP_JoinClause() != null)
+		{
+			sql.append(" "+ m_simpleInputWindow.getJP_JoinClause());
+		}
+
+		sql.append(whereClause);
+
+//		if(m_simpleInputWindow.getOrderByClause() != null)
+//		{
+//			sql.append(" ORDER BY "+ m_simpleInputWindow.getOrderByClause());
+//		}else{
+//			sql.append(" ORDER BY ").append(TABLE_NAME).append(".").append(TABLE_NAME).append("_ID");
+//		}
+
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try
+		{
+			pstmt = DB.prepareStatement(sql.toString(), null);
+			rs = pstmt.executeQuery();
+
+			while (rs.next())
+			{
+
+				list.add(rs.getObject(1));
+			}//while
+
+		}
+		catch (Exception e)
+		{
+			log.log(Level.SEVERE, sql.toString(), e);
+		}
+		finally
+		{
+			DB.close(rs, pstmt);
+			rs = null; pstmt = null;
+		}
+
+		return list;
+	}
 
 
 	@Override
@@ -1360,6 +1494,9 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 	@Override
 	public void onEvent(final Event event) throws Exception {
 
+//		int tabIndex = tabbox.getSelectedIndex();
+//		Component comp = event.getTarget();
+
 		if(message != null && !Util.isEmpty(message.toString()))
 		{
 			FDialog.info(form.getWindowNo(), null, message.toString());
@@ -1372,7 +1509,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		{
 			return;
 		}
-		else if (event.getTarget() == simpleInputGrid && Events.ON_CLICK.equals(event.getName()))
+		else if (event.getTarget() instanceof Grid && Events.ON_CLICK.equals(event.getName()))
 		{
 
 			Object data = event.getData();
@@ -1388,9 +1525,10 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 			if (row != null)
 			{
-				renderer.setCurrentRow(renderer.getCurrentRow());
-				if(!renderer.isEditing())
-					renderer.editCurrentRow();
+				SimpleInputWindowGridView gridView = simpleInputWindowGridViewMap.get(tabbox.getSelectedIndex());
+				gridView.getSimpleInputWindowGridRowRenderer().setCurrentRow(gridView.getSimpleInputWindowGridRowRenderer().getCurrentRow());
+				if(!gridView.getSimpleInputWindowGridRowRenderer().isEditing())
+					gridView.getSimpleInputWindowGridRowRenderer().editCurrentRow();
 			}
 			event.stopPropagation();
 
@@ -1416,22 +1554,61 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		}else if (event.getName().equals("onCustomizeGrid")){
 
 			setupFields(gridTab);
-			org.zkoss.zul.Columns columns = simpleInputGrid.getColumns();
+			org.zkoss.zul.Columns columns = simpleInputWindowGridViewMap.get(tabbox.getSelectedIndex()).getGrid().getColumns();
 			if(columns != null)
 			{
 				columns.detach();
-				setupColumns();
+				setupColumns(simpleInputWindowGridViewMap.get(tabbox.getSelectedIndex()).getGrid(), tabbox.getSelectedIndex());
 			}
 
-//			simpleInputGrid.setVisible(false);
-			listModel =null;
-			simpleInputGrid.setModel(listModel);
+			editArea.removeChild(tabbox);
+
+			tabbox = new Tabbox();
+			tabbox.setParent(editArea);
+			tabbox.setWidth("100%");
+		    tabbox.setHeight("100%");
+		    tabbox.setVflex("1");
+		    tabbox.setHflex("1");
+
+			Tabs tabs = new Tabs();
+			tabbox.appendChild(tabs);
+			Tabpanels tabpanels = new Tabpanels();
+			tabbox.appendChild(tabpanels);
+
+			Tab tab  = new Tab(gridTab.getName());
+			tabbox.getTabs().appendChild(tab);
+			org.zkoss.zul.Tabpanel tabpanel = new Tabpanel();
+			tabbox.getTabpanels().appendChild(tabpanel);
+			Grid grid  = new Grid();
+
+			grid.setId(new Integer(0).toString());
+
+			columns = grid.getColumns();
+			if(columns == null)
+			{
+				setupColumns(grid, 0);
+
+			}else{
+				List<Component> cmpList = grid.getChildren();
+
+				for(Component cmp : cmpList)
+				{
+					if(cmp instanceof Frozen)
+					{
+						cmp.detach();
+						break;
+					}
+				}//for
+			}//if
+
+			tabpanel.appendChild(grid);
+
 
 		}else if(event.getTarget().equals(CustomizeButton)){
 
 			if(dirtyModel.size()==0 && newModel==null)
 			{
-				org.zkoss.zul.Columns columns = simpleInputGrid.getColumns();
+				org.zkoss.zul.Columns columns = simpleInputWindowGridViewMap.get(tabbox.getSelectedIndex()).getGrid().getColumns();
 				List<Component> columnList = columns.getChildren();
 				Map<Integer, String> columnsWidth = new HashMap<Integer, String>();
 				ArrayList<Integer> gridFieldIds = new ArrayList<Integer>();
@@ -1618,7 +1795,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 	{
 		frozenNum.setValue(m_simpleInputWindow.getJP_FrozenField());
 		frozenNum.setReadWrite(true);
-		simpleInputGrid.setVisible(false);
+		editArea.removeChild(tabbox);
 
 		//set Buttons
 		SearchButton.setEnabled(true);
@@ -1771,7 +1948,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				}
 			}else{
 
-				List<Row> rowList = simpleInputGrid.getRows().getChildren();
+				List<Row> rowList = ((Grid)tabbox.getSelectedTabpanel().getChildren().get(0)).getRows().getChildren();
 
 				//Delete "+*"
 				if(newModel!=null)

@@ -23,14 +23,14 @@ import org.compiere.model.*;
 
 /** Generated Model for JP_SimpleInputWindow
  *  @author iDempiere (generated) 
- *  @version Release 2.1 - $Id$ */
+ *  @version Release 3.1 - $Id$ */
 public class X_JP_SimpleInputWindow extends PO implements I_JP_SimpleInputWindow, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20151101L;
+	private static final long serialVersionUID = 20151203L;
 
     /** Standard Constructor */
     public X_JP_SimpleInputWindow (Properties ctx, int JP_SimpleInputWindow_ID, String trxName)
@@ -254,6 +254,31 @@ public class X_JP_SimpleInputWindow extends PO implements I_JP_SimpleInputWindow
 	public String getJP_SimpleInputWindow_UU () 
 	{
 		return (String)get_Value(COLUMNNAME_JP_SimpleInputWindow_UU);
+	}
+
+	public org.compiere.model.I_AD_Field getJP_TabField() throws RuntimeException
+    {
+		return (org.compiere.model.I_AD_Field)MTable.get(getCtx(), org.compiere.model.I_AD_Field.Table_Name)
+			.getPO(getJP_TabField_ID(), get_TrxName());	}
+
+	/** Set Tab Field.
+		@param JP_TabField_ID Tab Field	  */
+	public void setJP_TabField_ID (int JP_TabField_ID)
+	{
+		if (JP_TabField_ID < 1) 
+			set_Value (COLUMNNAME_JP_TabField_ID, null);
+		else 
+			set_Value (COLUMNNAME_JP_TabField_ID, Integer.valueOf(JP_TabField_ID));
+	}
+
+	/** Get Tab Field.
+		@return Tab Field	  */
+	public int getJP_TabField_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_JP_TabField_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
 	}
 
 	/** Set Name.

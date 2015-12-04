@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for JP_SimpleInputWindow
  *  @author iDempiere (generated) 
- *  @version Release 2.1
+ *  @version Release 3.1
  */
 @SuppressWarnings("all")
 public interface I_JP_SimpleInputWindow 
@@ -193,6 +193,17 @@ public interface I_JP_SimpleInputWindow
 
 	/** Get JP_SimpleInputWindow_UU	  */
 	public String getJP_SimpleInputWindow_UU();
+
+    /** Column name JP_TabField_ID */
+    public static final String COLUMNNAME_JP_TabField_ID = "JP_TabField_ID";
+
+	/** Set Tab Field	  */
+	public void setJP_TabField_ID (int JP_TabField_ID);
+
+	/** Get Tab Field	  */
+	public int getJP_TabField_ID();
+
+	public org.compiere.model.I_AD_Field getJP_TabField() throws RuntimeException;
 
     /** Column name Name */
     public static final String COLUMNNAME_Name = "Name";

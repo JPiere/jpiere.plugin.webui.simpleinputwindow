@@ -73,6 +73,7 @@ import org.zkoss.zul.RendererCtrl;
 import org.zkoss.zul.Row;
 import org.zkoss.zul.RowRenderer;
 import org.zkoss.zul.RowRendererExt;
+import org.zkoss.zul.Tabbox;
 import org.zkoss.zul.impl.XulElement;
 
 
@@ -144,17 +145,17 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 	 * @param JPiereSimpleInputWindow
 	 *
 	 */
-	public SimpleInputWindowGridRowRenderer(JPiereSimpleInputWindow simpleInputWindow)
+	public SimpleInputWindowGridRowRenderer(JPiereSimpleInputWindow simpleInputWindow, SimpleInputWindowListModel listModel)
 	{
 		this.simpleInputWindow = simpleInputWindow;
 		this.lastColumnIndex = (simpleInputWindow.getFields().length - 1);
 
 		this.windowNo = simpleInputWindow.getForm().getWindowNo();
 		this.form = simpleInputWindow.getForm();
-		this.listModel = simpleInputWindow.getListModel();
+		this.listModel = listModel;
 		this.dirtyModel= simpleInputWindow.getDirtyModel();
 		this.dirtyLineNo = simpleInputWindow.getDirtyLineNo();
-		this.dataBinder = new SimpleInputWindowDataBinder(simpleInputWindow,this);
+		this.dataBinder = new SimpleInputWindowDataBinder(simpleInputWindow,this,listModel);
 		this.searchEditorMap = simpleInputWindow.getSearchEditorMap();
 		this.gridFields = simpleInputWindow.getFields();
 	}
@@ -435,11 +436,12 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 		cell.setStyle("border: none;");
 		selection.addEventListener(Events.ON_CHECK, this);
 
-		if (!selection.isChecked()) {
-			if (simpleInputWindow.selectAll.isChecked()) {
-				simpleInputWindow.selectAll.setChecked(false);
-			}
-		}
+		//TODO:コメント外すと今は予期せぬエラーになってしまうので要修正
+//		if (!selection.isChecked()) {
+//			if (simpleInputWindow.selectAll.isChecked()) {
+//				simpleInputWindow.selectAll.setChecked(false);
+//			}
+//		}
 
 		cell.appendChild(selection);
 		row.appendChild(cell);
@@ -912,11 +914,17 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 
 		private Grid _grid;
 
+		private int tabIndex = 0;
 		private int rowIndex = 0;
 		private int columnIndex = 0;
 
 		public RowListener(Grid grid) {
 			_grid = grid;
+		}
+
+		public int getTabIndex()
+		{
+			return tabIndex;
 		}
 
 		public int getRowIndex()
@@ -933,23 +941,27 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 
 			if(event.getTarget() instanceof Cell)//Get Row Index
 			{
+				tabIndex = ((Tabbox)_grid.getParent().getParent().getParent()).getSelectedIndex();
 				String[] yx = ((Cell)event.getTarget()).getId().split("_");
 				rowIndex =Integer.valueOf(yx[0]).intValue();
 	            columnIndex =Integer.valueOf(yx[1]).intValue();
 			}
 
-			if (Events.ON_CLICK.equals(event.getName())) {
+			if (Events.ON_CLICK.equals(event.getName()))
+			{
 				if (Executions.getCurrent().getAttribute("gridView.onSelectRow") != null)
 					return;
 				Event evt = new Event(Events.ON_CLICK, _grid, event.getTarget());
 				Events.sendEvent(_grid, evt);
 				evt.stopPropagation();
 			}
-			else if (Events.ON_DOUBLE_CLICK.equals(event.getName())) {
+			else if (Events.ON_DOUBLE_CLICK.equals(event.getName()))
+			{
 				Event evt = new Event(Events.ON_DOUBLE_CLICK, _grid, _grid);
 				Events.sendEvent(_grid, evt);
 			}
-			else if (Events.ON_OK.equals(event.getName())) {
+			else if (Events.ON_OK.equals(event.getName()))
+			{
 				Event evt = new Event(Events.ON_OK, _grid, _grid);
 				Events.sendEvent(_grid, evt);
 			}

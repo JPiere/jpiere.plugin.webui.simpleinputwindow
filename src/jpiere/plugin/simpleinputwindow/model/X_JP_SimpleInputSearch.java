@@ -23,14 +23,14 @@ import org.compiere.model.*;
 
 /** Generated Model for JP_SimpleInputSearch
  *  @author iDempiere (generated) 
- *  @version Release 2.1 - $Id$ */
+ *  @version Release 3.1 - $Id$ */
 public class X_JP_SimpleInputSearch extends PO implements I_JP_SimpleInputSearch, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20151101L;
+	private static final long serialVersionUID = 20151203L;
 
     /** Standard Constructor */
     public X_JP_SimpleInputSearch (Properties ctx, int JP_SimpleInputSearch_ID, String trxName)
@@ -94,9 +94,9 @@ public class X_JP_SimpleInputSearch extends PO implements I_JP_SimpleInputSearch
 	public void setAD_Field_ID (int AD_Field_ID)
 	{
 		if (AD_Field_ID < 1) 
-			set_ValueNoCheck (COLUMNNAME_AD_Field_ID, null);
+			set_Value (COLUMNNAME_AD_Field_ID, null);
 		else 
-			set_ValueNoCheck (COLUMNNAME_AD_Field_ID, Integer.valueOf(AD_Field_ID));
+			set_Value (COLUMNNAME_AD_Field_ID, Integer.valueOf(AD_Field_ID));
 	}
 
 	/** Get Field.
