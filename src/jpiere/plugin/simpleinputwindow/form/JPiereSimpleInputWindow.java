@@ -865,9 +865,12 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		//last tab
 		boolean isOK = createSimpleInputWindowGridView(tabIndex, listPOs, createTabTitle(tabFieldValue));
+
+		//First Tab On Demand Rendering
 		currentTabIndex = 0;
 		currentSimpleInputWindowGridView = simpleInputWindowGridViewMap.get(currentTabIndex);
 		tabbox.setSelectedIndex(currentTabIndex);
+		tabbox.getTabpanel(currentTabIndex).appendChild(currentSimpleInputWindowGridView.getGrid());
 
 		return true;
 
@@ -957,7 +960,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		grid.setPageSize(m_simpleInputWindow.getJP_PageSize());
 
 		//TODO:最後にタブにGridをアペンドするのがヌルポをさけるポイントっぽい
-		tabpanel.appendChild(grid);
+//		tabpanel.appendChild(grid);
 		simpleInputWindowGridViewMap.put(tabIndex, new SimpleInputWindowGridView(SIWGridTable, listModel, renderer, grid));
 
 		return true;
@@ -1577,6 +1580,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			{
 				currentTabIndex = tabbox.getSelectedIndex();
 				currentSimpleInputWindowGridView = simpleInputWindowGridViewMap.get(currentTabIndex);
+				if(tabbox.getTabpanel(currentTabIndex).getChildren().size()==0)//On Demand Rendering
+					tabbox.getTabpanel(currentTabIndex).appendChild(currentSimpleInputWindowGridView.getGrid());
 
 			}else{
 
@@ -1590,6 +1595,9 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 							saveData(false);
 							currentTabIndex = tabbox.getSelectedIndex();
 							currentSimpleInputWindowGridView = simpleInputWindowGridViewMap.get(currentTabIndex);
+							if(tabbox.getTabpanel(currentTabIndex).getChildren().size()==0)//On Demand Rendering
+								tabbox.getTabpanel(currentTabIndex).appendChild(currentSimpleInputWindowGridView.getGrid());
+
 						}else{
 							tabbox.setSelectedIndex(currentTabIndex);
 						}
