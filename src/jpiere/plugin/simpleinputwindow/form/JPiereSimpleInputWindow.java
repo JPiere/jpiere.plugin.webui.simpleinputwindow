@@ -2073,20 +2073,20 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		 if (gridTab.isReadOnly())
 	        return;
 
-		 final int[] indices = listModel.getSelections();
+		 final int[] indices = currentSimpleInputWindowGridView.getSimpleInputWindowListModel().getSelections();
 		 if (indices.length > 0 )
 		 {
 			 onDelete(indices);
 			return;
 		 }
 
-		 if(renderer.getCurrentRowIndex() < 0)
+		 if(currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().getCurrentRowIndex() < 0)
 		 {
 			 FDialog.error(form.getWindowNo(), "DeleteError");
 			 return;
 		 }
 
-		 final PO po= simpleInputWindowGridTable.getPO(renderer.getCurrentRowIndex());
+		 final PO po= currentSimpleInputWindowGridView.getSimpleInputWindowGridTable().getPO(currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().getCurrentRowIndex());
 		 if(po == null)
 		 {
 			 FDialog.error(form.getWindowNo(), "DeleteError");
@@ -2095,7 +2095,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		 String popupMsg = Msg.getMsg(Env.getCtx(), "DeleteRecord?");
 		 String lineNo = Msg.getElement(Env.getCtx(), "LineNo")+"　:　";
-		 popupMsg = popupMsg + System.lineSeparator() +  lineNo + (renderer.getCurrentRowIndex()+1);
+		 popupMsg = popupMsg + System.lineSeparator() +  lineNo + (currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().getCurrentRowIndex()+1);
 
 		 FDialog.ask(form.getWindowNo(), null, popupMsg, new Callback<Boolean>() {
 
@@ -2111,7 +2111,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 						dirtyModel.remove(poID);
 						dirtyLineNo.remove(poID);
-						if(newModelLineNo != null && newModelLineNo.intValue() == renderer.getCurrentRowIndex())
+						if(newModelLineNo != null && newModelLineNo.intValue() == currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().getCurrentRowIndex())
 						{
 							newModel = null;
 							newModelLineNo = null;
@@ -2121,11 +2121,11 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 						FDialog.error(form.getWindowNo(), "DeleteError");
 					}
 
-					listModel.removePO(renderer.getCurrentRowIndex());
+					currentSimpleInputWindowGridView.getSimpleInputWindowListModel().removePO(currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().getCurrentRowIndex());
 
-					List<Row> rowList = simpleInputGrid.getRows().getChildren();
-					rowList.remove(renderer.getCurrentRowIndex());
-					simpleInputGrid.setModel(listModel);
+					List<Row> rowList = currentSimpleInputWindowGridView.getGrid().getRows().getChildren();
+					rowList.remove(currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().getCurrentRowIndex());
+					currentSimpleInputWindowGridView.getGrid().setModel(currentSimpleInputWindowGridView.getSimpleInputWindowListModel());
 
 				}//if (result)
 
@@ -2178,7 +2178,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 									newModelLineNo = null;
 								}
 
-								po= simpleInputWindowGridTable.getPO(indices[i]);
+								po= currentSimpleInputWindowGridView.getSimpleInputWindowGridTable().getPO(indices[i]);
 								deleteID.add(po.get_ID());
 								if(po.get_ID()!=0)
 								{
@@ -2209,14 +2209,14 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 						{
 							for(int i = indices.length-1; i >= 0; i--)//delete descending
 							{
-								listModel.removeFromSelection(indices[i]);
-								listModel.removePO(indices[i]);
+								currentSimpleInputWindowGridView.getSimpleInputWindowListModel().removeFromSelection(indices[i]);
+								currentSimpleInputWindowGridView.getSimpleInputWindowListModel().removePO(indices[i]);
 
-								List<Row> rowList = simpleInputGrid.getRows().getChildren();
+								List<Row> rowList = currentSimpleInputWindowGridView.getGrid().getRows().getChildren();
 								rowList.remove(indices[i]);
 							}
-							selectAll.setChecked(false);
-							simpleInputGrid.setModel(listModel);
+							currentSimpleInputWindowGridView.selectAll.setChecked(false);
+							currentSimpleInputWindowGridView.getGrid().setModel(currentSimpleInputWindowGridView.getSimpleInputWindowListModel());
 
 						} catch (Exception e) {
 							FDialog.error(form.getWindowNo(), "Error");
