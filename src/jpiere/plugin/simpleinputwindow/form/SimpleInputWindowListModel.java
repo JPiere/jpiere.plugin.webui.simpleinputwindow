@@ -137,6 +137,11 @@ public class SimpleInputWindowListModel extends AbstractListModel<Object> implem
 		return selection.remove((Integer)rowIndex);
 	}
 
+	public void removeAllSelection()
+	{
+		selection.clear();
+	}
+
 	public int[] getSelections()
 	{
 		int[] selected = new int[selection.size()];

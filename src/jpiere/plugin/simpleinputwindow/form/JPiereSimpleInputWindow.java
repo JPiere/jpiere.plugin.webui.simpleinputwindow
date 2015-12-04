@@ -244,6 +244,10 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 	private Center editArea = new Center();
 
+	private int currentTabIndex = 0;
+
+	private SimpleInputWindowGridView currentSimpleInputWindowGridView;
+
 	/**
 	 * Constractor
 	 *
@@ -801,6 +805,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			editArea.removeChild(tabbox);
 
 		tabbox = new Tabbox();
+		tabbox.addEventListener(Events.ON_SELECT, this);
+
 		tabbox.setParent(editArea);
 		tabbox.setWidth("100%");
 	    tabbox.setHeight("100%");
@@ -859,6 +865,9 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		//last tab
 		boolean isOK = createSimpleInputWindowGridView(tabIndex, listPOs, createTabTitle(tabFieldValue));
+		currentTabIndex = 0;
+		currentSimpleInputWindowGridView = simpleInputWindowGridViewMap.get(currentTabIndex);
+		tabbox.setSelectedIndex(currentTabIndex);
 
 		return true;
 
@@ -1525,9 +1534,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 	@Override
 	public void onEvent(final Event event) throws Exception {
 
-//		int tabIndex = tabbox.getSelectedIndex();
-//		Component comp = event.getTarget();
-
 		if(message != null && !Util.isEmpty(message.toString()))
 		{
 			FDialog.info(form.getWindowNo(), null, message.toString());
@@ -1556,31 +1562,62 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 			if (row != null)
 			{
-				SimpleInputWindowGridView gridView = simpleInputWindowGridViewMap.get(tabbox.getSelectedIndex());
-				gridView.getSimpleInputWindowGridRowRenderer().setCurrentRow(gridView.getSimpleInputWindowGridRowRenderer().getCurrentRow());
-				if(!gridView.getSimpleInputWindowGridRowRenderer().isEditing())
-					gridView.getSimpleInputWindowGridRowRenderer().editCurrentRow();
+				currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().setCurrentRow(currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().getCurrentRow());
+				if(!currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().isEditing())
+					currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().editCurrentRow();
 			}
 			event.stopPropagation();
 
+		}else if (event.getName().equals(Events.ON_SELECT)){
+
+			//TODO:タブを切り替えるときに下記を書いておかないと更新して保存前の値が、他のタブのセルに引き継がれるという不具合が発生していまう。
+			currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().setCurrentRow(currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().getCurrentRow());
+
+			if(dirtyModel.size()==0 && newModel==null)
+			{
+				currentTabIndex = tabbox.getSelectedIndex();
+				currentSimpleInputWindowGridView = simpleInputWindowGridViewMap.get(currentTabIndex);
+
+			}else{
+
+				FDialog.ask(form.getWindowNo(), null, Msg.getMsg(Env.getCtx(), "SaveChanges?"), new Callback<Boolean>() {//Do you want to save changes?
+
+					@Override
+					public void onCallback(Boolean result)
+					{
+						if (result)
+						{
+							saveData(false);
+							currentTabIndex = tabbox.getSelectedIndex();
+							currentSimpleInputWindowGridView = simpleInputWindowGridViewMap.get(currentTabIndex);
+						}else{
+							tabbox.setSelectedIndex(currentTabIndex);
+						}
+			        }
+
+				});//FDialog.
+
+			}
+
 		}else if (event.getName().equals("onSelectRow")){
 
-			Checkbox checkbox = (Checkbox) event.getData();
-			int rowIndex = (Integer) checkbox.getAttribute(GridTabRowRenderer.GRID_ROW_INDEX_ATTR);
-			if (checkbox.isChecked())
-			{
-				listModel.addToSelection(rowIndex);
-				if (!selectAll.isChecked() && isAllSelected())
-				{
-					selectAll.setChecked(true);
-				}
-			}
-			else
-			{
-				listModel.removeFromSelection(rowIndex);
-				if (selectAll.isChecked())
-					selectAll.setChecked(false);
-			}
+//			Checkbox checkbox = (Checkbox) event.getData();
+//			int rowIndex = (Integer) checkbox.getAttribute(GridTabRowRenderer.GRID_ROW_INDEX_ATTR);
+//			SimpleInputWindowGridView gridView = simpleInputWindowGridViewMap.get(tabbox.getSelectedIndex());
+//			if (checkbox.isChecked())
+//			{
+//				gridView.getSimpleInputWindowListModel().addToSelection(rowIndex);
+//				if (!selectAll.isChecked() && isAllSelected())
+//				{
+//					selectAll.setChecked(true);
+//				}
+//			}
+//			else
+//			{
+//				gridView.getSimpleInputWindowListModel().removeFromSelection(rowIndex);
+//				if (selectAll.isChecked())
+//					selectAll.setChecked(false);
+//			}
 
 		}else if (event.getName().equals("onCustomizeGrid")){
 
@@ -1752,11 +1789,9 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				});//FDialog.
 			}
 
+		}else if (event.getName().equals(Events.ON_CHECK)){
 
-
-		}else if (event.getTarget().equals(selectAll)){
-
-			toggleSelectionForAll(selectAll.isChecked());
+			toggleSelectionForAll(tabbox.getSelectedIndex(),((Checkbox)event.getTarget()).isChecked());
 
 		}else if(event.getTarget().equals(DeleteButton)){
 
@@ -1780,8 +1815,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		}
 	}//onEvent
 
-	private void toggleSelectionForAll(boolean b) {
-		org.zkoss.zul.Rows rows = simpleInputGrid.getRows();
+	private void toggleSelectionForAll(int tabIndex, boolean isChecked) {
+		org.zkoss.zul.Rows rows = currentSimpleInputWindowGridView.getGrid().getRows();
 		List<Component> childs = rows.getChildren();
 		for(Component comp : childs) {
 			org.zkoss.zul.Row row = (org.zkoss.zul.Row) comp;
@@ -1791,36 +1826,40 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			}
 			if (firstChild instanceof Checkbox) {
 				Checkbox checkbox = (Checkbox) firstChild;
-				checkbox.setChecked(b);
+				checkbox.setChecked(isChecked);
 				int rowIndex = (Integer) checkbox.getAttribute(GridTabRowRenderer.GRID_ROW_INDEX_ATTR);
-				if (b)
-					listModel.addToSelection(rowIndex);
-				else
-					listModel.removeFromSelection(rowIndex);
+				if (isChecked)
+				{
+					currentSimpleInputWindowGridView.getSimpleInputWindowListModel().addToSelection(rowIndex);
+					currentSimpleInputWindowGridView.selectAll.setChecked(true);
+				}else{
+					currentSimpleInputWindowGridView.getSimpleInputWindowListModel().removeFromSelection(rowIndex);
+					currentSimpleInputWindowGridView.selectAll.setChecked(false);
+				}
 			}
 		}
 	}
 
-	private boolean isAllSelected() {
-		org.zkoss.zul.Rows rows = simpleInputGrid.getRows();
-		List<Component> childs = rows.getChildren();
-		boolean all = false;
-		for(Component comp : childs) {
-			org.zkoss.zul.Row row = (org.zkoss.zul.Row) comp;
-			Component firstChild = row.getFirstChild();
-			if (firstChild instanceof Cell) {
-				firstChild = firstChild.getFirstChild();
-			}
-			if (firstChild instanceof Checkbox) {
-				Checkbox checkbox = (Checkbox) firstChild;
-				if (!checkbox.isChecked())
-					return false;
-				else
-					all = true;
-			}
-		}
-		return all;
-	}
+//	private boolean isAllSelected() {
+//		org.zkoss.zul.Rows rows = simpleInputGrid.getRows();
+//		List<Component> childs = rows.getChildren();
+//		boolean all = false;
+//		for(Component comp : childs) {
+//			org.zkoss.zul.Row row = (org.zkoss.zul.Row) comp;
+//			Component firstChild = row.getFirstChild();
+//			if (firstChild instanceof Cell) {
+//				firstChild = firstChild.getFirstChild();
+//			}
+//			if (firstChild instanceof Checkbox) {
+//				Checkbox checkbox = (Checkbox) firstChild;
+//				if (!checkbox.isChecked())
+//					return false;
+//				else
+//					all = true;
+//			}
+//		}
+//		return all;
+//	}
 
 	public void setInitialStatus()
 	{
@@ -1979,7 +2018,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				}
 			}else{
 
-				List<Row> rowList = ((Grid)tabbox.getSelectedTabpanel().getChildren().get(0)).getRows().getChildren();
+				List<Row> rowList = ((Grid)tabbox.getTabpanel(currentTabIndex) .getChildren().get(0)).getRows().getChildren();
 
 				//Delete "+*"
 				if(newModel!=null)

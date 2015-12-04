@@ -112,6 +112,8 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 	private AbstractADWindowContent m_windowPanel;
 	private ActionListener buttonListener;
 
+	private SimpleInputWindowGridView simpleInputWindowGridView;
+
 	/**
 	 * Flag detect this view has customized column or not
 	 * value is set at {@link #render(Row, Object[], int)}
@@ -424,9 +426,6 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 		org.zkoss.zul.Columns columns = grid.getColumns();
 
 		int rowIndex = index;
-//		if (paging != null && paging.getPageSize() > 0) {
-//			rowIndex = (paging.getActivePage() * paging.getPageSize()) + rowIndex;
-//		}
 
 		Cell cell = new Cell();
 		cell.setTooltiptext(Msg.getMsg(Env.getCtx(), "Select"));
@@ -437,11 +436,11 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 		selection.addEventListener(Events.ON_CHECK, this);
 
 		//TODO:コメント外すと今は予期せぬエラーになってしまうので要修正
-//		if (!selection.isChecked()) {
-//			if (simpleInputWindow.selectAll.isChecked()) {
-//				simpleInputWindow.selectAll.setChecked(false);
-//			}
-//		}
+		if (!selection.isChecked()) {
+			if (simpleInputWindowGridView.selectAll.isChecked()) {
+				simpleInputWindowGridView.selectAll.setChecked(false);
+			}
+		}
 
 		cell.appendChild(selection);
 		row.appendChild(cell);
@@ -1031,7 +1030,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 			Executions.getCurrent().setAttribute("gridView.onSelectRow", Boolean.TRUE);
 			Checkbox checkBox = (Checkbox) event.getTarget();
 			try {
-				simpleInputWindow.onEvent(new Event("onSelectRow",null,checkBox));
+				simpleInputWindowGridView.onEvent(new Event("onSelectRow",null,checkBox));
 			} catch (Exception e) {
 				;
 			}
@@ -1168,6 +1167,11 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 	public void setGridTab(GridTab gridTab)
 	{
 		this.gridTab = gridTab;
+	}
+
+	public void setSimpleInputWindowGridView(SimpleInputWindowGridView simpleInputWindowGridView)
+	{
+		this.simpleInputWindowGridView = simpleInputWindowGridView;
 	}
 
 

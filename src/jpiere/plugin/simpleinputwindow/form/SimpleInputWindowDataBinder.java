@@ -25,7 +25,6 @@ import org.adempiere.webui.event.ValueChangeEvent;
 import org.adempiere.webui.event.ValueChangeListener;
 import org.adempiere.webui.window.FDialog;
 import org.compiere.model.GridField;
-import org.compiere.model.GridTab;
 import org.compiere.model.PO;
 import org.compiere.util.CLogger;
 import org.zkoss.zul.Cell;
@@ -43,8 +42,6 @@ public class SimpleInputWindowDataBinder implements ValueChangeListener {
 
 	private final static CLogger logger = CLogger.getCLogger(SimpleInputWindowDataBinder.class);
 
-	private GridTab gridTab;
-
 	private SimpleInputWindowGridRowRenderer rendere;
 
 	private SimpleInputWindowListModel listModel;
@@ -61,20 +58,9 @@ public class SimpleInputWindowDataBinder implements ValueChangeListener {
 	 *
 	 * @param gridTab
 	 */
-	public SimpleInputWindowDataBinder(JPiereSimpleInputWindow simpleInputWindow, SimpleInputWindowGridRowRenderer rendere)
-	{
-		this.simpleInputWindow = simpleInputWindow;
-		this.gridTab = simpleInputWindow.getGridTab();
-		this.rendere = rendere;
-		this.listModel = simpleInputWindow.getListModel();
-		this.dirtyModel = simpleInputWindow.getDirtyModel();
-		this.dirtyLineNo = simpleInputWindow.getDirtyLineNo();
-	}
-
 	public SimpleInputWindowDataBinder(JPiereSimpleInputWindow simpleInputWindow, SimpleInputWindowGridRowRenderer rendere, SimpleInputWindowListModel listModel)
 	{
 		this.simpleInputWindow = simpleInputWindow;
-		this.gridTab = simpleInputWindow.getGridTab();
 		this.rendere = rendere;
 		this.listModel = listModel;
 		this.dirtyModel = simpleInputWindow.getDirtyModel();
