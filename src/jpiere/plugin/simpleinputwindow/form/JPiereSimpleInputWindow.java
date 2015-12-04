@@ -740,7 +740,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		grid.setPageSize(m_simpleInputWindow.getJP_PageSize());
 
 		tabpanel.appendChild(grid);
-		simpleInputWindowGridViewMap.put(0, new SimpleInputWindowGridView(SIWGridTable,listModel,renderer,grid));
+		simpleInputWindowGridViewMap.put(0, new SimpleInputWindowGridView(SIWGridTable, listModel, renderer, grid, null, null, false));
 
 
 		newModel = po ;
@@ -854,7 +854,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				{
 					listPOs.add(po);
 				}else{
-					boolean isOK = createSimpleInputWindowGridView(tabIndex, listPOs, createTabTitle(tabFieldValue));
+					boolean isOK = createSimpleInputWindowGridView(tabIndex, listPOs, createTabTitle(tabFieldValue), tabFieldValue);
 					tabIndex++;
 					tabFieldValue = po.get_Value(m_simpleInputWindow.getJP_TabField().getAD_Column().getColumnName());
 					listPOs = new ArrayList<PO>();
@@ -864,7 +864,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		}//for
 
 		//last tab
-		boolean isOK = createSimpleInputWindowGridView(tabIndex, listPOs, createTabTitle(tabFieldValue));
+		boolean isOK = createSimpleInputWindowGridView(tabIndex, listPOs, createTabTitle(tabFieldValue), tabFieldValue);
 
 		//First Tab On Demand Rendering
 		currentTabIndex = 0;
@@ -905,7 +905,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		}
 	}
 
-	private boolean createSimpleInputWindowGridView(int tabIndex, ArrayList<PO> listPOs, String tabTitle)
+	private boolean createSimpleInputWindowGridView(int tabIndex, ArrayList<PO> listPOs, String tabTitle, Object tabFieldValue)
 	{
 		Tab tab  = new Tab(tabTitle);
 		tabbox.getTabs().appendChild(tab);
@@ -959,14 +959,18 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		grid.setMold("paging");
 		grid.setPageSize(m_simpleInputWindow.getJP_PageSize());
 
-		//TODO:最後にタブにGridをアペンドするのがヌルポをさけるポイントっぽい
-//		tabpanel.appendChild(grid);
-		simpleInputWindowGridViewMap.put(tabIndex, new SimpleInputWindowGridView(SIWGridTable, listModel, renderer, grid));
+		if(m_simpleInputWindow.getJP_TabField_ID()==0)
+		{
+			simpleInputWindowGridViewMap.put(tabIndex, new SimpleInputWindowGridView(SIWGridTable, listModel, renderer, grid, null, null,false));
+		}else{
 
+			if(Util.isEmpty(m_simpleInputWindow.getJP_TabField().getAD_Column().getColumnSQL()))
+				simpleInputWindowGridViewMap.put(tabIndex, new SimpleInputWindowGridView(SIWGridTable, listModel, renderer, grid, m_simpleInputWindow.getJP_TabField().getAD_Column().getColumnName(), tabFieldValue, false));
+			else
+				simpleInputWindowGridViewMap.put(tabIndex, new SimpleInputWindowGridView(SIWGridTable, listModel, renderer, grid, m_simpleInputWindow.getJP_TabField().getAD_Column().getColumnName(), tabFieldValue, true));
+		}
 		return true;
 	}
-
-	SimpleInputWindowGridTable simpleInputWindowGridTable ;//TODO:削除
 
 	/*
 	 * Map of PO Instance <ID of PO,PO>
@@ -1607,26 +1611,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 			}
 
-		}else if (event.getName().equals("onSelectRow")){
-
-//			Checkbox checkbox = (Checkbox) event.getData();
-//			int rowIndex = (Integer) checkbox.getAttribute(GridTabRowRenderer.GRID_ROW_INDEX_ATTR);
-//			SimpleInputWindowGridView gridView = simpleInputWindowGridViewMap.get(tabbox.getSelectedIndex());
-//			if (checkbox.isChecked())
-//			{
-//				gridView.getSimpleInputWindowListModel().addToSelection(rowIndex);
-//				if (!selectAll.isChecked() && isAllSelected())
-//				{
-//					selectAll.setChecked(true);
-//				}
-//			}
-//			else
-//			{
-//				gridView.getSimpleInputWindowListModel().removeFromSelection(rowIndex);
-//				if (selectAll.isChecked())
-//					selectAll.setChecked(false);
-//			}
-
 		}else if (event.getName().equals("onCustomizeGrid")){
 
 			setupFields(gridTab);
@@ -1848,27 +1832,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		}
 	}
 
-//	private boolean isAllSelected() {
-//		org.zkoss.zul.Rows rows = simpleInputGrid.getRows();
-//		List<Component> childs = rows.getChildren();
-//		boolean all = false;
-//		for(Component comp : childs) {
-//			org.zkoss.zul.Row row = (org.zkoss.zul.Row) comp;
-//			Component firstChild = row.getFirstChild();
-//			if (firstChild instanceof Cell) {
-//				firstChild = firstChild.getFirstChild();
-//			}
-//			if (firstChild instanceof Checkbox) {
-//				Checkbox checkbox = (Checkbox) firstChild;
-//				if (!checkbox.isChecked())
-//					return false;
-//				else
-//					all = true;
-//			}
-//		}
-//		return all;
-//	}
-
 	public void setInitialStatus()
 	{
 		frozenNum.setValue(m_simpleInputWindow.getJP_FrozenField());
@@ -2021,12 +1984,12 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			{
 				if(!createView ())
 				{
-					simpleInputGrid.setVisible(false);
-						throw new Exception(message.toString());
+					throw new Exception(message.toString());
 				}
 			}else{
 
-				List<Row> rowList = ((Grid)tabbox.getTabpanel(currentTabIndex) .getChildren().get(0)).getRows().getChildren();
+				List<Row> rowList = currentSimpleInputWindowGridView.getGrid().getRows().getChildren();
+
 
 				//Delete "+*"
 				if(newModel!=null)
@@ -2324,5 +2287,10 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		return searchEditorMap;
 	}
 
+
+	public SimpleInputWindowGridView getSimpleInputWindowGridView(int tabIndex)
+	{
+		return simpleInputWindowGridViewMap.get(tabIndex);
+	}
 
 }

@@ -16,15 +16,22 @@ public class SimpleInputWindowGridView implements EventListener<Event>{
 	private SimpleInputWindowListModel listModel;
 	private SimpleInputWindowGridRowRenderer renderer;
 	private Grid grid;
+	private String tabFieldColumnName;
+	private Object tabFieldValue;
+	private boolean isVirtualColumn = false;
 
 	protected Checkbox selectAll;
 
 	public SimpleInputWindowGridView(SimpleInputWindowGridTable SIWGridTable ,SimpleInputWindowListModel listModel
-			,SimpleInputWindowGridRowRenderer renderer, Grid grid) {
+			,SimpleInputWindowGridRowRenderer renderer, Grid grid, String tabFieldColumnName, Object tabFieldValue, boolean isVirtualColumn) {
 		this.simpleInputWindowGridTable = SIWGridTable;
 		this.listModel=listModel;
 		this.renderer = renderer;
 		this.grid = grid;
+		this.tabFieldColumnName = tabFieldColumnName;
+		this.tabFieldValue = tabFieldValue;
+		this.isVirtualColumn = isVirtualColumn;
+
 		this.renderer.setSimpleInputWindowGridView(this);
 		selectAll = (Checkbox)grid.getColumns().getChildren().get(0).getChildren().get(0);
 	}
@@ -47,6 +54,21 @@ public class SimpleInputWindowGridView implements EventListener<Event>{
 	public Grid getGrid()
 	{
 		return grid;
+	}
+
+	public Object getTabFieldValue()
+	{
+		return tabFieldValue;
+	}
+
+	public String getTabFieldColumnName()
+	{
+		return tabFieldColumnName;
+	}
+
+	public boolean isVirtualColumn()
+	{
+		return isVirtualColumn;
 	}
 
 	@Override

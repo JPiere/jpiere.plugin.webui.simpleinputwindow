@@ -73,7 +73,6 @@ import org.zkoss.zul.RendererCtrl;
 import org.zkoss.zul.Row;
 import org.zkoss.zul.RowRenderer;
 import org.zkoss.zul.RowRendererExt;
-import org.zkoss.zul.Tabbox;
 import org.zkoss.zul.impl.XulElement;
 
 
@@ -141,7 +140,6 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 
 	private GridField[] gridFields;
 
-
 	/**
 	 *
 	 * @param JPiereSimpleInputWindow
@@ -155,6 +153,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 		this.windowNo = simpleInputWindow.getForm().getWindowNo();
 		this.form = simpleInputWindow.getForm();
 		this.listModel = listModel;
+
 		this.dirtyModel= simpleInputWindow.getDirtyModel();
 		this.dirtyLineNo = simpleInputWindow.getDirtyLineNo();
 		this.dataBinder = new SimpleInputWindowDataBinder(simpleInputWindow,this,listModel);
@@ -913,17 +912,11 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 
 		private Grid _grid;
 
-		private int tabIndex = 0;
 		private int rowIndex = 0;
 		private int columnIndex = 0;
 
 		public RowListener(Grid grid) {
 			_grid = grid;
-		}
-
-		public int getTabIndex()
-		{
-			return tabIndex;
 		}
 
 		public int getRowIndex()
@@ -940,7 +933,6 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 
 			if(event.getTarget() instanceof Cell)//Get Row Index
 			{
-				tabIndex = ((Tabbox)_grid.getParent().getParent().getParent()).getSelectedIndex();
 				String[] yx = ((Cell)event.getTarget()).getId().split("_");
 				rowIndex =Integer.valueOf(yx[0]).intValue();
 	            columnIndex =Integer.valueOf(yx[1]).intValue();
@@ -1104,6 +1096,11 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 								{
 									if(entry.getValue().getValue() != null && po.get_ColumnIndex(entry.getKey()) != -1)
 										po.set_ValueNoCheck(entry.getKey(), entry.getValue().getValue());
+								}
+
+								if(simpleInputWindowGridView.getTabFieldColumnName()!=null && !simpleInputWindowGridView.isVirtualColumn())
+								{
+									po.set_ValueNoCheck(simpleInputWindowGridView.getTabFieldColumnName(), simpleInputWindowGridView.getTabFieldValue());
 								}
 								break;
 							}
