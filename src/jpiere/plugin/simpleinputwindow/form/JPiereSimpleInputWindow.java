@@ -89,6 +89,7 @@ import org.compiere.model.GridWindow;
 import org.compiere.model.GridWindowVO;
 import org.compiere.model.I_AD_Field;
 import org.compiere.model.MLookup;
+import org.compiere.model.MLookupFactory;
 import org.compiere.model.MPInstance;
 import org.compiere.model.MProcess;
 import org.compiere.model.MRole;
@@ -97,6 +98,7 @@ import org.compiere.model.MTable;
 import org.compiere.model.MToolBarButton;
 import org.compiere.model.MToolBarButtonRestrict;
 import org.compiere.model.PO;
+import org.compiere.model.SystemIDs;
 import org.compiere.model.X_AD_ToolBarButton;
 import org.compiere.process.ProcessInfo;
 import org.compiere.util.CLogger;
@@ -846,7 +848,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				{
 					listPOs.add(po);
 				}else{
-					boolean isOK = createSimpleInputWindowGridView(tabIndex, listPOs, tabFieldValue.toString());
+					boolean isOK = createSimpleInputWindowGridView(tabIndex, listPOs, createTabTitle(tabFieldValue));
 					tabIndex++;
 					tabFieldValue = po.get_Value(m_simpleInputWindow.getJP_TabField().getAD_Column().getColumnName());
 					listPOs = new ArrayList<PO>();
@@ -856,10 +858,39 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		}//for
 
 		//last tab
-		boolean isOK = createSimpleInputWindowGridView(tabIndex, listPOs, tabFieldValue == null? gridTab.getName():tabFieldValue.toString());
+		boolean isOK = createSimpleInputWindowGridView(tabIndex, listPOs, createTabTitle(tabFieldValue));
 
 		return true;
 
+	}
+
+	private String createTabTitle(Object tabFieldValue)
+	{
+		if(tabFieldValue == null)
+		{
+			return gridTab.getName();
+		}else{
+
+			if(m_simpleInputWindow.getJP_TabField().getAD_Column().getAD_Reference_ID()==SystemIDs.REFERENCE_DATATYPE_TABLEDIR
+					|| m_simpleInputWindow.getJP_TabField().getAD_Column().getAD_Reference_ID()==SystemIDs.REFERENCE_DATATYPE_TABLE
+					|| m_simpleInputWindow.getJP_TabField().getAD_Column().getAD_Reference_ID()==SystemIDs.REFERENCE_DATATYPE_SEARCH )
+			{
+				MLookup lookup = MLookupFactory.get(Env.getCtx(), form.getWindowNo(), 0, m_simpleInputWindow.getJP_TabField().getAD_Column_ID(), DisplayType.Search);
+				WSearchEditor editor = new WSearchEditor("keyColumn", true, false, true, lookup);
+				editor.setValue(new Integer(tabFieldValue.toString()).intValue());
+				return editor.getDisplay();
+			}else if(m_simpleInputWindow.getJP_TabField().getAD_Column().getAD_Reference_ID()==SystemIDs.REFERENCE_DATATYPE_INTEGER ){
+				return tabFieldValue.toString();
+			}else if(m_simpleInputWindow.getJP_TabField().getAD_Column().getAD_Reference_ID()==SystemIDs.REFERENCE_DATATYPE_STRING ){
+				return tabFieldValue.toString();
+			}else if( m_simpleInputWindow.getJP_TabField().getAD_Column().getAD_Reference_ID()==SystemIDs.REFERENCE_DATATYPE_DATE
+					|| m_simpleInputWindow.getJP_TabField().getAD_Column().getAD_Reference_ID()==SystemIDs.REFERENCE_DATATYPE_DATETIME
+					|| m_simpleInputWindow.getJP_TabField().getAD_Column().getAD_Reference_ID()==SystemIDs.REFERENCE_DATATYPE_TIME ){
+				return ((Timestamp)tabFieldValue).toString();
+			}else{
+				return tabFieldValue.toString();
+			}
+		}
 	}
 
 	private boolean createSimpleInputWindowGridView(int tabIndex, ArrayList<PO> listPOs, String tabTitle)

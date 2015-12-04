@@ -16,6 +16,8 @@ package jpiere.plugin.simpleinputwindow.model;
 import java.sql.ResultSet;
 import java.util.Properties;
 
+import org.compiere.util.Util;
+
 /**
  * MSimpleInputSearch
  *
@@ -34,5 +36,22 @@ public class MSimpleInputSearch extends X_JP_SimpleInputSearch {
 	public MSimpleInputSearch(Properties ctx, ResultSet rs, String trxName) {
 		super(ctx, rs, trxName);
 	}
+
+	@Override
+	protected boolean beforeSave(boolean newRecord) {
+
+		if(newRecord || is_ValueChanged("AD_Field_ID"))
+		{
+			if(!Util.isEmpty(getAD_Field().getAD_Column().getColumnSQL()))
+			{
+				log.saveError("Error", "バーチャルカラムは検索フィールドには使用できません");//TODO:多言語化
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+
 
 }
