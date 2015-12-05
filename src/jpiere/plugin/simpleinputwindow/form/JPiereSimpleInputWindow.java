@@ -2213,6 +2213,10 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 	String sum = Msg.getMsg(Env.getCtx(), "Sum");
 	private void updateColumn()
 	{
+
+		if(!m_simpleInputWindow.isSummarized())
+			return;
+
 		List<Component>columnList =  currentSimpleInputWindowGridView.getGrid().getColumns().getChildren();
 		PO po= null;
 		BigDecimal[] totalValues = new BigDecimal[columnList.size()];

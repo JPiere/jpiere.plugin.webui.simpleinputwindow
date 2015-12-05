@@ -149,6 +149,19 @@ public interface I_JP_SimpleInputWindow
 	  */
 	public boolean isDeleteable();
 
+    /** Column name IsSummarized */
+    public static final String COLUMNNAME_IsSummarized = "IsSummarized";
+
+	/** Set Calculate Sum (Σ).
+	  * Calculate the Sum of numeric content or length
+	  */
+	public void setIsSummarized (boolean IsSummarized);
+
+	/** Get Calculate Sum (Σ).
+	  * Calculate the Sum of numeric content or length
+	  */
+	public boolean isSummarized();
+
     /** Column name JP_FrozenField */
     public static final String COLUMNNAME_JP_FrozenField = "JP_FrozenField";
 

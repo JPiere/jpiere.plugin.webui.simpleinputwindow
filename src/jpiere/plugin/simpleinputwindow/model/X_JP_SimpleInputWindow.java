@@ -30,7 +30,7 @@ public class X_JP_SimpleInputWindow extends PO implements I_JP_SimpleInputWindow
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20151203L;
+	private static final long serialVersionUID = 20151205L;
 
     /** Standard Constructor */
     public X_JP_SimpleInputWindow (Properties ctx, int JP_SimpleInputWindow_ID, String trxName)
@@ -40,6 +40,8 @@ public class X_JP_SimpleInputWindow extends PO implements I_JP_SimpleInputWindow
         {
 			setAD_Tab_ID (0);
 			setAD_Window_ID (0);
+			setIsSummarized (false);
+// N
 			setJP_FrozenField (0);
 			setJP_PageSize (0);
 // 20
@@ -165,6 +167,30 @@ public class X_JP_SimpleInputWindow extends PO implements I_JP_SimpleInputWindow
 	public boolean isDeleteable () 
 	{
 		Object oo = get_Value(COLUMNNAME_IsDeleteable);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
+	/** Set Calculate Sum (Σ).
+		@param IsSummarized 
+		Calculate the Sum of numeric content or length
+	  */
+	public void setIsSummarized (boolean IsSummarized)
+	{
+		set_Value (COLUMNNAME_IsSummarized, Boolean.valueOf(IsSummarized));
+	}
+
+	/** Get Calculate Sum (Σ).
+		@return Calculate the Sum of numeric content or length
+	  */
+	public boolean isSummarized () 
+	{
+		Object oo = get_Value(COLUMNNAME_IsSummarized);
 		if (oo != null) 
 		{
 			 if (oo instanceof Boolean) 
