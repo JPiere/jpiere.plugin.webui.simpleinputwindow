@@ -1575,10 +1575,11 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			}
 			event.stopPropagation();
 
-		}else if (event.getName().equals(Events.ON_SELECT)){
+		}else if (event.getName().equals(Events.ON_SELECT)){//Select other tab
 
-			//TODO:タブを切り替えるときに下記を書いておかないと更新して保存前の値が、他のタブのセルに引き継がれるという不具合が発生していまう。
-			currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().setCurrentRow(currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().getCurrentRow());
+			//Stop to edit cell for do not influence other cell of other tab, If you press other tab When you are editing a cell
+			if(currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().getCurrentRow()!=null)
+				currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().setCurrentRow(currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().getCurrentRow());
 
 			if(dirtyModel.size()==0 && newModel==null)
 			{

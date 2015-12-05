@@ -586,7 +586,13 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 		currentColumnIndex =rowListener.getColumnIndex();
 		currentPO =listModel.getPO(currentRowIndex);
 		List<Row> rowList = grid.getRows().getChildren();
-		currentRow = rowList.get(currentRowIndex);
+		if(rowList.size()==0)
+		{
+			currentRow = null;
+			return;
+		}else{
+			currentRow = rowList.get(currentRowIndex);
+		}
 
 		if (editing) {
 			stopEditing(true);
@@ -1208,7 +1214,5 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 			}
 		};
 	}
-
-
 
 }
