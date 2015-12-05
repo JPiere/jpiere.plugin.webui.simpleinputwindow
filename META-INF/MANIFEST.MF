@@ -12,8 +12,8 @@ Require-Bundle: org.adempiere.base;bundle-version="3.0.0",
  org.zkoss.zk.library,
  org.adempiere.ui;bundle-version="3.0.0"
 Bundle-Activator: org.adempiere.plugin.utils.AdempiereActivator
-Service-Component: OSGI-INF/jpierePluginSimpleInputWindowModelFactory.xml,OSGI-INF/jpierePluginSimpleInputWindowFormFactory.xml,
- OSGI-INF/jpierePluginSimpleInputWindowCalloutFactory.xml
+Service-Component: OSGI-INF/jpierePluginSimpleInputWindowModelFactory.xml,OSGI-INF/jpierePluginSimpleInputWindowFormFactory.xml,OSGI-INF/jpierePluginSimpleInputWindowCalloutFactory.xml,
+ OSGI-INF/jpierePluginSimpleInputWindowProcessFactory.xml
 Export-Package: jpiere.plugin.simpleinputwindow.base,
  jpiere.plugin.simpleinputwindow.form,
  jpiere.plugin.simpleinputwindow.model

@@ -434,7 +434,6 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 		cell.setStyle("border: none;");
 		selection.addEventListener(Events.ON_CHECK, this);
 
-		//TODO:コメント外すと今は予期せぬエラーになってしまうので要修正
 		if (!selection.isChecked()) {
 			if (simpleInputWindowGridView.selectAll.isChecked()) {
 				simpleInputWindowGridView.selectAll.setChecked(false);
@@ -527,7 +526,6 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 			div.setAttribute("columnName", gridPanelFields[i].getColumnName());
 
 			div.addEventListener(Events.ON_CLICK, rowListener);
-//			div.addEventListener(Events.ON_DOUBLE_CLICK, rowListener);
 
 			row.appendChild(div);
 		}//for
@@ -538,7 +536,6 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 
 		row.setStyle("cursor:pointer");
 		row.addEventListener(Events.ON_CLICK, rowListener);
-//		row.addEventListener(Events.ON_OK, rowListener);
 		row.setTooltiptext("Row " + (rowIndex+1));
 
 		if (isActive == null) {
@@ -711,6 +708,8 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 								((MLookup)editor.getGridField().getLookup()).getLookupInfo().ValidationCode=validated;
 
 							}
+						}else if(editor instanceof WButtonEditor){
+							((WButtonEditor)editor).setValue(po.get_ID());
 						}
 
 						if (div.getChildren().isEmpty() || !(div.getChildren().get(0) instanceof Button))
@@ -1211,7 +1210,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 		buttonListener = new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				WButtonEditor editor = (WButtonEditor) event.getSource();
-				String stringRecord_ID = editor.getDisplay();//valueの取得
+				String stringRecord_ID = editor.getDisplay();//get record ID
 
 				SimpleInputWindowProcessModelDialog dialog = new SimpleInputWindowProcessModelDialog(form.getWindowNo(), editor.getProcess_ID(), 0, Integer.parseInt(stringRecord_ID), false, simpleInputWindow);
 
