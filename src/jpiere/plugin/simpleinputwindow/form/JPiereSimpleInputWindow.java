@@ -1580,7 +1580,9 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 			//Stop to edit cell for do not influence other cell of other tab, If you press other tab When you are editing a cell
 			if(currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().getCurrentRow()!=null)
+			{
 				currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().setCurrentRow(currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().getCurrentRow());
+			}
 
 			if(dirtyModel.size()==0 && newModel==null)
 			{
@@ -1996,6 +1998,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				List<Row> rowList = currentSimpleInputWindowGridView.getGrid().getRows().getChildren();
 
 				//Rerendering
+				currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().resetCursor();
 				currentSimpleInputWindowGridView.getGrid().setModel(currentSimpleInputWindowGridView.getSimpleInputWindowListModel());
 
 				//Delete "+*"

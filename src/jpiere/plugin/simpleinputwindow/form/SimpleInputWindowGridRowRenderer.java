@@ -935,6 +935,16 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 			return columnIndex;
 		}
 
+		public void setRowIndex(int rowIndex)
+		{
+			this.rowIndex = rowIndex;
+		}
+
+		public void setColumnIndex(int columnIndex)
+		{
+			this.columnIndex = columnIndex;
+		}
+
 		public void onEvent(Event event) throws Exception {
 
 			if(event.getTarget() instanceof Cell)//Get Row Index
@@ -965,7 +975,16 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 		}
 	}
 
-
+	public void resetCursor()
+	{
+		currentRow = null;
+		currentPO = null;
+		editing = false;
+		currentRowIndex = -1;
+		currentColumnIndex = -1;
+		rowListener.setColumnIndex(-1);
+		rowListener.setRowIndex(-1);
+	}
 
 
 	/**
