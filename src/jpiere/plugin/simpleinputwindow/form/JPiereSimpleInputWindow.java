@@ -2102,6 +2102,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 					rowList.remove(currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().getCurrentRowIndex());
 					currentSimpleInputWindowGridView.getGrid().setModel(currentSimpleInputWindowGridView.getSimpleInputWindowListModel());
 					currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().resetCursor();
+					updateColumn();
 
 				}//if (result)
 
@@ -2193,6 +2194,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 							}
 							currentSimpleInputWindowGridView.selectAll.setChecked(false);
 							currentSimpleInputWindowGridView.getGrid().setModel(currentSimpleInputWindowGridView.getSimpleInputWindowListModel());
+							updateColumn();
 
 						} catch (Exception e) {
 							FDialog.error(form.getWindowNo(), "Error");
