@@ -1412,12 +1412,12 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 	public Collection<KeyNamePair> getSaveKeys (int infoCulumnId)
 	{
 
-		int[]  selecttion = listModel.getSelections();
+		int[]  selecttion = currentSimpleInputWindowGridView.getSimpleInputWindowListModel().getSelections();
 		Collection<KeyNamePair> m_viewIDMap = new ArrayList <KeyNamePair>();
 
 		for(int i = 0; i < selecttion.length; i++)
 		{
-			PO po = listModel.getPO(i);
+			PO po = currentSimpleInputWindowGridView.getSimpleInputWindowListModel().getPO(i);
 			m_viewIDMap.add(new KeyNamePair(po.get_ID(),""));
 		}
 
