@@ -2,8 +2,6 @@ package jpiere.plugin.simpleinputwindow.form;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 import javax.swing.table.AbstractTableModel;
@@ -24,7 +22,6 @@ public class SimpleInputWindowGridTable extends AbstractTableModel {
 
 	private Properties          m_ctx;
 	private int					m_AD_Table_ID;
-	private String 		        m_tableName = "";
 	private int				    m_WindowNo;
 
 	private volatile ArrayList<MSort>		m_sort = new ArrayList<MSort>(100);
@@ -37,12 +34,8 @@ public class SimpleInputWindowGridTable extends AbstractTableModel {
 	private int				    m_rowChanged = -1;
 	/** Insert mode active          */
 	private boolean			    m_inserting = false;
-	/** Inserted Row number         */
-	private int                 m_newRow = -1;
 
 	private ArrayList<PO> list_POs;
-
-	private volatile Map<Integer, PO> map_POs = new HashMap<Integer, PO>(100);
 
 	private GridField[] gridFields;
 
@@ -240,7 +233,7 @@ public class SimpleInputWindowGridTable extends AbstractTableModel {
 
 	public void waitLoadingForRow(int row) {
 		//	need to wait for data read into buffer
-		int loops = 0;
+//		int loops = 0;
 		//wait for [timeout] seconds
 //		int timeout = MSysConfig.getIntValue(MSysConfig.GRIDTABLE_LOAD_TIMEOUT_IN_SECONDS, 30, Env.getAD_Client_ID(Env.getCtx()));
 //		while (row >= m_sort.size() && m_loaderFuture != null && !m_loaderFuture.isDone() && loops < timeout)
@@ -273,9 +266,9 @@ public class SimpleInputWindowGridTable extends AbstractTableModel {
 
 	private Object[] getDataAtRow(int row, boolean fetchIfNotFound)
 	{
-		waitLoadingForRow(row);
-		MSort sort = (MSort)m_sort.get(row);
-		Object[] rowData = null;
+//		waitLoadingForRow(row);
+//		MSort sort = (MSort)m_sort.get(row);
+//		Object[] rowData = null;
 //		if (m_virtual)
 //		{
 //			if (sort.index != NEW_ROW_ID && !(m_virtualBuffer.containsKey(sort.index)) && fetchIfNotFound)
@@ -288,7 +281,7 @@ public class SimpleInputWindowGridTable extends AbstractTableModel {
 //		{
 //			rowData = (Object[])m_buffer.get(sort.index);
 //		}
-		return rowData;
+		return null;
 	}
 
 	/**

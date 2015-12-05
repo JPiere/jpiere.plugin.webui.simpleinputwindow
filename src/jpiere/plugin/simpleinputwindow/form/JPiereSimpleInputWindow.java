@@ -1997,28 +1997,30 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 				List<Row> rowList = currentSimpleInputWindowGridView.getGrid().getRows().getChildren();
 
-				//Rerendering
-				currentSimpleInputWindowGridView.getGrid().setModel(currentSimpleInputWindowGridView.getSimpleInputWindowListModel());
-
 				//Delete "+*"
-//				if(newModel!=null)
-//				{
-//					Integer lineNo = newModelLineNo;
-//					org.zkoss.zul.Row row = rowList.get(lineNo.intValue());
-//					Cell lineNoCell = (Cell)row.getChildren().get(1);
-//					org.zkoss.zul.Label lineNoLabel = (org.zkoss.zul.Label)lineNoCell.getChildren().get(0);
-//					lineNoLabel.setValue(lineNoLabel.getValue().replace("+*", ""));
-//				}
+				if(newModel!=null)
+				{
+					int rowIndex =currentSimpleInputWindowGridView.getSimpleInputWindowListModel().getRowIndexFromID(newModel.get_ID());
+					org.zkoss.zul.Row row = rowList.get(rowIndex);
+					Cell lineNoCell = (Cell)row.getChildren().get(1);
+					org.zkoss.zul.Label lineNoLabel = (org.zkoss.zul.Label)lineNoCell.getChildren().get(0);
+					lineNoLabel.setValue(lineNoLabel.getValue().replace("+*", ""));
+				}
 
 				//Delete "*"
-//				Collection<Integer> lines = dirtyLineNo.values();
-//				for(Integer lineNo :lines)
-//				{
-//					org.zkoss.zul.Row row = rowList.get(lineNo.intValue());
-//					Cell lineNoCell = (Cell)row.getChildren().get(1);
-//					org.zkoss.zul.Label lineNoLabel = (org.zkoss.zul.Label)lineNoCell.getChildren().get(0);
-//					lineNoLabel.setValue(lineNoLabel.getValue().replace("*", ""));
-//				}
+				Collection<PO> POs =  dirtyModel.values();
+				int rowIndex = 0;
+				org.zkoss.zul.Row row = null;
+				Cell lineNoCell = null;
+				org.zkoss.zul.Label lineNoLabel = null;
+				for(PO po : POs)
+				{
+					rowIndex =currentSimpleInputWindowGridView.getSimpleInputWindowListModel().getRowIndexFromID(po.get_ID());
+					row = rowList.get(rowIndex);
+					lineNoCell = (Cell)row.getChildren().get(1);
+					lineNoLabel = (org.zkoss.zul.Label)lineNoCell.getChildren().get(0);
+					lineNoLabel.setValue(lineNoLabel.getValue().replace("*", ""));
+				}
 
 			}
 

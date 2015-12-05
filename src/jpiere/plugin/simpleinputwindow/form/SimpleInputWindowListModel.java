@@ -13,30 +13,25 @@
 package jpiere.plugin.simpleinputwindow.form;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
 import org.adempiere.webui.event.WTableModelEvent;
 import org.adempiere.webui.event.WTableModelListener;
-import org.adempiere.webui.util.SortComparator;
 import org.compiere.model.GridField;
 import org.compiere.model.PO;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zul.AbstractListModel;
 import org.zkoss.zul.ListModel;
-import org.zkoss.zul.ListModelExt;
-import org.zkoss.zul.ListitemComparator;
 import org.zkoss.zul.event.ListDataEvent;
-import org.zkoss.zul.ext.Sortable;
 
 /**
  *
  * @author Low Heng Sin
  *
  */
-public class SimpleInputWindowListModel extends AbstractListModel<Object> implements TableModelListener, Sortable<Object> {
+public class SimpleInputWindowListModel extends AbstractListModel<Object> implements TableModelListener {
 
 	/**
 	 *
@@ -88,9 +83,8 @@ public class SimpleInputWindowListModel extends AbstractListModel<Object> implem
 		return values;
 	}
 
-	public PO getPO(int rowIndex){
-		int columnCount = tableModel.getColumnCount();
-		Object[] values = new Object[columnCount];
+	public PO getPO(int rowIndex)
+	{
 		if (pageSize > 0) {
 			rowIndex = (pageNo * pageSize) + rowIndex;
 		}
@@ -99,6 +93,21 @@ public class SimpleInputWindowListModel extends AbstractListModel<Object> implem
 		}
 
 		return null;
+	}
+
+	public int getRowIndexFromID(int po_id)
+	{
+		ArrayList<PO>  list_POs = tableModel.getPOs();
+		int i = 0;
+		for(PO po: list_POs)
+		{
+			if(po.get_ID()==po_id)
+			{
+				return i;
+			}
+			i++;
+		}
+		return -1;
 	}
 
 	public void setPO(PO po){
@@ -158,45 +167,6 @@ public class SimpleInputWindowListModel extends AbstractListModel<Object> implem
 		return selection.contains(rowIndex);
 	}
 
-	/**
-	 * set current page no ( starting from 0 )
-	 * @param pg
-	 */
-	public void setPage(int pg) {
-		if (pageNo != pg) {
-			if (pg > 0) {
-				int start = pg * pageSize;
-				if (start >= tableModel.getRowCount()) {
-					return;
-				}
-			}
-			pageNo = pg;
-			fireEvent(ListDataEvent.CONTENTS_CHANGED, -1, -1);
-		}
-	}
-
-	/**
-	 * @return current page no ( starting from 0 )
-	 */
-	public int getPage() {
-		return pageNo;
-	}
-
-	/**
-	 * Set number of rows per page
-	 * @param pgSize
-	 */
-	public void setPageSize(int pgSize) {
-		pageSize = pgSize;
-	}
-
-	/**
-	 * Get number of rows per page
-	 * @return pageSize
-	 */
-	public int getPageSize() {
-		return pageSize;
-	}
 
 	/**
 	 * Get total number of rows
@@ -237,23 +207,6 @@ public class SimpleInputWindowListModel extends AbstractListModel<Object> implem
 		if (Executions.getCurrent() != null) {
 			fireEvent(ListDataEvent.CONTENTS_CHANGED, fromRow, toRow);
 		}
-	}
-
-	/**
-	 * @param cmpr
-	 * @param ascending
-	 * @see ListModelExt#sort(Comparator, boolean)
-	 */
-	public void sort(Comparator<Object> cmpr, boolean ascending) {
-		//use default zk comparator
-		if (cmpr instanceof ListitemComparator) {
-			ListitemComparator lic = (ListitemComparator) cmpr;
-			tableModel.sort(lic.getListheader().getColumnIndex(), ascending);
-		} else if (cmpr instanceof SortComparator) {
-			SortComparator sc = (SortComparator)cmpr;
-			tableModel.sort(sc.getColumnIndex(), ascending);
-		}
-		fireEvent(ListDataEvent.CONTENTS_CHANGED, -1, -1);
 	}
 
 	protected ArrayList<WTableModelListener> m_listeners = new ArrayList<WTableModelListener>();
@@ -338,11 +291,6 @@ public class SimpleInputWindowListModel extends AbstractListModel<Object> implem
 	 */
 	public void setEditing(boolean b) {
 		editing = b;
-	}
-
-	@Override
-	public String getSortDirection(Comparator<Object> cmpr) {
-		return "natural";
 	}
 
 }
