@@ -659,12 +659,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		Tabpanels tabpanels = new Tabpanels();
 		tabbox.appendChild(tabpanels);
 
-		Tab tab  = new Tab(gridTab.getName());
-		tabbox.getTabs().appendChild(tab);
-		org.zkoss.zul.Tabpanel tabpanel = new Tabpanel();
-		tabbox.getTabpanels().appendChild(tabpanel);
-
-		ArrayList<PO> list = new ArrayList<PO>();
+		ArrayList<PO> listPOs = new ArrayList<PO>();
 		List<IModelFactory> factoryList = Service.locator().list(IModelFactory.class).getServices();
 		if (factoryList == null)
 		{
@@ -694,54 +689,16 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			}
 		}//for
 
-		list.add(po);
+		listPOs.add(po);
 
-		Grid grid = new Grid();
+		boolean isOK = createSimpleInputWindowGridView(0, listPOs, createTabTitle(null), null);
 
-		org.zkoss.zul.Columns columns = grid.getColumns();
-		if(columns == null)
-		{
-			setupColumns(grid, 0);
-
-		}else{
-			List<Component> cmpList = grid.getChildren();
-
-			for(Component cmp : cmpList)
-			{
-				if(cmp instanceof Frozen)
-				{
-					cmp.detach();
-					break;
-				}
-			}//for
-		}//if
-
-		Frozen frozen = new Frozen();
-		frozen.setColumns(((BigDecimal)frozenNum.getValue()).intValue() + 2);//freeze selection and indicator column
-		grid.appendChild(frozen);
-
-		SimpleInputWindowGridTable SIWGridTable = createTableModel(list);
-		SimpleInputWindowListModel listModel = new SimpleInputWindowListModel(SIWGridTable, form.getWindowNo());
-		grid.setModel(listModel);
-
-		SimpleInputWindowGridRowRenderer renderer = new SimpleInputWindowGridRowRenderer(this,listModel);
-		renderer.setGridView(gridView);
-		renderer.setGridTab(gridTab);
-		renderer.createRecordProcessDialog();
-
-		grid.setRowRenderer(renderer);
-		grid.addEventListener(Events.ON_CLICK, this);
-
-		grid.setWidth("100%");
-		grid.setHeight("100%");
-		grid.setVflex(true);
-		grid.setMold("paging");
-		grid.setVisible(true);
-		grid.setPageSize(m_simpleInputWindow.getJP_PageSize());
-
-		tabpanel.appendChild(grid);
-		simpleInputWindowGridViewMap.put(0, new SimpleInputWindowGridView(SIWGridTable, listModel, renderer, grid, null, null, false));
-
+		//First Tab On Demand Rendering
+		currentTabIndex = 0;
+		currentSimpleInputWindowGridView = simpleInputWindowGridViewMap.get(currentTabIndex);
+		tabbox.setSelectedIndex(currentTabIndex);
+		tabbox.getTabpanel(currentTabIndex).appendChild(currentSimpleInputWindowGridView.getGrid());
+		updateColumn();
 
 		newModel = po ;
 		newModelLineNo = 0;
@@ -754,7 +711,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		CustomizeButton.setEnabled(false);
 		DeleteButton.setEnabled(true);
 		frozenNum.setReadWrite(false);
-
 
 		return true;
 	}
@@ -2001,6 +1957,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				if(newModel!=null)
 				{
 					int rowIndex =currentSimpleInputWindowGridView.getSimpleInputWindowListModel().getRowIndexFromID(newModel.get_ID());
+					if(rowIndex == -1)
+						rowIndex = newModelLineNo.intValue();
 					org.zkoss.zul.Row row = rowList.get(rowIndex);
 					Cell lineNoCell = (Cell)row.getChildren().get(1);
 					org.zkoss.zul.Label lineNoLabel = (org.zkoss.zul.Label)lineNoCell.getChildren().get(0);
