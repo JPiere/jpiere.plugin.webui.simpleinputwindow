@@ -1210,6 +1210,8 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 		buttonListener = new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				WButtonEditor editor = (WButtonEditor) event.getSource();
+				if(!simpleInputWindow.saveData(false))
+					return;
 				String stringRecord_ID = editor.getDisplay();//get record ID
 
 				SimpleInputWindowProcessModelDialog dialog = new SimpleInputWindowProcessModelDialog(form.getWindowNo(), editor.getProcess_ID(), 0, Integer.parseInt(stringRecord_ID), false, simpleInputWindow);

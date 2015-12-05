@@ -1351,9 +1351,10 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 	public void actionPerformed(ActionEvent event)
 	{
 
-		if(dirtyModel.size() > 0 )
+		if(dirtyModel.size() > 0 || newModel!=null)
 		{
-			saveData(false);
+			if(!saveData(false))
+				return;
 		}
 
 		ToolbarProcessButton button = (ToolbarProcessButton)event.getSource();
@@ -1417,7 +1418,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		for(int i = 0; i < selecttion.length; i++)
 		{
-			PO po = currentSimpleInputWindowGridView.getSimpleInputWindowListModel().getPO(i);
+			PO po = currentSimpleInputWindowGridView.getSimpleInputWindowListModel().getPO(selecttion[i]);
 			m_viewIDMap.add(new KeyNamePair(po.get_ID(),""));
 		}
 
@@ -1658,9 +1659,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 			refresh();
 
-		/*JPiereMatrixWindowQuickEntry#ConfirmPanel*/
-		}else if (event.getTarget().equals(SearchButton) || event.getName().equals("onComplete")){//onCompolete from process dialog
-
+		}else if (event.getTarget().equals(SearchButton)){
 			if(dirtyModel.size()==0 && newModel==null)
 			{
 
@@ -1676,14 +1675,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				CustomizeButton.setEnabled(true);
 				DeleteButton.setEnabled(true);
 				frozenNum.setReadWrite(false);
-
-				if(event.getName().equals("onComplete"))
-				{
-					SimpleInputWindowProcessModelDialog dialog = (SimpleInputWindowProcessModelDialog)event.getTarget();
-					HtmlBasedComponent  htmlLog = dialog.getInfoResultContent();
-					ProcessInfo pInfo = dialog.getProcessInfo();
-					SimpleInputWindowFDialog.info(form.getWindowNo(), htmlLog, pInfo.getSummary(), null, pInfo.getTitle());
-				}
 
 			}else{
 
@@ -1704,9 +1695,16 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 			}
 
+		}if(event.getName().equals("onComplete")){//onCompolete from process dialog
+
+			SimpleInputWindowProcessModelDialog dialog = (SimpleInputWindowProcessModelDialog)event.getTarget();
+			HtmlBasedComponent  htmlLog = dialog.getInfoResultContent();
+			ProcessInfo pInfo = dialog.getProcessInfo();
+			SimpleInputWindowFDialog.info(form.getWindowNo(), htmlLog, pInfo.getSummary(), null, pInfo.getTitle());
+
 		}else if(event.getTarget().equals(SaveButton)){
 
-				saveData(false);
+			saveData(false);
 
 		}else if(event.getTarget().equals(CreateButton)){
 
