@@ -1998,7 +1998,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				List<Row> rowList = currentSimpleInputWindowGridView.getGrid().getRows().getChildren();
 
 				//Rerendering
-				currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().resetCursor();
 				currentSimpleInputWindowGridView.getGrid().setModel(currentSimpleInputWindowGridView.getSimpleInputWindowListModel());
 
 				//Delete "+*"
@@ -2049,7 +2048,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		 final int[] indices = currentSimpleInputWindowGridView.getSimpleInputWindowListModel().getSelections();
 		 if (indices.length > 0 )
 		 {
-			 onDelete(indices);
+			onDelete(indices);
+			currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().resetCursor();
 			return;
 		 }
 
@@ -2099,6 +2099,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 					List<Row> rowList = currentSimpleInputWindowGridView.getGrid().getRows().getChildren();
 					rowList.remove(currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().getCurrentRowIndex());
 					currentSimpleInputWindowGridView.getGrid().setModel(currentSimpleInputWindowGridView.getSimpleInputWindowListModel());
+					currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().resetCursor();
 
 				}//if (result)
 
