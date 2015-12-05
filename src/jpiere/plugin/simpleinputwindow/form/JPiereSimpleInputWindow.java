@@ -871,6 +871,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		currentSimpleInputWindowGridView = simpleInputWindowGridViewMap.get(currentTabIndex);
 		tabbox.setSelectedIndex(currentTabIndex);
 		tabbox.getTabpanel(currentTabIndex).appendChild(currentSimpleInputWindowGridView.getGrid());
+		updateColumn();
 
 		return true;
 
@@ -1586,7 +1587,10 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				currentTabIndex = tabbox.getSelectedIndex();
 				currentSimpleInputWindowGridView = simpleInputWindowGridViewMap.get(currentTabIndex);
 				if(tabbox.getTabpanel(currentTabIndex).getChildren().size()==0)//On Demand Rendering
+				{
 					tabbox.getTabpanel(currentTabIndex).appendChild(currentSimpleInputWindowGridView.getGrid());
+					updateColumn();
+				}
 
 			}else{
 
@@ -2199,44 +2203,36 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 	String sum = Msg.getMsg(Env.getCtx(), "Sum");
 	private void updateColumn()
 	{
-//		org.zkoss.zul.Columns columns = matrixGrid.getColumns();
-//		List<Component>columnList =  columns.getChildren();
-//
-//		BigDecimal[] totalValues = new BigDecimal[columnList.size()];
-//		for(int i = 0 ; i < totalValues.length; i++)
-//			totalValues[i] = new BigDecimal(0);
-//
-//
-//		TreeMap<Integer,Object> columnDataMap = null;
-//		int columnDisplayType = 0;
-//		Object valuObj = null;
-//		for(Object rowKey :rowKeys)//get row
-//		{
-//			columnDataMap = viewModel.get(rowKey);
-//			for(int i = 0; i < totalValues.length; i++)//get columns
-//			{
-//				if(i==0)//Fix Column
-//				{
-//					;//Nothing to do;
-//				}else{
-//
-//					columnDisplayType = columnGridFieldMap.get(i).getDisplayType();
-//
-//					if(columnDisplayType == DisplayType.Number || columnDisplayType == DisplayType.Quantity
-//							|| columnDisplayType == DisplayType.Amount || columnDisplayType == DisplayType.CostPrice)
-//					{
-//						valuObj = columnDataMap.get(i);
-//						if(valuObj!=null)
-//							totalValues[i] = totalValues[i].add((BigDecimal)valuObj);
-//					}else if(columnDisplayType == DisplayType.Integer){
-//						valuObj = columnDataMap.get(i);
-//						if(valuObj!=null)
-//							totalValues[i] = totalValues[i].add(new BigDecimal(valuObj.toString()));
-//					}
-//					valuObj=null;
-//				}//if
-//			}//for
-//		}//for
+		List<Component>columnList =  currentSimpleInputWindowGridView.getGrid().getColumns().getChildren();
+		PO po= null;
+		BigDecimal[] totalValues = new BigDecimal[columnList.size()];
+		for(int i = 0 ; i < totalValues.length; i++)
+			totalValues[i] = new BigDecimal(0);
+
+		//Calculate
+		for(int i = 0; i < currentSimpleInputWindowGridView.getSimpleInputWindowListModel().getSize(); i++)
+		{
+			po= currentSimpleInputWindowGridView.getSimpleInputWindowListModel().getPO(i);
+			for(int j = 0; j < gridFields.length; j++)
+			{
+				if(DisplayType.isNumeric(gridFields[j].getDisplayType()))
+				{
+					totalValues[j] =totalValues[j].add((BigDecimal)po.get_Value(gridFields[j].getColumnName()));
+				}
+			}
+		}
+
+		//Update column label
+		Column column = null;
+		for(int i = 0; i <  gridFields.length; i++)
+		{
+			if(DisplayType.isNumeric(gridFields[i].getDisplayType()))
+			{
+				column = (Column)columnList.get(i+2);//2 is fix column(Checkbox + Line Number)
+				column.setLabel(gridFields[i].getHeader()
+						+ " (" + sum + ":" + DisplayType.getNumberFormat(gridFields[i].getDisplayType()).format(totalValues[i]) + ")");
+			}
+		}
 	}
 
 	/**
