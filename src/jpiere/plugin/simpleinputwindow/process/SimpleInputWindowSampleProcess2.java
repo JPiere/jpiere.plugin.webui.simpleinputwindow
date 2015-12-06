@@ -43,9 +43,10 @@ public class SimpleInputWindowSampleProcess2 extends SvrProcess {
 									.setClient_ID()
 									.list();
 
+		String msg = null;
 		for(PO po : genericPOs)
 		{
-			String msg = new Integer(po.get_ID()).toString();
+			msg = new Integer(po.get_ID()).toString();
 			addBufferLog(getAD_PInstance_ID(), null, null, msg, po.get_Table_ID(), po.get_ID());
 		}
 
