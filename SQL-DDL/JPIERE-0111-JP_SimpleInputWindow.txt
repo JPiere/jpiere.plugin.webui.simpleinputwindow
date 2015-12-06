@@ -22,6 +22,8 @@ CREATE TABLE adempiere.JP_SimpleInputWindow
   JP_FrozenField numeric(10,0) NOT NULL DEFAULT 0::numeric,
   OrderByClause character varying(2000) DEFAULT NULL::character varying,
   IsDeleteable character(1) DEFAULT 'Y'::bpchar,
+  JP_TabField_ID numeric(10,0) DEFAULT NULL::numeric,
+  IsSummarized character(1) NOT NULL DEFAULT 'N'::bpchar,
 
   CONSTRAINT JP_SimpleInputWindow_pkey PRIMARY KEY (JP_SimpleInputWindow_ID)
 )
