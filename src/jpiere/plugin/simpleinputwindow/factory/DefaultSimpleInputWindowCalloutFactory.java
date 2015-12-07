@@ -30,7 +30,7 @@ public class DefaultSimpleInputWindowCalloutFactory implements ISimpleInputWindo
 	@Override
 	public ISimpleInputWindowCallout getCallout(String tableName, String columnName) {
 
-		if(tableName.equals("JP_ReferenceTest") && (columnName.equals("Rate") || columnName.equals("QtyEntered")))
+		if(tableName.equals("JP_ReferenceTest") && (columnName.equals("Rate") || columnName.equals("QtyEntered") || columnName.equals("M_Product_ID")))
 		{
 			return new SimpleInputWindowSampleCallout();
 		}

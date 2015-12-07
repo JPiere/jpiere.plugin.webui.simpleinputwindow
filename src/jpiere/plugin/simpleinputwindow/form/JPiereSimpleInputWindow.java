@@ -87,7 +87,6 @@ import org.compiere.model.GridTab;
 import org.compiere.model.GridTable;
 import org.compiere.model.GridWindow;
 import org.compiere.model.GridWindowVO;
-import org.compiere.model.I_AD_Field;
 import org.compiere.model.MLookup;
 import org.compiere.model.MLookupFactory;
 import org.compiere.model.MPInstance;
@@ -207,7 +206,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 	private GridTab gridTab ;
 	private GridView gridView ;
 
-	private Grid simpleInputGrid  = new Grid();			//TODO:削除対象
 	private HashMap<Integer,SimpleInputWindowGridView> simpleInputWindowGridViewMap = new HashMap<Integer,SimpleInputWindowGridView> ();
 
 	private Button SearchButton;
@@ -691,7 +689,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		listPOs.add(po);
 
-		boolean isOK = createSimpleInputWindowGridView(0, listPOs, createTabTitle(null), null);
+		createSimpleInputWindowGridView(0, listPOs, createTabTitle(null), null);
 
 		//First Tab On Demand Rendering
 		currentTabIndex = 0;
@@ -810,17 +808,19 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				{
 					listPOs.add(po);
 				}else{
-					boolean isOK = createSimpleInputWindowGridView(tabIndex, listPOs, createTabTitle(tabFieldValue), tabFieldValue);
-					tabIndex++;
-					tabFieldValue = po.get_Value(m_simpleInputWindow.getJP_TabField().getAD_Column().getColumnName());
-					listPOs = new ArrayList<PO>();
-					listPOs.add(po);
+					if(createSimpleInputWindowGridView(tabIndex, listPOs, createTabTitle(tabFieldValue), tabFieldValue))
+					{
+						tabIndex++;
+						tabFieldValue = po.get_Value(m_simpleInputWindow.getJP_TabField().getAD_Column().getColumnName());
+						listPOs = new ArrayList<PO>();
+						listPOs.add(po);
+					}
 				}
 			}
 		}//for
 
 		//last tab
-		boolean isOK = createSimpleInputWindowGridView(tabIndex, listPOs, createTabTitle(tabFieldValue), tabFieldValue);
+		createSimpleInputWindowGridView(tabIndex, listPOs, createTabTitle(tabFieldValue), tabFieldValue);
 
 		//First Tab On Demand Rendering
 		currentTabIndex = 0;
@@ -1287,64 +1287,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		return list;
 	}	//	getPOs
-
-	private ArrayList<Object>  getTabFields(String whereClause,boolean reload)
-	{
-		ArrayList<Object> list = new ArrayList<Object>();
-
-		StringBuilder sql = null;
-		sql = new StringBuilder("SELECT DISTINCT ");
-
-		I_AD_Field tabField = m_simpleInputWindow.getJP_TabField();
-		if(Util.isEmpty(tabField.getAD_Column().getColumnSQL()))
-		{
-			sql.append(TABLE_NAME + "." + tabField.getAD_Column().getColumnName());
-		}else{//Virtual Column
-			sql.append(tabField.getAD_Column().getColumnSQL() + " AS " + tabField.getAD_Column().getColumnName());
-		}
-
-		sql.append(" FROM " + TABLE_NAME );
-
-		if(m_simpleInputWindow.getJP_JoinClause() != null)
-		{
-			sql.append(" "+ m_simpleInputWindow.getJP_JoinClause());
-		}
-
-		sql.append(whereClause);
-
-//		if(m_simpleInputWindow.getOrderByClause() != null)
-//		{
-//			sql.append(" ORDER BY "+ m_simpleInputWindow.getOrderByClause());
-//		}else{
-//			sql.append(" ORDER BY ").append(TABLE_NAME).append(".").append(TABLE_NAME).append("_ID");
-//		}
-
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		try
-		{
-			pstmt = DB.prepareStatement(sql.toString(), null);
-			rs = pstmt.executeQuery();
-
-			while (rs.next())
-			{
-
-				list.add(rs.getObject(1));
-			}//while
-
-		}
-		catch (Exception e)
-		{
-			log.log(Level.SEVERE, sql.toString(), e);
-		}
-		finally
-		{
-			DB.close(rs, pstmt);
-			rs = null; pstmt = null;
-		}
-
-		return list;
-	}
 
 
 	@Override
