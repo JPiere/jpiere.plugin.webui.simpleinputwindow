@@ -631,6 +631,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 		return currentColumnIndex;
 	}
 
+	//control focus
 	NumberBox numberbox ;
 	Datebox datebox ;
 	Searchbox searchbox ;

@@ -578,19 +578,9 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		displayDataLayout.setHeight("100%");
 		displayDataLayout.setStyle("border: none");
 
-				//Edit Area
-				editArea.setStyle("border: none");
-				displayDataLayout.appendChild(editArea);
-//				tabbox.setParent(editArea);
-//				tabbox.setWidth("100%");
-//			    tabbox.setHeight("100%");
-//			    tabbox.setVflex("1");
-//			    tabbox.setHflex("1");
-//
-//				Tabs tabs = new Tabs();
-//				tabbox.appendChild(tabs);
-//				Tabpanels tabpanels = new Tabpanels();
-//				tabbox.appendChild(tabpanels);
+			//Edit Area
+			editArea.setStyle("border: none");
+			displayDataLayout.appendChild(editArea);
 	}
 
 	static class ZoomListener implements EventListener<Event>
