@@ -389,8 +389,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 			}
 		}
 
-		SimpleInputWindowListModel model = (SimpleInputWindowListModel) grid.getModel();
-		model.setEditing(false);
+		((SimpleInputWindowListModel) grid.getModel()).setEditing(false);
 	}
 
 	/**
@@ -757,6 +756,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 								combobox = (Combobox)div.getChildren().get(0);
 								combobox.focus();
 								combobox.select();
+//								combobox.open();
 
 							}else if(div.getChildren().get(0) instanceof Textbox){
 

@@ -32,7 +32,10 @@ public class SimpleInputWindowSampleCallout implements ISimpleInputWindowCallout
 		{
 			BigDecimal rate = (BigDecimal)dataBinder.getValue(rowIndex, "Rate");
 			BigDecimal qty = (BigDecimal)dataBinder.getValue(rowIndex, "QtyEntered");
-			dataBinder.setValue(rowIndex, "GrandTotal", rate.multiply(qty));
+			if(rate != null && qty != null)
+				dataBinder.setValue(rowIndex, "GrandTotal", rate.multiply(qty));
+
+			dataBinder.getSimpleInputWindow().updateColumn();
 
 		}else if(gridField.getColumnName().equals("M_Product_ID")){//Virtual Column(SQL Column)
 

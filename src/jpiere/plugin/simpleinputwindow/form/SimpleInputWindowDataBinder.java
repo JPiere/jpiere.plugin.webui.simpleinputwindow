@@ -175,4 +175,9 @@ public class SimpleInputWindowDataBinder implements ValueChangeListener {
 		return listModel.getValueAt(rowIndex, columnName);
 	}
 
+	public JPiereSimpleInputWindow getSimpleInputWindow()
+	{
+		return simpleInputWindow;
+	}
+
 }

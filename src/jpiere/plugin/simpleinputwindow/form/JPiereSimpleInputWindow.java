@@ -1892,25 +1892,25 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			}else{
 
 				List<Row> rowList = currentSimpleInputWindowGridView.getGrid().getRows().getChildren();
+				int rowIndex = 0;
+				org.zkoss.zul.Row row = null;
+				Cell lineNoCell = null;
+				org.zkoss.zul.Label lineNoLabel = null;
 
 				//Delete "+*"
 				if(newModel!=null)
 				{
-					int rowIndex =currentSimpleInputWindowGridView.getSimpleInputWindowListModel().getRowIndexFromID(newModel.get_ID());
+					rowIndex =currentSimpleInputWindowGridView.getSimpleInputWindowListModel().getRowIndexFromID(newModel.get_ID());
 					if(rowIndex == -1)
 						rowIndex = newModelLineNo.intValue();
-					org.zkoss.zul.Row row = rowList.get(rowIndex);
-					Cell lineNoCell = (Cell)row.getChildren().get(1);
-					org.zkoss.zul.Label lineNoLabel = (org.zkoss.zul.Label)lineNoCell.getChildren().get(0);
+					row = rowList.get(rowIndex);
+					lineNoCell = (Cell)row.getChildren().get(1);
+					lineNoLabel = (org.zkoss.zul.Label)lineNoCell.getChildren().get(0);
 					lineNoLabel.setValue(lineNoLabel.getValue().replace("+*", ""));
 				}
 
 				//Delete "*"
 				Collection<PO> POs =  dirtyModel.values();
-				int rowIndex = 0;
-				org.zkoss.zul.Row row = null;
-				Cell lineNoCell = null;
-				org.zkoss.zul.Label lineNoLabel = null;
 				for(PO po : POs)
 				{
 					rowIndex =currentSimpleInputWindowGridView.getSimpleInputWindowListModel().getRowIndexFromID(po.get_ID());
@@ -2109,7 +2109,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 
 	String sum = Msg.getMsg(Env.getCtx(), "Sum");
-	private void updateColumn()
+	public void updateColumn()
 	{
 
 		if(!m_simpleInputWindow.isSummarized())
@@ -2127,9 +2127,10 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			po= currentSimpleInputWindowGridView.getSimpleInputWindowListModel().getPO(i);
 			for(int j = 0; j < gridFields.length; j++)
 			{
-				if(DisplayType.isNumeric(gridFields[j].getDisplayType()))
+				if(DisplayType.isNumeric(gridFields[j].getDisplayType()) && gridFields[j].getDisplayLength()!=0)
 				{
-					totalValues[j] =totalValues[j].add((BigDecimal)po.get_Value(gridFields[j].getColumnName()));
+					if(po.get_Value(gridFields[j].getColumnName())!=null)
+						totalValues[j] =totalValues[j].add((BigDecimal)po.get_Value(gridFields[j].getColumnName()));
 				}
 			}
 		}
@@ -2138,7 +2139,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		Column column = null;
 		for(int i = 0; i <  gridFields.length; i++)
 		{
-			if(DisplayType.isNumeric(gridFields[i].getDisplayType()))
+			if(DisplayType.isNumeric(gridFields[i].getDisplayType()) && gridFields[i].getDisplayLength()!=0)
 			{
 				column = (Column)columnList.get(i+2);//2 is fix column(Checkbox + Line Number)
 				column.setLabel(gridFields[i].getHeader()
