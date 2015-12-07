@@ -786,40 +786,6 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 						if(i==currentColumnIndex)
 						{
 							setFocus(div.getChildren().get(0));
-
-//							if(div.getChildren().get(0) instanceof NumberBox)
-//							{
-//								numberbox = (NumberBox)div.getChildren().get(0);
-//			    	        	numberbox.focus();
-//			    	        	numberbox.getDecimalbox().select();
-//							}else if(div.getChildren().get(0) instanceof Datebox){
-//
-//								datebox = (Datebox)div.getChildren().get(0);
-//								datebox.focus();
-//								datebox.select();
-//
-//							}else if(div.getChildren().get(0) instanceof Combobox){
-//
-//								combobox = (Combobox)div.getChildren().get(0);
-//								combobox.focus();
-//								combobox.select();
-//								combobox.open();
-//
-//							}else if(div.getChildren().get(0) instanceof Textbox){
-//
-//								textbox = (Textbox)div.getChildren().get(0);
-//								textbox.select();
-//								div.focus();
-//
-//							}else if(div.getChildren().get(0) instanceof Searchbox){
-//
-//								searchbox = (Searchbox)div.getChildren().get(0);
-//								searchbox.focus();
-//								searchbox.getTextbox().select();
-//
-//							}else{
-//								div.focus();
-//							}
 						}
 
 						editor.setReadWrite(simpleInputFields[i].isEditableGrid(true));
