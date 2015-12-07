@@ -636,6 +636,54 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 	Searchbox searchbox ;
 	Combobox combobox;
 	Textbox textbox ;
+	public boolean setFocus(Component Component)
+	{
+		if(Component instanceof NumberBox)
+		{
+			numberbox = (NumberBox)Component;
+        	numberbox.focus();
+        	numberbox.getDecimalbox().select();
+        	return true;
+
+		}else if(Component instanceof Datebox){
+
+			datebox = (Datebox)Component;
+			datebox.focus();
+			datebox.select();
+			return true;
+
+		}else if(Component instanceof Combobox){
+
+			combobox = (Combobox)Component;
+			combobox.focus();
+			combobox.select();
+//			combobox.open();
+			return true;
+
+		}else if(Component instanceof Textbox){
+
+			textbox = (Textbox)Component;
+			textbox.select();
+			if(Component.getParent() instanceof Cell)
+				((Cell)Component.getParent()).focus();
+
+			return true;
+
+		}else if(Component instanceof Searchbox){
+
+			searchbox = (Searchbox)Component;
+			searchbox.focus();
+			searchbox.getTextbox().select();
+
+			return true;
+
+		}else{
+			if(Component.getParent() instanceof Cell)
+				((Cell)Component.getParent()).focus();
+
+			return false;
+		}
+	}
 
 
 	/**
@@ -737,42 +785,41 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 						//control focus
 						if(i==currentColumnIndex)
 						{
+							setFocus(div.getChildren().get(0));
 
-							Component cmp =div.getChildren().get(0);
-
-							if(div.getChildren().get(0) instanceof NumberBox)
-							{
-								numberbox = (NumberBox)div.getChildren().get(0);
-			    	        	numberbox.focus();
-			    	        	numberbox.getDecimalbox().select();
-							}else if(div.getChildren().get(0) instanceof Datebox){
-
-								datebox = (Datebox)div.getChildren().get(0);
-								datebox.focus();
-								datebox.select();
-
-							}else if(div.getChildren().get(0) instanceof Combobox){
-
-								combobox = (Combobox)div.getChildren().get(0);
-								combobox.focus();
-								combobox.select();
+//							if(div.getChildren().get(0) instanceof NumberBox)
+//							{
+//								numberbox = (NumberBox)div.getChildren().get(0);
+//			    	        	numberbox.focus();
+//			    	        	numberbox.getDecimalbox().select();
+//							}else if(div.getChildren().get(0) instanceof Datebox){
+//
+//								datebox = (Datebox)div.getChildren().get(0);
+//								datebox.focus();
+//								datebox.select();
+//
+//							}else if(div.getChildren().get(0) instanceof Combobox){
+//
+//								combobox = (Combobox)div.getChildren().get(0);
+//								combobox.focus();
+//								combobox.select();
 //								combobox.open();
-
-							}else if(div.getChildren().get(0) instanceof Textbox){
-
-								textbox = (Textbox)div.getChildren().get(0);
-								textbox.select();
-								div.focus();
-
-							}else if(div.getChildren().get(0) instanceof Searchbox){
-
-								searchbox = (Searchbox)div.getChildren().get(0);
-								searchbox.focus();
-								searchbox.getTextbox().select();
-
-							}else{
-								div.focus();
-							}
+//
+//							}else if(div.getChildren().get(0) instanceof Textbox){
+//
+//								textbox = (Textbox)div.getChildren().get(0);
+//								textbox.select();
+//								div.focus();
+//
+//							}else if(div.getChildren().get(0) instanceof Searchbox){
+//
+//								searchbox = (Searchbox)div.getChildren().get(0);
+//								searchbox.focus();
+//								searchbox.getTextbox().select();
+//
+//							}else{
+//								div.focus();
+//							}
 						}
 
 						editor.setReadWrite(simpleInputFields[i].isEditableGrid(true));

@@ -1461,10 +1461,18 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			if (data != null && data instanceof Component)
 			{
 				AbstractComponent cmp = (AbstractComponent) data;
+				if(cmp instanceof Cell && !(cmp.getChildren().get(0) instanceof org.zkoss.zul.Label))
+				{
+					//control focus
+					if(currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().setFocus(cmp.getChildren().get(0)))
+						return;
+				}
+
 				if (cmp.getParent() instanceof org.zkoss.zul.Row)
 				{
 					row = (org.zkoss.zul.Row) cmp.getParent();
 				}
+
 			}
 
 			if (row != null)
@@ -1473,6 +1481,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				if(!currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().isEditing())
 					currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().editCurrentRow();
 			}
+
 			event.stopPropagation();
 
 		}else if (event.getName().equals(Events.ON_SELECT)){//Select other tab
