@@ -459,7 +459,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		            {
 		            	popupMenu.addMenuListener((ContextMenuListener)editor);
 		            	row.appendChild(popupMenu);
-
 		            	popupMenu.addContextElement((XulElement) editor.getComponent());
 		            }
 
@@ -581,6 +580,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			//Edit Area
 			editArea.setStyle("border: none");
 			displayDataLayout.appendChild(editArea);
+
 	}
 
 	static class ZoomListener implements EventListener<Event>

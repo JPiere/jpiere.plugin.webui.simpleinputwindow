@@ -715,7 +715,11 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 						Env.setContext(Env.getCtx(), form.getWindowNo(), 0, po.get_ColumnName(p), po.get_Value(p).toString());
 				}
 
-				Env.setContext(Env.getCtx(), form.getWindowNo(), 0, "IsActive", currentPO.get_ValueAsBoolean("IsActive"));
+				Env.setContext(Env.getCtx(), gridTab.getGridWindow().getWindowNo(), gridTab.getTabNo(), "IsActive", currentPO.get_ValueAsBoolean("IsActive"));
+				if(currentPO.get_ColumnIndex("Processed") != -1)
+					Env.setContext(Env.getCtx(), gridTab.getGridWindow().getWindowNo(), gridTab.getTabNo(), "Processed", currentPO.get_ValueAsBoolean("Processed"));
+				if(currentPO.get_ColumnIndex("Processing") != -1)
+					Env.setContext(Env.getCtx(), gridTab.getGridWindow().getWindowNo(), gridTab.getTabNo(), "Processing", currentPO.get_ValueAsBoolean("Processing"));
 
 				for (int i = 0; i < columnCount; i++) {
 					if (simpleInputFields[i].isToolbarOnlyButton()) {
