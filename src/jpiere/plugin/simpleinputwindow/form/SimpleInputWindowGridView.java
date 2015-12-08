@@ -44,8 +44,8 @@ public class SimpleInputWindowGridView implements EventListener<Event>{
 
 	private String edit_mode = null;
 	public static final String NEW_RECORD = "New";
-	public static final String SEARCH_MULTI_TAB ="Search_Multi_Tab"; 	//Use Tab Field
-	public static final String SEARCH_SINGLE_TAB ="Search_Single_Tab";	//Don't use Tab Field
+	public static final String SEARCH_MULTI_TAB ="Search_Multi_Tab"; 	//When Use Tab Field
+	public static final String SEARCH_SINGLE_TAB ="Search_Single_Tab";	//When not use Tab Field
 
 	protected Checkbox selectAll;
 

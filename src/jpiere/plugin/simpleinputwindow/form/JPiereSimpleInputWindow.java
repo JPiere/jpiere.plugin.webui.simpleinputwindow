@@ -1463,7 +1463,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			if (data != null && data instanceof Component)
 			{
 				AbstractComponent cmp = (AbstractComponent) data;
-				if(cmp instanceof Cell && !(cmp.getChildren().get(0) instanceof org.zkoss.zul.Label))
+				if(cmp instanceof Cell && cmp.getChildren().size() > 0 && !(cmp.getChildren().get(0) instanceof org.zkoss.zul.Label))
 				{
 					//control focus
 					if(currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().setFocus(cmp.getChildren().get(0)))
@@ -2003,6 +2003,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 					} catch (Exception e) {
 						FDialog.error(form.getWindowNo(), "DeleteError");
+						return;
 					}
 
 					currentSimpleInputWindowGridView.getSimpleInputWindowListModel().removePO(currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().getCurrentRowIndex());
@@ -2085,6 +2086,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 							trx.rollback();
 							FDialog.error(form.getWindowNo(), "DeleteError");
+							return;
 
 						}finally{
 							trx = null;
