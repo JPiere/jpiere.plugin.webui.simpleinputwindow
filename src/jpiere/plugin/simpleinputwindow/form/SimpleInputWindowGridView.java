@@ -1,3 +1,16 @@
+/******************************************************************************
+ * Product: JPiere                                                            *
+ * Copyright (C) Hideaki Hagiwara (h.hagiwara@oss-erp.co.jp)                  *
+ *                                                                            *
+ * This program is free software, you can redistribute it and/or modify it    *
+ * under the terms version 2 of the GNU General Public License as published   *
+ * by the Free Software Foundation. This program is distributed in the hope   *
+ * that it will be useful, but WITHOUT ANY WARRANTY.                          *
+ * See the GNU General Public License for more details.                       *
+ *                                                                            *
+ * JPiere is maintained by OSS ERP Solutions Co., Ltd.                        *
+ * (http://www.oss-erp.co.jp)                                                 *
+ *****************************************************************************/
 package jpiere.plugin.simpleinputwindow.form;
 
 import java.util.List;
@@ -10,6 +23,15 @@ import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zul.Cell;
 import org.zkoss.zul.Grid;
 
+
+/**
+ * Simple Input Window Grid View
+ *
+ * JPIERE-0111
+ *
+ * @author Hideaki Hagiwara(h.hagiwara@oss-erp.co.jp)
+ *
+ */
 public class SimpleInputWindowGridView implements EventListener<Event>{
 
 	private SimpleInputWindowGridTable simpleInputWindowGridTable;
@@ -20,10 +42,16 @@ public class SimpleInputWindowGridView implements EventListener<Event>{
 	private Object tabFieldValue;
 	private boolean isVirtualColumn = false;
 
+	private String edit_mode = null;
+	public static final String NEW_RECORD = "New";
+	public static final String SEARCH_MULTI_TAB ="Search_Multi_Tab"; 	//Use Tab Field
+	public static final String SEARCH_SINGLE_TAB ="Search_Single_Tab";	//Don't use Tab Field
+
 	protected Checkbox selectAll;
 
 	public SimpleInputWindowGridView(SimpleInputWindowGridTable SIWGridTable ,SimpleInputWindowListModel listModel
-			,SimpleInputWindowGridRowRenderer renderer, Grid grid, String tabFieldColumnName, Object tabFieldValue, boolean isVirtualColumn) {
+			,SimpleInputWindowGridRowRenderer renderer, Grid grid, String tabFieldColumnName, Object tabFieldValue, boolean isVirtualColumn
+			,String edit_mode) {
 		this.simpleInputWindowGridTable = SIWGridTable;
 		this.listModel=listModel;
 		this.renderer = renderer;
@@ -31,9 +59,9 @@ public class SimpleInputWindowGridView implements EventListener<Event>{
 		this.tabFieldColumnName = tabFieldColumnName;
 		this.tabFieldValue = tabFieldValue;
 		this.isVirtualColumn = isVirtualColumn;
-
 		this.renderer.setSimpleInputWindowGridView(this);
 		selectAll = (Checkbox)grid.getColumns().getChildren().get(0).getChildren().get(0);
+		setEditMode(edit_mode);
 	}
 
 	public SimpleInputWindowGridTable getSimpleInputWindowGridTable()
@@ -69,6 +97,19 @@ public class SimpleInputWindowGridView implements EventListener<Event>{
 	public boolean isVirtualColumn()
 	{
 		return isVirtualColumn;
+	}
+
+	public String getEditMode()
+	{
+		return edit_mode;
+	}
+
+	public void setEditMode(String edit_mode)
+	{
+		if(edit_mode.equals(NEW_RECORD) || edit_mode.equals(SEARCH_MULTI_TAB) || edit_mode.equals(SEARCH_SINGLE_TAB))
+			this.edit_mode = edit_mode;
+		else
+			this.edit_mode = null;
 	}
 
 	@Override

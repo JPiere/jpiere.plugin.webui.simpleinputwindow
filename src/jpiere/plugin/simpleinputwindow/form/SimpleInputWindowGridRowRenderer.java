@@ -161,7 +161,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 		this.gridFields = simpleInputWindow.getFields();
 	}
 
-	//TODO
+
 	private WEditor getEditorCell(GridField gridField) {
 		WEditor editor = editors.get(gridField);
 
@@ -703,7 +703,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 
 				currentValues =(Object[])listModel.getElementAt(currentRowIndex);
 
-				//TODO:Set Context コンテキストを設定するとすべて読取専用になってしまうので要調査
+				//Set Context
 				Object obj = null;
 				PO po =listModel.getPO(currentRowIndex);
 				for(int p = 0; p < po.get_ColumnCount(); p++)
@@ -1121,6 +1121,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 							po = factory.getPO(gridTab.getTableName(), 0, null);//
 							if (po != null)
 							{
+								//Set default value
 								for(int i = 0; i < gridFields.length; i++)
 								{
 									Object defaultValue = gridFields[i].getDefault();
@@ -1130,16 +1131,20 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 									}
 								}
 
+								//Overwrite default value
 								for(Map.Entry<String, WEditor> entry: searchEditorMap.entrySet())
 								{
 									if(entry.getValue().getValue() != null && po.get_ColumnIndex(entry.getKey()) != -1)
 										po.set_ValueNoCheck(entry.getKey(), entry.getValue().getValue());
 								}
 
-								if(simpleInputWindowGridView.getTabFieldColumnName()!=null && !simpleInputWindowGridView.isVirtualColumn())
+								//Overwrite default value at Tab Field when SimpleInputWindowGridView is SEARCH_MULTI_TAB mode.
+								if(simpleInputWindowGridView.getEditMode().equals(SimpleInputWindowGridView.SEARCH_MULTI_TAB)
+										&& !simpleInputWindowGridView.isVirtualColumn())
 								{
 									po.set_ValueNoCheck(simpleInputWindowGridView.getTabFieldColumnName(), simpleInputWindowGridView.getTabFieldValue());
 								}
+
 								break;
 							}
 						}//for

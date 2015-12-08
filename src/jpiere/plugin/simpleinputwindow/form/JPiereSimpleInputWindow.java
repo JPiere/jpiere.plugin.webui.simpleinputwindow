@@ -389,7 +389,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 				if(editor == null)
 				{
-					;//TODO Error
+					;//Error
 
 				}else{
 					String DefaultValue = m_simpleInputSearches[i].getDefaultValue();
@@ -679,7 +679,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		listPOs.add(po);
 
-		createSimpleInputWindowGridView(0, listPOs, createTabTitle(null), null);
+		createSimpleInputWindowGridView(0, listPOs, createTabTitle(null), null, SimpleInputWindowGridView.NEW_RECORD);
 
 		//First Tab On Demand Rendering
 		currentTabIndex = 0;
@@ -854,6 +854,16 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 	private boolean createSimpleInputWindowGridView(int tabIndex, ArrayList<PO> listPOs, String tabTitle, Object tabFieldValue)
 	{
+		if(m_simpleInputWindow.getJP_TabField_ID()==0)
+		{
+			return createSimpleInputWindowGridView(tabIndex, listPOs, tabTitle, tabFieldValue, SimpleInputWindowGridView.SEARCH_SINGLE_TAB);
+		}else{
+			return createSimpleInputWindowGridView(tabIndex, listPOs, tabTitle, tabFieldValue, SimpleInputWindowGridView.SEARCH_MULTI_TAB);
+		}
+	}
+
+	private boolean createSimpleInputWindowGridView(int tabIndex, ArrayList<PO> listPOs, String tabTitle, Object tabFieldValue, String edit_mode)
+	{
 		Tab tab  = new Tab(tabTitle);
 		tabbox.getTabs().appendChild(tab);
 		org.zkoss.zul.Tabpanel tabpanel = new Tabpanel();
@@ -908,13 +918,15 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		if(m_simpleInputWindow.getJP_TabField_ID()==0)
 		{
-			simpleInputWindowGridViewMap.put(tabIndex, new SimpleInputWindowGridView(SIWGridTable, listModel, renderer, grid, null, null,false));
+			simpleInputWindowGridViewMap.put(tabIndex, new SimpleInputWindowGridView(SIWGridTable, listModel, renderer, grid, null, null, false, edit_mode));
 		}else{
 
 			if(Util.isEmpty(m_simpleInputWindow.getJP_TabField().getAD_Column().getColumnSQL()))
-				simpleInputWindowGridViewMap.put(tabIndex, new SimpleInputWindowGridView(SIWGridTable, listModel, renderer, grid, m_simpleInputWindow.getJP_TabField().getAD_Column().getColumnName(), tabFieldValue, false));
+				simpleInputWindowGridViewMap.put(tabIndex, new SimpleInputWindowGridView(SIWGridTable, listModel, renderer, grid
+						, m_simpleInputWindow.getJP_TabField().getAD_Column().getColumnName(), tabFieldValue, false, edit_mode));
 			else
-				simpleInputWindowGridViewMap.put(tabIndex, new SimpleInputWindowGridView(SIWGridTable, listModel, renderer, grid, m_simpleInputWindow.getJP_TabField().getAD_Column().getColumnName(), tabFieldValue, true));
+				simpleInputWindowGridViewMap.put(tabIndex, new SimpleInputWindowGridView(SIWGridTable, listModel, renderer, grid
+						, m_simpleInputWindow.getJP_TabField().getAD_Column().getColumnName(), tabFieldValue, true, edit_mode));
 		}
 		return true;
 	}
@@ -1593,7 +1605,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 			}else{
 
-				FDialog.info(form.getWindowNo(), null, "データを保存してから実行して下さい");//FDialog.
+				FDialog.info(form.getWindowNo(), null, Msg.getMsg(Env.getCtx(), "killsession.saveWorkMessage"));//Save Your Work!!
 			}
 
 		}else if(event.getTarget().equals(HomeButton)){
