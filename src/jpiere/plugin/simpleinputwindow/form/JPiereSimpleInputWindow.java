@@ -199,6 +199,10 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 	//Table Name
 	private String TABLE_NAME ;
+	private String PARENT_TABLE_NAME;
+	private String LINK_COLUMN_NAME;
+
+
 
 	/****************************************************
 	 * Window Info
@@ -304,7 +308,19 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		}
 
 		gridTab.initTab(false);
+
+		//for Context
+		LINK_COLUMN_NAME = m_simpleInputWindow.getAD_Tab().getAD_Column().getColumnName();
+		if(!Util.isEmpty(LINK_COLUMN_NAME))
+		{
+			PARENT_TABLE_NAME = LINK_COLUMN_NAME.substring(0, LINK_COLUMN_NAME.length()-("_ID").length());
+			if(MTable.getTable_ID(PARENT_TABLE_NAME)==0)
+				PARENT_TABLE_NAME = null;
+		}
+		Env.setContext(Env.getCtx(), form.getWindowNo(), "IsSOTrx", gridTab.getGridWindow().isSOTrx());
+
 		setupFields(gridTab);//Set up display field
+
 	}
 
 	private void zkInit()
@@ -580,7 +596,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			//Edit Area
 			editArea.setStyle("border: none");
 			displayDataLayout.appendChild(editArea);
-
 	}
 
 	static class ZoomListener implements EventListener<Event>
@@ -1406,7 +1421,35 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			Env.setContext(Env.getCtx(), form.getWindowNo(), editor.getColumnName(), e.getNewValue()==null ? null : e.getNewValue().toString());
 		}
 
+
 		setCSS(editor);
+
+		//Set Parent Data Context
+		if(PARENT_TABLE_NAME != null && editor.getColumnName().equals(LINK_COLUMN_NAME))
+		{
+			PO po = null;
+			List<IModelFactory> factoryList = Service.locator().list(IModelFactory.class).getServices();
+			if (factoryList != null)
+			{
+
+				for(IModelFactory factory : factoryList)
+				{
+					po = factory.getPO(PARENT_TABLE_NAME, editor.getValue()==null ? 0 :(Integer)editor.getValue(), null);
+					if (po != null)
+						break;
+				}
+
+				for(int i = 0; i < po.get_ColumnCount(); i++)
+				{
+					if(editor.getValue()==null || po.get_Value(i)==null)
+						Env.setContext(Env.getCtx(), gridTab.getWindowNo(), po.get_ColumnName(i), "");
+					else
+						Env.setContext(Env.getCtx(), gridTab.getWindowNo(), po.get_ColumnName(i), po.get_Value(i).toString());
+				}
+
+				Env.setContext(Env.getCtx(), form.getWindowNo(), "IsSOTrx", gridTab.getGridWindow().isSOTrx());//form.getWindowNo() == gridTab.getWindowNo()
+			}
+		}
 
 		//Dynamic Validation
 		for(Map.Entry<String, WEditor> entry: searchEditorMap.entrySet())

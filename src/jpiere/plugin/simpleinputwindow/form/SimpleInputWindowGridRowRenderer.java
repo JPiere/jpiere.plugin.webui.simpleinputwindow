@@ -741,7 +741,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 						Cell div = (Cell) currentRow.getChildren().get(colIndex);
 						WEditor editor = getEditorCell(simpleInputFields[i]);
 						editor.setValue(currentValues[i]);
-						editor.getGridField().setValue(currentValues[i],isInserting);
+						editor.getGridField().setValue(currentValues[i],isInserting);//Update GridField Value and Context.
 						editor.getComponent().addEventListener(Events.ON_OK, this);//OnEvent()
 
 
