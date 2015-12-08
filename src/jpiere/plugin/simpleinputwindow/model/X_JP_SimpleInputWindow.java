@@ -30,7 +30,7 @@ public class X_JP_SimpleInputWindow extends PO implements I_JP_SimpleInputWindow
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20151206L;
+	private static final long serialVersionUID = 20151209L;
 
     /** Standard Constructor */
     public X_JP_SimpleInputWindow (Properties ctx, int JP_SimpleInputWindow_ID, String trxName)

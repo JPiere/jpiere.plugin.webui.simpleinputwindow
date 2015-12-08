@@ -30,7 +30,7 @@ public class X_JP_SimpleInputSearch extends PO implements I_JP_SimpleInputSearch
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20151206L;
+	private static final long serialVersionUID = 20151209L;
 
     /** Standard Constructor */
     public X_JP_SimpleInputSearch (Properties ctx, int JP_SimpleInputSearch_ID, String trxName)
@@ -214,6 +214,31 @@ public class X_JP_SimpleInputSearch extends PO implements I_JP_SimpleInputSearch
 			return "Y".equals(oo);
 		}
 		return false;
+	}
+
+	public org.compiere.model.I_AD_Window getJP_QuickEntryWindow() throws RuntimeException
+    {
+		return (org.compiere.model.I_AD_Window)MTable.get(getCtx(), org.compiere.model.I_AD_Window.Table_Name)
+			.getPO(getJP_QuickEntryWindow_ID(), get_TrxName());	}
+
+	/** Set Quick Entry Window.
+		@param JP_QuickEntryWindow_ID Quick Entry Window	  */
+	public void setJP_QuickEntryWindow_ID (int JP_QuickEntryWindow_ID)
+	{
+		if (JP_QuickEntryWindow_ID < 1) 
+			set_Value (COLUMNNAME_JP_QuickEntryWindow_ID, null);
+		else 
+			set_Value (COLUMNNAME_JP_QuickEntryWindow_ID, Integer.valueOf(JP_QuickEntryWindow_ID));
+	}
+
+	/** Get Quick Entry Window.
+		@return Quick Entry Window	  */
+	public int getJP_QuickEntryWindow_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_JP_QuickEntryWindow_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
 	}
 
 	/** Set Simple Input Search.

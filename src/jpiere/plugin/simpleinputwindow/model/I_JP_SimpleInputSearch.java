@@ -177,6 +177,17 @@ public interface I_JP_SimpleInputSearch
 	  */
 	public boolean isMandatory();
 
+    /** Column name JP_QuickEntryWindow_ID */
+    public static final String COLUMNNAME_JP_QuickEntryWindow_ID = "JP_QuickEntryWindow_ID";
+
+	/** Set Quick Entry Window	  */
+	public void setJP_QuickEntryWindow_ID (int JP_QuickEntryWindow_ID);
+
+	/** Get Quick Entry Window	  */
+	public int getJP_QuickEntryWindow_ID();
+
+	public org.compiere.model.I_AD_Window getJP_QuickEntryWindow() throws RuntimeException;
+
     /** Column name JP_SimpleInputSearch_ID */
     public static final String COLUMNNAME_JP_SimpleInputSearch_ID = "JP_SimpleInputSearch_ID";
 

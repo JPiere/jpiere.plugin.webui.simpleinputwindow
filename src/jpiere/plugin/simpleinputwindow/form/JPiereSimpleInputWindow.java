@@ -51,6 +51,7 @@ import org.adempiere.webui.apps.AEnv;
 import org.adempiere.webui.component.Button;
 import org.adempiere.webui.component.Checkbox;
 import org.adempiere.webui.component.Columns;
+import org.adempiere.webui.component.ConfirmPanel;
 import org.adempiere.webui.component.EditorBox;
 import org.adempiere.webui.component.Grid;
 import org.adempiere.webui.component.GridFactory;
@@ -417,6 +418,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 						String value = Env.parseContext(Env.getCtx(), form.getWindowNo(), DefaultValue, false);
 						Env.setContext(Env.getCtx(), form.getWindowNo(), editor.getColumnName(), value);
 						editor.setValue(Env.parseContext(Env.getCtx(), form.getWindowNo(), DefaultValue, false));
+						setParentCtx(editor);
 
 						if(editor instanceof WTableDirEditor)
 						{
@@ -450,6 +452,17 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 					row.appendCellChild(editor.getComponent(),searchField.getColumnSpan());
 					actualxpos = actualxpos + searchField.getColumnSpan();
 
+					int aaa = m_simpleInputSearches[i].getJP_QuickEntryWindow_ID();
+					if(m_simpleInputSearches[i].getJP_QuickEntryWindow_ID() > 0)
+					{
+						Button QuickEntryButton = new Button();
+						QuickEntryButton.setId(editor.getColumnName());
+						QuickEntryButton.addActionListener(this);
+						QuickEntryButton.setEnabled(true);
+						QuickEntryButton.setImage(ThemeManager.getThemeResource("images/mForm.png"));
+						row.appendChild(QuickEntryButton);
+					}
+
 					//Popup Menu
 					WEditorPopupMenu  popupMenu = editor.getPopupMenu();
 					List<Component> listcomp = popupMenu.getChildren();
@@ -461,8 +474,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 						{
 							menuItem = (Menuitem)comp;
 							image = menuItem.getImage();
-							if(image.endsWith("Zoom16.png")||image.endsWith("Refresh16.png")
-									|| image.endsWith("New16.png") || image.endsWith("InfoBPartner16.png"))
+							if(image.endsWith("Zoom16.png")||image.endsWith("Refresh16.png"))
 							{
 								menuItem.setVisible(true);
 							}else{
@@ -1424,32 +1436,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		setCSS(editor);
 
-		//Set Parent Data Context
-		if(PARENT_TABLE_NAME != null && editor.getColumnName().equals(LINK_COLUMN_NAME))
-		{
-			PO po = null;
-			List<IModelFactory> factoryList = Service.locator().list(IModelFactory.class).getServices();
-			if (factoryList != null)
-			{
-
-				for(IModelFactory factory : factoryList)
-				{
-					po = factory.getPO(PARENT_TABLE_NAME, editor.getValue()==null ? 0 :(Integer)editor.getValue(), null);
-					if (po != null)
-						break;
-				}
-
-				for(int i = 0; i < po.get_ColumnCount(); i++)
-				{
-					if(editor.getValue()==null || po.get_Value(i)==null)
-						Env.setContext(Env.getCtx(), gridTab.getWindowNo(), po.get_ColumnName(i), "");
-					else
-						Env.setContext(Env.getCtx(), gridTab.getWindowNo(), po.get_ColumnName(i), po.get_Value(i).toString());
-				}
-
-				Env.setContext(Env.getCtx(), form.getWindowNo(), "IsSOTrx", gridTab.getGridWindow().isSOTrx());//form.getWindowNo() == gridTab.getWindowNo()
-			}
-		}
+		setParentCtx(editor);
 
 		//Dynamic Validation
 		for(Map.Entry<String, WEditor> entry: searchEditorMap.entrySet())
@@ -1528,6 +1515,28 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			}
 
 			event.stopPropagation();
+
+		/*SimpleInputWindowQuickEntry#ConfirmPanel*/
+		}else if(event.getName().equals(ConfirmPanel.A_CANCEL)){
+
+			quickEntry = null;
+			quickEntryColumnName = null;
+
+			return;
+
+		/*SimpleInputWindowQuickEntry#ConfirmPanel*/
+		}else if(event.getName().equals(ConfirmPanel.A_OK)){ //Keep on creating new record
+
+			WEditor editor = searchEditorMap.get(quickEntryColumnName);
+			editor.setValue(quickEntry.getRecord_ID());
+
+			setCSS(editor);
+			setParentCtx(editor);
+
+			quickEntry = null;
+			quickEntryColumnName = null;
+
+			return;
 
 		}else if (event.getName().equals(Events.ON_SELECT)){//Select other tab
 
@@ -1761,8 +1770,30 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			popup.render(buttonList);
 
 			LayoutUtils.openPopupWindow(ProcessButton, popup, "after_start");
+
+		}else{
+
+			if(event.getTarget() instanceof org.zkoss.zul.Button)
+			{
+				for(int i = 0 ; i < m_simpleInputSearches.length; i++)
+				{
+					if(event.getTarget().getId().equals(m_simpleInputSearches[i].getAD_Field().getAD_Column().getColumnName()))
+					{
+						//Create Quick entry window
+						quickEntry = new SimpleInutWindowQuickEntry (form.getWindowNo(), m_simpleInputSearches[i].getJP_QuickEntryWindow_ID(), this);
+						quickEntryColumnName = m_simpleInputSearches[i].getAD_Field().getAD_Column().getColumnName();
+						WEditor editor = searchEditorMap.get(quickEntryColumnName);
+						quickEntry.loadRecord (editor.getValue()==null ? 0 : Integer.parseInt(editor.getValue().toString()));
+
+						AEnv.showWindow(quickEntry);
+					}
+				}
+			}
 		}
 	}//onEvent
+
+	SimpleInutWindowQuickEntry quickEntry ;
+	String quickEntryColumnName;
 
 	private void toggleSelectionForAll(int tabIndex, boolean isChecked) {
 		org.zkoss.zul.Rows rows = currentSimpleInputWindowGridView.getGrid().getRows();
@@ -2228,6 +2259,39 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				editor.getLabel().setStyle("color:red;");
 			else
 				editor.getLabel().setStyle("color:#333;");
+		}
+	}
+
+	private void setParentCtx(WEditor editor)
+	{
+		if(PARENT_TABLE_NAME != null && editor.getColumnName().equals(LINK_COLUMN_NAME))
+		{
+			PO po = null;
+			List<IModelFactory> factoryList = Service.locator().list(IModelFactory.class).getServices();
+			if (factoryList != null)
+			{
+
+				int record_id = 0;
+				if(editor.getValue()!=null)
+					record_id = Integer.parseInt(editor.getValue().toString());
+
+				for(IModelFactory factory : factoryList)
+				{
+					po = factory.getPO(PARENT_TABLE_NAME, record_id, null);
+					if (po != null)
+						break;
+				}
+
+				for(int i = 0; i < po.get_ColumnCount(); i++)
+				{
+					if(record_id == 0 || po.get_Value(i)==null)
+						Env.setContext(Env.getCtx(), gridTab.getWindowNo(), po.get_ColumnName(i), "");
+					else
+						Env.setContext(Env.getCtx(), gridTab.getWindowNo(), po.get_ColumnName(i), po.get_Value(i).toString());
+				}
+
+				Env.setContext(Env.getCtx(), form.getWindowNo(), "IsSOTrx", gridTab.getGridWindow().isSOTrx());//form.getWindowNo() == gridTab.getWindowNo()
+			}//if (factoryList != null)
 		}
 	}
 
