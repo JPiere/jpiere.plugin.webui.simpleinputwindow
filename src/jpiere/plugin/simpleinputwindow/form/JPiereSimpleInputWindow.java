@@ -2086,6 +2086,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 							trx.rollback();
 							FDialog.error(form.getWindowNo(), "DeleteError");
+							currentSimpleInputWindowGridView.getGrid().setModel(currentSimpleInputWindowGridView.getSimpleInputWindowListModel());
 							return;
 
 						}finally{
