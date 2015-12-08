@@ -721,6 +721,12 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 				if(currentPO.get_ColumnIndex("Processing") != -1)
 					Env.setContext(Env.getCtx(), gridTab.getGridWindow().getWindowNo(), gridTab.getTabNo(), "Processing", currentPO.get_ValueAsBoolean("Processing"));
 
+
+				//Judgment of Insert Record or not.
+				Cell lineNoCell = (Cell)currentRow.getChildren().get(1);
+				org.zkoss.zul.Label lineNoLabel = (org.zkoss.zul.Label)lineNoCell.getChildren().get(0);
+				boolean  isInserting = lineNoLabel.getValue().contains("+*");
+
 				for (int i = 0; i < columnCount; i++) {
 					if (simpleInputFields[i].isToolbarOnlyButton()) {
 						continue;
@@ -735,6 +741,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 						Cell div = (Cell) currentRow.getChildren().get(colIndex);
 						WEditor editor = getEditorCell(simpleInputFields[i]);
 						editor.setValue(currentValues[i]);
+						editor.getGridField().setValue(currentValues[i],isInserting);
 						editor.getComponent().addEventListener(Events.ON_OK, this);//OnEvent()
 
 
