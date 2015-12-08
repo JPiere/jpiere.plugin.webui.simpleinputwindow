@@ -409,10 +409,11 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 					;//Error
 
 				}else{
+
 					String DefaultValue = m_simpleInputSearches[i].getDefaultValue();
 					if(DefaultValue == null || DefaultValue.isEmpty())
 					{
-						;
+						Env.setContext(Env.getCtx(), form.getWindowNo(), editor.getColumnName(), "");
 					}else{
 
 						String value = Env.parseContext(Env.getCtx(), form.getWindowNo(), DefaultValue, false);
@@ -452,7 +453,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 					row.appendCellChild(editor.getComponent(),searchField.getColumnSpan());
 					actualxpos = actualxpos + searchField.getColumnSpan();
 
-					int aaa = m_simpleInputSearches[i].getJP_QuickEntryWindow_ID();
+					//Create button that call Quick Entry Window.
 					if(m_simpleInputSearches[i].getJP_QuickEntryWindow_ID() > 0)
 					{
 						Button QuickEntryButton = new Button();
@@ -698,7 +699,14 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				for(Map.Entry<String, WEditor> entry: searchEditorMap.entrySet())
 				{
 					if(entry.getValue().getValue() != null && po.get_ColumnIndex(entry.getKey()) != -1)
-						po.set_ValueNoCheck(entry.getKey(), entry.getValue().getValue());
+					{
+						Object value = entry.getValue().getValue() ;
+						if (entry.getKey().endsWith("_ID") && value instanceof String )
+						{
+							value = Integer.parseInt((String)value);
+						}
+						po.set_ValueNoCheck(entry.getKey(), value);
+					}
 				}
 				break;
 			}
@@ -770,6 +778,12 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		return gridTab;
 	}
 
+
+	/**
+	 * createView
+	 *
+	 * @return boolean
+	 */
 	private boolean createView () throws Exception
 	{
 		if(tabbox != null)
@@ -1470,6 +1484,12 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		}//for
 	}
 
+
+	/**
+	 * onEvent
+	 *
+	 * @return void
+	 */
 	@Override
 	public void onEvent(final Event event) throws Exception {
 
@@ -1485,6 +1505,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		{
 			return;
 		}
+
+		//Click Grid Area
 		else if (event.getTarget() instanceof Grid && Events.ON_CLICK.equals(event.getName()))
 		{
 
@@ -1516,7 +1538,9 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 			event.stopPropagation();
 
-		/*SimpleInputWindowQuickEntry#ConfirmPanel*/
+			return;
+
+		//SimpleInputWindowQuickEntry#ConfirmPanel
 		}else if(event.getName().equals(ConfirmPanel.A_CANCEL)){
 
 			quickEntry = null;
@@ -1524,8 +1548,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 			return;
 
-		/*SimpleInputWindowQuickEntry#ConfirmPanel*/
-		}else if(event.getName().equals(ConfirmPanel.A_OK)){ //Keep on creating new record
+		//SimpleInputWindowQuickEntry#ConfirmPanel
+		}else if(event.getName().equals(ConfirmPanel.A_OK)){
 
 			WEditor editor = searchEditorMap.get(quickEntryColumnName);
 			editor.setValue(quickEntry.getRecord_ID());
@@ -1538,7 +1562,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 			return;
 
-		}else if (event.getName().equals(Events.ON_SELECT)){//Select other tab
+		/*When Select other tab*/
+		}else if (event.getName().equals(Events.ON_SELECT)){
 
 			//Stop to edit cell for do not influence other cell of other tab, If you press other tab When you are editing a cell
 			if(currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().getCurrentRow()!=null)
@@ -1580,6 +1605,9 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 			}
 
+			return;
+
+		//Press Ok Button on Customize Grid
 		}else if (event.getName().equals("onCustomizeGrid")){
 
 			setupFields(gridTab);
@@ -1632,7 +1660,9 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 			tabpanel.appendChild(grid);
 
+			return;
 
+		//Press Customize Button
 		}else if(event.getTarget().equals(CustomizeButton)){
 
 			if(dirtyModel.size()==0 && newModel==null)
@@ -1660,10 +1690,16 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				FDialog.info(form.getWindowNo(), null, Msg.getMsg(Env.getCtx(), "killsession.saveWorkMessage"));//Save Your Work!!
 			}
 
+			return;
+
+		//Press Home Button
 		}else if(event.getTarget().equals(HomeButton)){
 
 			refresh();
 
+			return;
+
+		//Press Search Button
 		}else if (event.getTarget().equals(SearchButton)){
 			if(dirtyModel.size()==0 && newModel==null)
 			{
@@ -1700,17 +1736,26 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 			}
 
-		}if(event.getName().equals("onComplete")){//onCompolete from process dialog
+			return;
+
+		//Call from process dialog
+		}if(event.getName().equals("onComplete")){
 
 			SimpleInputWindowProcessModelDialog dialog = (SimpleInputWindowProcessModelDialog)event.getTarget();
 			HtmlBasedComponent  htmlLog = dialog.getInfoResultContent();
 			ProcessInfo pInfo = dialog.getProcessInfo();
 			SimpleInputWindowFDialog.info(form.getWindowNo(), htmlLog, pInfo.getSummary(), null, pInfo.getTitle());
 
+			return;
+
+		//Press Save Button
 		}else if(event.getTarget().equals(SaveButton)){
 
 			saveData(false);
 
+			return;
+
+		//Press Create Button
 		}else if(event.getTarget().equals(CreateButton)){
 
 			frozenNum.setReadWrite(false);
@@ -1747,14 +1792,23 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				});//FDialog.
 			}
 
+			return;
+
+		//Select All Record
 		}else if (event.getName().equals(Events.ON_CHECK)){
 
 			toggleSelectionForAll(tabbox.getSelectedIndex(),((Checkbox)event.getTarget()).isChecked());
 
+			return;
+
+		//Press Delete Button
 		}else if(event.getTarget().equals(DeleteButton)){
 
 			onDelete();
 
+			return;
+
+		//Press Process Button
 		}else if(event.getTarget().equals(ProcessButton)){
 
 			ProcessButtonPopup popup = new ProcessButtonPopup();
@@ -1771,8 +1825,12 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 			LayoutUtils.openPopupWindow(ProcessButton, popup, "after_start");
 
+			return;
+
+		//
 		}else{
 
+			//Press Quick Entry Button
 			if(event.getTarget() instanceof org.zkoss.zul.Button)
 			{
 				for(int i = 0 ; i < m_simpleInputSearches.length; i++)
@@ -1789,6 +1847,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 					}
 				}
 			}
+
+			return;
 		}
 	}//onEvent
 
@@ -1837,6 +1897,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 	}
 
+
 	public void refresh()
 	{
 		if(dirtyModel.size()==0 && newModel==null)
@@ -1872,6 +1933,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 							Env.setContext(Env.getCtx(), form.getWindowNo(), editor.getColumnName(), "");
 						}
 
+						setParentCtx(editor);
 						setCSS(editor);
 					}
 
@@ -1925,13 +1987,13 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 										((WTableDirEditor) editor).getLookup().setSelectedItem("");
 									}
 
-
 								}else{
 									editor.setValue(null);
 									Env.setContext(Env.getCtx(), form.getWindowNo(), editor.getColumnName(), "");
 								}
 
 								setCSS(editor);
+								setParentCtx(editor);
 							}
 
 						}//for i
@@ -2290,7 +2352,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 						Env.setContext(Env.getCtx(), gridTab.getWindowNo(), po.get_ColumnName(i), po.get_Value(i).toString());
 				}
 
-				Env.setContext(Env.getCtx(), form.getWindowNo(), "IsSOTrx", gridTab.getGridWindow().isSOTrx());//form.getWindowNo() == gridTab.getWindowNo()
+				Env.setContext(Env.getCtx(), form.getWindowNo(), "IsSOTrx", gridTab.getGridWindow().isSOTrx());
+
 			}//if (factoryList != null)
 		}
 	}
