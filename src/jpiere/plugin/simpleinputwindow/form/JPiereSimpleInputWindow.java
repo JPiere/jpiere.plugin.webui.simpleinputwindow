@@ -873,21 +873,22 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			return gridTab.getName();
 		}else{
 
-			if(m_simpleInputWindow.getJP_TabField().getAD_Column().getAD_Reference_ID()==SystemIDs.REFERENCE_DATATYPE_TABLEDIR
-					|| m_simpleInputWindow.getJP_TabField().getAD_Column().getAD_Reference_ID()==SystemIDs.REFERENCE_DATATYPE_TABLE
-					|| m_simpleInputWindow.getJP_TabField().getAD_Column().getAD_Reference_ID()==SystemIDs.REFERENCE_DATATYPE_SEARCH )
+			int AD_Reference_ID = m_simpleInputWindow.getJP_TabField().getAD_Column().getAD_Reference_ID();
+			if(AD_Reference_ID==SystemIDs.REFERENCE_DATATYPE_TABLEDIR
+					|| AD_Reference_ID==SystemIDs.REFERENCE_DATATYPE_TABLE
+					|| AD_Reference_ID==SystemIDs.REFERENCE_DATATYPE_SEARCH
+					|| AD_Reference_ID==SystemIDs.REFERENCE_DATATYPE_LOCATOR
+					|| AD_Reference_ID==SystemIDs.REFERENCE_DATATYPE_LOCATION
+					|| AD_Reference_ID==SystemIDs.REFERENCE_DATATYPE_ACCOUNT
+					|| AD_Reference_ID==SystemIDs.REFERENCE_DATATYPE_ASSIGNMENT)
 			{
 				MLookup lookup = MLookupFactory.get(Env.getCtx(), form.getWindowNo(), 0, m_simpleInputWindow.getJP_TabField().getAD_Column_ID(), DisplayType.Search);
 				WSearchEditor editor = new WSearchEditor("keyColumn", true, false, true, lookup);
 				editor.setValue(new Integer(tabFieldValue.toString()).intValue());
 				return editor.getDisplay();
-			}else if(m_simpleInputWindow.getJP_TabField().getAD_Column().getAD_Reference_ID()==SystemIDs.REFERENCE_DATATYPE_INTEGER ){
-				return tabFieldValue.toString();
-			}else if(m_simpleInputWindow.getJP_TabField().getAD_Column().getAD_Reference_ID()==SystemIDs.REFERENCE_DATATYPE_STRING ){
-				return tabFieldValue.toString();
-			}else if( m_simpleInputWindow.getJP_TabField().getAD_Column().getAD_Reference_ID()==SystemIDs.REFERENCE_DATATYPE_DATE
-					|| m_simpleInputWindow.getJP_TabField().getAD_Column().getAD_Reference_ID()==SystemIDs.REFERENCE_DATATYPE_DATETIME
-					|| m_simpleInputWindow.getJP_TabField().getAD_Column().getAD_Reference_ID()==SystemIDs.REFERENCE_DATATYPE_TIME ){
+			}else if(AD_Reference_ID==SystemIDs.REFERENCE_DATATYPE_DATE
+					|| AD_Reference_ID==SystemIDs.REFERENCE_DATATYPE_DATETIME
+					|| AD_Reference_ID==SystemIDs.REFERENCE_DATATYPE_TIME ){
 				return ((Timestamp)tabFieldValue).toString();
 			}else{
 				return tabFieldValue.toString();
@@ -2282,10 +2283,12 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				if(DisplayType.isNumeric(gridFields[j].getDisplayType()) && gridFields[j].getDisplayLength()!=0)
 				{
 					if(po.get_Value(gridFields[j].getColumnName())!=null)
-						totalValues[j] =totalValues[j].add((BigDecimal)po.get_Value(gridFields[j].getColumnName()));
+					{
+						totalValues[j] =totalValues[j].add(new BigDecimal(po.get_Value(gridFields[j].getColumnName()).toString()));
+					}
 				}
-			}
-		}
+			}//for j
+		}//for i
 
 		//Update column label
 		Column column = null;

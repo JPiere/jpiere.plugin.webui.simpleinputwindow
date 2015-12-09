@@ -741,7 +741,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 						Cell div = (Cell) currentRow.getChildren().get(colIndex);
 						WEditor editor = getEditorCell(simpleInputFields[i]);
 						editor.setValue(currentValues[i]);
-						editor.getGridField().setValue(currentValues[i],isInserting);//Update GridField Value and Context.
+						editor.getGridField().setValue(currentValues[i], isInserting);//Update GridField Value and Context.
 						editor.getComponent().addEventListener(Events.ON_OK, this);//OnEvent()
 
 
@@ -749,6 +749,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 						{
 							//Need refresh
 		        			((WTableDirEditor)editor).getLookup().refresh();
+//		        			((WTableDirEditor)editor).actionRefresh();
 
 						}else if(editor instanceof WSearchEditor){
 
