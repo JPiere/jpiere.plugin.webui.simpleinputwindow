@@ -687,6 +687,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			po = factory.getPO(TABLE_NAME, 0, null);//
 			if (po != null)
 			{
+				//Set default value
 				for(int i = 0; i < gridFields.length; i++)
 				{
 					Object defaultValue = gridFields[i].getDefault();
@@ -696,6 +697,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 					}
 				}
 
+				//Overwrite default value
 				for(Map.Entry<String, WEditor> entry: searchEditorMap.entrySet())
 				{
 					if(entry.getValue().getValue() != null && po.get_ColumnIndex(entry.getKey()) != -1)

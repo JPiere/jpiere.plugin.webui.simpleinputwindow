@@ -1146,7 +1146,14 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 								for(Map.Entry<String, WEditor> entry: searchEditorMap.entrySet())
 								{
 									if(entry.getValue().getValue() != null && po.get_ColumnIndex(entry.getKey()) != -1)
-										po.set_ValueNoCheck(entry.getKey(), entry.getValue().getValue());
+									{
+										Object value = entry.getValue().getValue() ;
+										if (entry.getKey().endsWith("_ID") && value instanceof String )
+										{
+											value = Integer.parseInt((String)value);
+										}
+										po.set_ValueNoCheck(entry.getKey(), value);
+									}
 								}
 
 								//Overwrite default value at Tab Field when SimpleInputWindowGridView is SEARCH_MULTI_TAB mode.
