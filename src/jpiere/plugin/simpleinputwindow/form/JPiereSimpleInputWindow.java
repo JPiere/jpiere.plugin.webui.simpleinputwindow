@@ -294,6 +294,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		m_Tab = new MTab(Env.getCtx(), m_simpleInputWindow.getAD_Tab_ID(), null);
 		TABLE_NAME = MTable.get(Env.getCtx(), m_Tab.getAD_Table_ID()).getTableName();
+		Env.setContext(Env.getCtx(), form.getWindowNo(), "TABLE_NAME", TABLE_NAME);
 
 		//Create Window because of use Window info.
 		GridWindowVO gridWindowVO =AEnv.getMWindowVO(form.getWindowNo(), m_simpleInputWindow.getAD_Window_ID(), 0);
@@ -317,6 +318,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			PARENT_TABLE_NAME = LINK_COLUMN_NAME.substring(0, LINK_COLUMN_NAME.length()-("_ID").length());
 			if(MTable.getTable_ID(PARENT_TABLE_NAME)==0)
 				PARENT_TABLE_NAME = null;
+			else
+				Env.setContext(Env.getCtx(), form.getWindowNo(), "PARENT_TABLE_NAME", PARENT_TABLE_NAME);
 		}
 		Env.setContext(Env.getCtx(), form.getWindowNo(), "IsSOTrx", gridTab.getGridWindow().isSOTrx());
 
@@ -1752,6 +1755,19 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			ProcessInfo pInfo = dialog.getProcessInfo();
 			SimpleInputWindowFDialog.info(form.getWindowNo(), htmlLog, pInfo.getSummary(), null, pInfo.getTitle());
 
+			//Refresh Current Grid
+			ArrayList<PO> poList = currentSimpleInputWindowGridView.getSimpleInputWindowGridTable().getPOs();
+			for(PO po : poList)
+			{
+				po.load(null);
+			}
+
+			currentSimpleInputWindowGridView.getGrid().setModel(currentSimpleInputWindowGridView.getSimpleInputWindowListModel());
+			if(currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().getCurrentRow()!=null)
+			{
+				currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().setCurrentRow(currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().getCurrentRow());
+			}
+
 			return;
 
 		//Press Save Button
@@ -2369,6 +2385,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				}
 
 				Env.setContext(Env.getCtx(), form.getWindowNo(), "IsSOTrx", gridTab.getGridWindow().isSOTrx());
+				Env.setContext(Env.getCtx(), form.getWindowNo(), "PARENT_RECORD_ID", po.get_ID());
 
 			}//if (factoryList != null)
 		}

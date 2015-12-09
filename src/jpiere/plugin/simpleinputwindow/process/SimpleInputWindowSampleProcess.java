@@ -14,6 +14,7 @@
 
 package jpiere.plugin.simpleinputwindow.process;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 
 import org.adempiere.model.GenericPO;
@@ -49,6 +50,8 @@ public class SimpleInputWindowSampleProcess extends SvrProcess {
 		for(PO po : genericPOs)
 		{
 			msg = new Integer(po.get_ID()).toString();
+			po.set_ValueNoCheck("Rate", new BigDecimal(1000));
+			po.saveEx();
 			addBufferLog(getAD_PInstance_ID(), null, null, msg, po.get_Table_ID(), po.get_ID());
 		}
 
