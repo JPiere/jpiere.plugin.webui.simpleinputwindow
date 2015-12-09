@@ -117,7 +117,7 @@ public class SimpleInputWindowDataBinder implements ValueChangeListener {
 					ISimpleInputWindowCallout callout = factory.getCallout(po.get_TableName(), editor.getColumnName());
 					if(callout != null)
 					{
-						calloutMessage =callout.start(this, rendere.getCurrentRowIndex(), gridField, newValue, oldValue);
+						calloutMessage =callout.start(this, rendere.getCurrentRowIndex(), gridField.getColumnName(), newValue, oldValue);
 						if(calloutMessage != null && !calloutMessage.equals(""))
 						{
 							FDialog.error(simpleInputWindow.getForm().getWindowNo(), calloutMessage);

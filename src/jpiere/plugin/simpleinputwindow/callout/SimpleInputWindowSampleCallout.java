@@ -18,17 +18,16 @@ import java.math.BigDecimal;
 import jpiere.plugin.simpleinputwindow.base.ISimpleInputWindowCallout;
 import jpiere.plugin.simpleinputwindow.form.SimpleInputWindowDataBinder;
 
-import org.compiere.model.GridField;
 import org.compiere.model.MProduct;
 import org.compiere.util.Env;
 
 public class SimpleInputWindowSampleCallout implements ISimpleInputWindowCallout {
 
 	@Override
-	public String start(SimpleInputWindowDataBinder dataBinder,int rowIndex, GridField gridField, Object newValue, Object oldValue)
+	public String start(SimpleInputWindowDataBinder dataBinder,int rowIndex, String ColumnName, Object newValue, Object oldValue)
 	{
 
-		if(gridField.getColumnName().equals("Rate") || gridField.getColumnName().equals("QtyEntered"))
+		if(ColumnName.equals("Rate") || ColumnName.equals("QtyEntered"))
 		{
 			BigDecimal rate = (BigDecimal)dataBinder.getValue(rowIndex, "Rate");
 			BigDecimal qty = (BigDecimal)dataBinder.getValue(rowIndex, "QtyEntered");
@@ -37,7 +36,7 @@ public class SimpleInputWindowSampleCallout implements ISimpleInputWindowCallout
 
 			dataBinder.getSimpleInputWindow().updateColumn();
 
-		}else if(gridField.getColumnName().equals("M_Product_ID")){//Virtual Column(SQL Column)
+		}else if(ColumnName.equals("M_Product_ID")){//Virtual Column(SQL Column)
 
 			if(newValue == null)
 			{

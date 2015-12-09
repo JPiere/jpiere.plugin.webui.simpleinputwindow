@@ -21,6 +21,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
+import jpiere.plugin.simpleinputwindow.base.ISimpleInputWindowCallout;
+import jpiere.plugin.simpleinputwindow.base.ISimpleInputWindowCalloutFactory;
 import jpiere.plugin.simpleinputwindow.window.SimpleInputWindowProcessModelDialog;
 
 import org.adempiere.base.IModelFactory;
@@ -50,6 +52,7 @@ import org.adempiere.webui.event.ContextMenuListener;
 import org.adempiere.webui.panel.CustomForm;
 import org.adempiere.webui.panel.HelpController;
 import org.adempiere.webui.session.SessionManager;
+import org.adempiere.webui.window.FDialog;
 import org.compiere.model.GridField;
 import org.compiere.model.GridTab;
 import org.compiere.model.MLookup;
@@ -161,6 +164,10 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 		this.gridFields = simpleInputWindow.getFields();
 	}
 
+	public SimpleInputWindowDataBinder getSimpleInputWindowDataBinder()
+	{
+		return dataBinder;
+	}
 
 	private WEditor getEditorCell(GridField gridField) {
 		WEditor editor = editors.get(gridField);
@@ -1177,6 +1184,8 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 						simpleInputWindow.setNewModel(po);
 						simpleInputWindow.setNewModelLineNo(currentRowIndex);
 
+						startInitializeCallout();
+
 						event.stopPropagation();
 						return;
 					}else{
@@ -1271,6 +1280,35 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 
 			}
 		};
+	}
+
+	public void startInitializeCallout()
+	{
+		List<ISimpleInputWindowCalloutFactory> factories = Service.locator().list(ISimpleInputWindowCalloutFactory.class).getServices();
+		if (factories != null)
+		{
+			String calloutMessage = null;
+			PO po = listModel.getPO(currentRowIndex);
+			for(int i = 0; i < po.get_ColumnCount(); i++)
+			{
+				for(ISimpleInputWindowCalloutFactory factory : factories)
+				{
+					ISimpleInputWindowCallout callout = factory.getCallout("M_InventoryLine", po.get_ColumnName(i));
+					if(callout != null)
+					{
+						calloutMessage =callout.start(getSimpleInputWindowDataBinder(),
+								currentRowIndex, po.get_ColumnName(i), po.get_Value(i), po.get_Value(i));
+						if(calloutMessage != null && !calloutMessage.equals(""))
+						{
+							FDialog.error(gridTab.getWindowNo(), calloutMessage);
+						}
+
+					}
+
+				}//for
+			}//for i
+
+		}//if (factories != null)
 	}
 
 }

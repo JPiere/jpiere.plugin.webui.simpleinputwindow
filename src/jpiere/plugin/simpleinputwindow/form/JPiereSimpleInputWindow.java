@@ -723,10 +723,11 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		currentSimpleInputWindowGridView = simpleInputWindowGridViewMap.get(currentTabIndex);
 		tabbox.setSelectedIndex(currentTabIndex);
 		tabbox.getTabpanel(currentTabIndex).appendChild(currentSimpleInputWindowGridView.getGrid());
-		updateColumn();
 
 		newModel = po ;
 		newModelLineNo = 0;
+
+		updateColumn();
 
 		//set Buttons
 		SearchButton.setEnabled(true);
@@ -736,6 +737,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		CustomizeButton.setEnabled(false);
 		DeleteButton.setEnabled(true);
 		frozenNum.setReadWrite(false);
+
+		Events.postEvent(Events.ON_CLICK, CreateButton,"startInitializeCallout");
 
 		return true;
 	}
@@ -1761,6 +1764,13 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		//Press Create Button
 		}else if(event.getTarget().equals(CreateButton)){
 
+			if(event.getData()!=null && event.getData().equals("startInitializeCallout"))
+			{
+				currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().startInitializeCallout();
+				return;
+			}
+
+
 			frozenNum.setReadWrite(false);
 
 			if(dirtyModel.size()==0 && newModel==null)
@@ -1831,6 +1841,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			return;
 
 		//
+
 		}else{
 
 			//Press Quick Entry Button

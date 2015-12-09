@@ -15,8 +15,6 @@ package jpiere.plugin.simpleinputwindow.base;
 
 import jpiere.plugin.simpleinputwindow.form.SimpleInputWindowDataBinder;
 
-import org.compiere.model.GridField;
-
 
 
 /**
@@ -41,7 +39,7 @@ public interface ISimpleInputWindowCallout
 	 *  @param oldValue	 				:Old Value
 	 *  @return Error message or ""
 	 */
-	public String start (SimpleInputWindowDataBinder dataBinder, int rowIndex, GridField gridField, Object newValue, Object oldValue );
+	public String start (SimpleInputWindowDataBinder dataBinder, int rowIndex, String ColumnName, Object newValue, Object oldValue );
 
 
 
