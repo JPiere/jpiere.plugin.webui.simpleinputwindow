@@ -20,6 +20,7 @@ CREATE TABLE adempiere.JP_SimpleInputSearch
   XPosition numeric(10,0) NOT NULL DEFAULT (1)::numeric,
   ColumnSpan numeric(10,0) NOT NULL DEFAULT (2)::numeric,
   AD_Tab_ID numeric(10,0) NOT NULL DEFAULT NULL::numeric,
+  JP_QuickEntryWindow_ID numeric(10,0) DEFAULT NULL::numeric,
 
   CONSTRAINT JP_SimpleInputSearch_pkey PRIMARY KEY (JP_SimpleInputSearch_ID)
 )
