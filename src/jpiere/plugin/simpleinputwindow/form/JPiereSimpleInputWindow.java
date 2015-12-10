@@ -1946,27 +1946,16 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 	}
 
-	//TODO:
+
 	public void ignore()
 	{
-		ArrayList<PO> poList = currentSimpleInputWindowGridView.getSimpleInputWindowGridTable().getPOs();
-		for(PO po : poList)
-		{
-			if(po.get_ID()==0)
-			{
-				;
-			}else{
-				po.load(null);//TODO:エラー処理
-			}
-		}
-
 		List<Row> rowList = currentSimpleInputWindowGridView.getGrid().getRows().getChildren();
 		int rowIndex = 0;
 		org.zkoss.zul.Row row = null;
 		Cell lineNoCell = null;
 		org.zkoss.zul.Label lineNoLabel = null;
 
-		//Inger New Record
+		//Ignore New Record
 		if(newModel!=null)
 		{
 			rowIndex =currentSimpleInputWindowGridView.getSimpleInputWindowListModel().getRowIndexFromID(newModel.get_ID());
@@ -1977,10 +1966,11 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			rowList.remove(rowIndex);
 		}
 
-		//Delete "*"
-		Collection<PO> POs =  dirtyModel.values();
+		//Ignore Update Record
+		Collection<PO> POs = dirtyModel.values();
 		for(PO po : POs)
 		{
+			po.load(null);//TODO:エラー処理
 			rowIndex =currentSimpleInputWindowGridView.getSimpleInputWindowListModel().getRowIndexFromID(po.get_ID());
 			row = rowList.get(rowIndex);
 			lineNoCell = (Cell)row.getChildren().get(1);
