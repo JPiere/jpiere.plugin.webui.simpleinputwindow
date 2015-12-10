@@ -217,6 +217,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 	private Button SaveButton;
 
+	private Button IgnoreButton;
+
 	private Button CreateButton;
 
 	private Button HomeButton;
@@ -557,6 +559,15 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				if(!gridTab.isReadOnly())
 					row.appendCellChild(SaveButton);
 
+				IgnoreButton = new Button();
+				IgnoreButton.setId("IgnoreButton");
+				IgnoreButton.addActionListener(this);
+				IgnoreButton.setEnabled(false);
+				IgnoreButton.setImage(ThemeManager.getThemeResource("images/Ignore16.png"));
+				if(!gridTab.isReadOnly())
+					row.appendCellChild(IgnoreButton);
+
+
 				HomeButton = new Button();
 				HomeButton.setId("HomeButton");
 				HomeButton.addActionListener(this);
@@ -736,6 +747,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		SearchButton.setEnabled(true);
 		CreateButton.setEnabled(true);
 		SaveButton.setEnabled(true);
+		IgnoreButton.setEnabled(true);
 		ProcessButton.setEnabled(true);
 		CustomizeButton.setEnabled(false);
 		DeleteButton.setEnabled(true);
@@ -1701,6 +1713,11 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 			return;
 
+		//Press Ignore Button
+		}else if(event.getTarget().equals(IgnoreButton)){
+
+			ignore();
+
 		//Press Home Button
 		}else if(event.getTarget().equals(HomeButton)){
 
@@ -1720,6 +1737,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				SearchButton.setEnabled(true);
 				CreateButton.setEnabled(true);
 				SaveButton.setEnabled(true);
+				IgnoreButton.setEnabled(true);
 				ProcessButton.setEnabled(true);
 
 				CustomizeButton.setEnabled(true);
@@ -1747,7 +1765,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 			return;
 
-		//Call from process dialog
+		//Call from process dialog(After Process)
 		}if(event.getName().equals("onComplete")){
 
 			SimpleInputWindowProcessModelDialog dialog = (SimpleInputWindowProcessModelDialog)event.getTarget();
@@ -1920,11 +1938,65 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		SearchButton.setEnabled(true);
 		CreateButton.setEnabled(true);
 		SaveButton.setEnabled(false);
+		IgnoreButton.setEnabled(false);
 		ProcessButton.setEnabled(false);
 		CustomizeButton.setEnabled(false);
 		DeleteButton.setEnabled(false);
 		frozenNum.setReadWrite(true);
 
+	}
+
+	//TODO:
+	public void ignore()
+	{
+		ArrayList<PO> poList = currentSimpleInputWindowGridView.getSimpleInputWindowGridTable().getPOs();
+		for(PO po : poList)
+		{
+			if(po.get_ID()==0)
+			{
+				;
+			}else{
+				po.load(null);//TODO:エラー処理
+			}
+		}
+
+		List<Row> rowList = currentSimpleInputWindowGridView.getGrid().getRows().getChildren();
+		int rowIndex = 0;
+		org.zkoss.zul.Row row = null;
+		Cell lineNoCell = null;
+		org.zkoss.zul.Label lineNoLabel = null;
+
+		//Inger New Record
+		if(newModel!=null)
+		{
+			rowIndex =currentSimpleInputWindowGridView.getSimpleInputWindowListModel().getRowIndexFromID(newModel.get_ID());
+			if(rowIndex == -1)
+				rowIndex = newModelLineNo.intValue();
+
+			currentSimpleInputWindowGridView.getSimpleInputWindowListModel().removePO(rowIndex);
+			rowList.remove(rowIndex);
+		}
+
+		//Delete "*"
+		Collection<PO> POs =  dirtyModel.values();
+		for(PO po : POs)
+		{
+			rowIndex =currentSimpleInputWindowGridView.getSimpleInputWindowListModel().getRowIndexFromID(po.get_ID());
+			row = rowList.get(rowIndex);
+			lineNoCell = (Cell)row.getChildren().get(1);
+			lineNoLabel = (org.zkoss.zul.Label)lineNoCell.getChildren().get(0);
+			lineNoLabel.setValue(lineNoLabel.getValue().replace("*", ""));
+		}
+
+		currentSimpleInputWindowGridView.getGrid().setModel(currentSimpleInputWindowGridView.getSimpleInputWindowListModel());
+		currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().stopEditing(false);
+
+		dirtyModel.clear();
+		dirtyLineNo.clear();
+		newModel = null;
+		newModelLineNo = null;
+
+		updateColumn();
 	}
 
 

@@ -1293,7 +1293,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 			{
 				for(ISimpleInputWindowCalloutFactory factory : factories)
 				{
-					ISimpleInputWindowCallout callout = factory.getCallout("M_InventoryLine", po.get_ColumnName(i));
+					ISimpleInputWindowCallout callout = factory.getCallout(po.get_TableName(), po.get_ColumnName(i));
 					if(callout != null)
 					{
 						calloutMessage =callout.start(getSimpleInputWindowDataBinder(),
