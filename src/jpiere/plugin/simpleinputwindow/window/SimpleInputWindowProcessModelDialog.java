@@ -61,7 +61,7 @@ public class SimpleInputWindowProcessModelDialog extends ProcessModalDialog {
 
 	private boolean isParameterPage = true;
 
-	//TODO:多分これしか使わないかも…
+	//Simple Input Window use this constractor only.
 	public SimpleInputWindowProcessModelDialog(int WindowNo, ProcessInfo pi,
 			boolean autoStart,JPiereSimpleInputWindow simpleInputWindow) {
 		super(WindowNo, pi, autoStart);

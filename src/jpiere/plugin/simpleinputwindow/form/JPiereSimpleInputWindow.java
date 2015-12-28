@@ -1468,6 +1468,13 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			Env.setContext(Env.getCtx(), form.getWindowNo(), editor.getColumnName(), e.getNewValue()==null ? null : e.getNewValue().toString());
 		}
 
+		//If Search field is Link Column, you can kick process with no data.
+		if(editor.getColumnName().equals(LINK_COLUMN_NAME))
+		{
+			//need to initial one time only.
+			if(tabbox == null)
+				prepareInitialProcess();
+		}
 
 		setCSS(editor);
 
@@ -1577,6 +1584,14 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 			setCSS(editor);
 			setParentCtx(editor);
+
+			//If Search field is Link Column, you can kick process with no data.
+			if(quickEntryColumnName.equals(LINK_COLUMN_NAME))
+			{
+				//need to initial one time only.
+				if(tabbox == null)
+					prepareInitialProcess();
+			}
 
 			quickEntry = null;
 			quickEntryColumnName = null;
@@ -2482,4 +2497,76 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		return simpleInputWindowGridViewMap.get(tabIndex);
 	}
 
+	private void prepareInitialProcess()
+	{
+		ProcessButton.setEnabled(true);
+
+		if(tabbox != null)
+			editArea.removeChild(tabbox);
+
+		tabbox = new Tabbox();
+		tabbox.setParent(editArea);
+		tabbox.setWidth("100%");
+	    tabbox.setHeight("100%");
+	    tabbox.setVflex("1");
+	    tabbox.setHflex("1");
+
+		Tabs tabs = new Tabs();
+		tabbox.appendChild(tabs);
+		Tabpanels tabpanels = new Tabpanels();
+		tabbox.appendChild(tabpanels);
+
+		ArrayList<PO> listPOs = new ArrayList<PO>();
+		List<IModelFactory> factoryList = Service.locator().list(IModelFactory.class).getServices();
+		if (factoryList == null)
+		{
+			;//
+		}
+		PO po = null;
+		for(IModelFactory factory : factoryList)
+		{
+			po = factory.getPO(TABLE_NAME, 0, null);//
+			if (po != null)
+			{
+				//Set default value
+				for(int i = 0; i < gridFields.length; i++)
+				{
+					Object defaultValue = gridFields[i].getDefault();
+					if(defaultValue!=null)
+					{
+						po.set_ValueNoCheck(gridFields[i].getColumnName(), defaultValue);
+					}
+				}
+
+				//Overwrite default value
+				for(Map.Entry<String, WEditor> entry: searchEditorMap.entrySet())
+				{
+					if(entry.getValue().getValue() != null && po.get_ColumnIndex(entry.getKey()) != -1)
+					{
+						Object value = entry.getValue().getValue() ;
+						if (entry.getKey().endsWith("_ID") && value instanceof String )
+						{
+							value = Integer.parseInt((String)value);
+						}
+						po.set_ValueNoCheck(entry.getKey(), value);
+					}
+				}
+				break;
+			}
+		}//for
+
+		listPOs.add(po);
+
+		createSimpleInputWindowGridView(0, listPOs, createTabTitle(null), null, SimpleInputWindowGridView.NEW_RECORD);
+
+		//First Tab On Demand Rendering
+		currentTabIndex = 0;
+		currentSimpleInputWindowGridView = simpleInputWindowGridViewMap.get(currentTabIndex);
+		tabbox.setSelectedIndex(currentTabIndex);
+		tabbox.getTabpanel(currentTabIndex).appendChild(currentSimpleInputWindowGridView.getGrid());
+
+		editArea.removeChild(tabbox);
+
+
+	}
 }
