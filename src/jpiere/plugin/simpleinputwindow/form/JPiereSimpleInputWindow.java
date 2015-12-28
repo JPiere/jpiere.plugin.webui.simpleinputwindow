@@ -1471,6 +1471,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		//If Search field is Link Column, you can kick process with no data.
 		if(editor.getColumnName().equals(LINK_COLUMN_NAME))
 		{
+			ProcessButton.setEnabled(true);
+
 			//need to initial one time only.
 			if(tabbox == null)
 				prepareInitialProcess();
@@ -1580,7 +1582,13 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		}else if(event.getName().equals(ConfirmPanel.A_OK)){
 
 			WEditor editor = searchEditorMap.get(quickEntryColumnName);
-			editor.setValue(quickEntry.getRecord_ID());
+			if(quickEntry.getRecord_ID() > 0)
+			{
+				editor.setValue(quickEntry.getRecord_ID());
+			}else{
+				FDialog.info(form.getWindowNo(), null, "JP_CannotCreateNew");
+				return ;
+			}
 
 			setCSS(editor);
 			setParentCtx(editor);
@@ -1588,6 +1596,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			//If Search field is Link Column, you can kick process with no data.
 			if(quickEntryColumnName.equals(LINK_COLUMN_NAME))
 			{
+				ProcessButton.setEnabled(true);
+
 				//need to initial one time only.
 				if(tabbox == null)
 					prepareInitialProcess();
@@ -2497,10 +2507,11 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		return simpleInputWindowGridViewMap.get(tabIndex);
 	}
 
+	/**
+	 * this method is for initial process before create grid.
+	 */
 	private void prepareInitialProcess()
 	{
-		ProcessButton.setEnabled(true);
-
 		if(tabbox != null)
 			editArea.removeChild(tabbox);
 

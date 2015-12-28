@@ -23,17 +23,23 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Vector;
 import java.util.logging.Level;
 
+import org.adempiere.base.IModelFactory;
+import org.adempiere.base.Service;
 import org.compiere.model.MInventory;
 import org.compiere.model.MInventoryLine;
 import org.compiere.model.MInventoryLineMA;
+import org.compiere.model.PO;
+import org.compiere.process.DocAction;
 import org.compiere.process.ProcessInfoParameter;
 import org.compiere.process.SvrProcess;
 import org.compiere.util.AdempiereSystemError;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
+import org.compiere.util.Msg;
 
 
 /**
@@ -119,6 +125,34 @@ public class SimpleInputWindowInventoryCountCreate extends SvrProcess
 			throw new AdempiereSystemError ("Not found: M_Inventory_ID=" + p_M_Inventory_ID);
 		if (m_inventory.isProcessed())
 			throw new AdempiereSystemError ("@M_Inventory_ID@ @Processed@");
+
+		List<IModelFactory> factoryList = Service.locator().list(IModelFactory.class).getServices();
+		if (factoryList == null)
+		{
+			;//
+		}
+		PO po = null;
+		DocAction document = null;
+		for(IModelFactory factory : factoryList)
+		{
+			po = factory.getPO(MInventory.Table_Name, p_M_Inventory_ID, null);//
+			if (po != null && po instanceof DocAction)
+			{
+				document = (DocAction)po;
+
+				if(!document.getDocStatus().equals(DocAction.STATUS_Drafted))
+				{
+					return Msg.getMsg(getCtx(), "JP_Process_Cannot_Perform");
+				}
+
+				break;
+			}
+
+		}//for
+
+		if(document == null)
+			return Msg.getMsg(getCtx(), "Error");
+
 		//
 		if (p_DeleteOld)
 		{
