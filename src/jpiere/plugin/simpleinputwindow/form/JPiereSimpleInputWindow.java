@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,6 +39,7 @@ import jpiere.plugin.simpleinputwindow.window.SimpleInputWindowProcessModelDialo
 
 import org.adempiere.base.IModelFactory;
 import org.adempiere.base.Service;
+import org.adempiere.exceptions.DBException;
 import org.adempiere.model.MTabCustomization;
 import org.adempiere.util.Callback;
 import org.adempiere.webui.AdempiereWebUI;
@@ -1778,7 +1780,10 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 					{
 						if (result)
 						{
-							saveData(true);
+							if(!saveData(true))
+							{
+								FDialog.error(form.getWindowNo(), form, "SaveError");
+							}
 						}else{
 							;//Nothing to do;
 						}
@@ -2133,19 +2138,89 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			{
 				public void run(String trxName)
 				{
+					List<Row> rowList = currentSimpleInputWindowGridView.getGrid().getRows().getChildren();
+					int rowIndex = 0;
+					org.zkoss.zul.Row row = null;
+					Cell lineNoCell = null;
+					org.zkoss.zul.Label lineNoLabel = null;
+
 
 					if(newModel!=null)
+					{
 						newModel.saveEx(trxName);
+						newModel = null;
+						newModelLineNo = null;
+
+						rowIndex =currentSimpleInputWindowGridView.getSimpleInputWindowListModel().getRowIndexFromID(newModel.get_ID());
+						if(rowIndex == -1)
+							rowIndex = newModelLineNo.intValue();
+						row = rowList.get(rowIndex);
+						lineNoCell = (Cell)row.getChildren().get(1);
+						lineNoLabel = (org.zkoss.zul.Label)lineNoCell.getChildren().get(0);
+						lineNoLabel.setValue(lineNoLabel.getValue().replace("+*", ""));
+					}
 
 					Collection<PO> POs = dirtyModel.values();
 					for(PO po :POs)
 					{
-						po.saveEx(trxName);
-					}
+						if(checkExclusiveControl(po))
+						{
+							po.saveEx(trxName);
+
+							rowIndex =currentSimpleInputWindowGridView.getSimpleInputWindowListModel().getRowIndexFromID(po.get_ID());
+							row = rowList.get(rowIndex);
+							lineNoCell = (Cell)row.getChildren().get(1);
+							lineNoLabel = (org.zkoss.zul.Label)lineNoCell.getChildren().get(0);
+							lineNoLabel.setValue(lineNoLabel.getValue().replace("*", ""));
+						}
+					}//for
 
 					updateColumn();
 				}
 			});
+
+
+			List<Row> rowList = currentSimpleInputWindowGridView.getGrid().getRows().getChildren();
+			int rowIndex = 0;
+			org.zkoss.zul.Row row = null;
+			Cell lineNoCell = null;
+			org.zkoss.zul.Label lineNoLabel = null;
+
+			//Check not save PO because Exclusive Control.
+			HashMap<Integer,PO> notSaveModel = new HashMap<Integer,PO>();
+			HashMap<Integer,Integer> notSaveLineNo = new HashMap<Integer,Integer>();
+			ArrayList<String> lineLabelList = new ArrayList<String>();
+			Collection<PO> POs =  dirtyModel.values();
+			for(PO po : POs)
+			{
+				rowIndex =currentSimpleInputWindowGridView.getSimpleInputWindowListModel().getRowIndexFromID(po.get_ID());
+				row = rowList.get(rowIndex);
+				lineNoCell = (Cell)row.getChildren().get(1);
+				lineNoLabel = (org.zkoss.zul.Label)lineNoCell.getChildren().get(0);
+				if(lineNoLabel.getValue().contains("*"))
+				{
+					notSaveModel.put((Integer)po.get_ID(), po);
+					notSaveLineNo.put((Integer)po.get_ID(), rowIndex);
+					lineLabelList.add(lineNoLabel.getValue());
+				}
+			}
+
+			dirtyModel.clear();
+			dirtyLineNo.clear();
+			dirtyModel.putAll(notSaveModel);
+			dirtyLineNo.putAll(notSaveLineNo);
+			if(dirtyModel.size()>0)
+			{
+				String msg = Msg.getMsg(Env.getCtx(), "CurrentRecordModified");//Current record was changed by another user, please ReQuery
+				msg = msg + System.lineSeparator() + Msg.getElement(Env.getCtx(), "LineNo") + " : ";
+				for(String lineLabel :lineLabelList)
+				{
+					msg = msg + lineLabel + ", ";
+				}
+				FDialog.info(form.getWindowNo(), form, msg);
+
+				return false;
+			}
 
 			if(isRefreshAfterSave)
 			{
@@ -2153,37 +2228,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				{
 					throw new Exception(message.toString());
 				}
-			}else{
-
-				List<Row> rowList = currentSimpleInputWindowGridView.getGrid().getRows().getChildren();
-				int rowIndex = 0;
-				org.zkoss.zul.Row row = null;
-				Cell lineNoCell = null;
-				org.zkoss.zul.Label lineNoLabel = null;
-
-				//Delete "+*"
-				if(newModel!=null)
-				{
-					rowIndex =currentSimpleInputWindowGridView.getSimpleInputWindowListModel().getRowIndexFromID(newModel.get_ID());
-					if(rowIndex == -1)
-						rowIndex = newModelLineNo.intValue();
-					row = rowList.get(rowIndex);
-					lineNoCell = (Cell)row.getChildren().get(1);
-					lineNoLabel = (org.zkoss.zul.Label)lineNoCell.getChildren().get(0);
-					lineNoLabel.setValue(lineNoLabel.getValue().replace("+*", ""));
-				}
-
-				//Delete "*"
-				Collection<PO> POs =  dirtyModel.values();
-				for(PO po : POs)
-				{
-					rowIndex =currentSimpleInputWindowGridView.getSimpleInputWindowListModel().getRowIndexFromID(po.get_ID());
-					row = rowList.get(rowIndex);
-					lineNoCell = (Cell)row.getChildren().get(1);
-					lineNoLabel = (org.zkoss.zul.Label)lineNoCell.getChildren().get(0);
-					lineNoLabel.setValue(lineNoLabel.getValue().replace("*", ""));
-				}
-
 			}
 
 			newModel = null;
@@ -2578,6 +2622,84 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		editArea.removeChild(tabbox);
 
+	}
 
+	/**
+	 *
+	 *  If this method returns false, you can not save. because other people saved same record before you save.
+	 *  I refered GridTable.hasChanged() method.
+	 *
+	 */
+	private boolean checkExclusiveControl(PO po)
+	{
+		int colUpdated = po.get_ColumnIndex("Updated");
+		int colProcessed = po.get_ColumnIndex("Processed");
+
+		boolean hasUpdated = (colUpdated > 0);
+		boolean hasProcessed = (colProcessed > 0);
+
+		String columns = null;
+		if (hasUpdated && hasProcessed) {
+			columns = new String("Updated, Processed");
+		} else if (hasUpdated) {
+			columns = new String("Updated");
+		} else if (hasProcessed) {
+			columns = new String("Processed");
+		} else {
+			// no columns updated or processed to commpare
+			return false;
+		}
+
+		Timestamp dbUpdated = null;
+    	String dbProcessedS = null;
+    	PreparedStatement pstmt = null;
+    	ResultSet rs = null;
+    	String sql = "SELECT " + columns + " FROM " + TABLE_NAME + " WHERE " + TABLE_NAME + "_ID=?";
+    	try
+    	{
+    		pstmt = DB.prepareStatement(sql, null);
+    		pstmt.setInt(1, po.get_ID());
+    		rs = pstmt.executeQuery();
+    		if (rs.next()) {
+    			int idx = 1;
+    			if (hasUpdated)
+    				dbUpdated = rs.getTimestamp(idx++);
+    			if (hasProcessed)
+    				dbProcessedS = rs.getString(idx++);
+    		}
+    		else
+    			if (log.isLoggable(Level.INFO)) log.info("No Value " + sql);
+    	}
+    	catch (SQLException e)
+    	{
+    		throw new DBException(e, sql);
+    	}
+    	finally
+    	{
+    		DB.close(rs, pstmt);
+    		rs = null; pstmt = null;
+    	}
+
+    	if (hasUpdated)
+    	{
+			Timestamp memUpdated = null;
+			memUpdated = (Timestamp) po.get_Value(colUpdated);
+			if (memUpdated != null && ! memUpdated.equals(dbUpdated))
+				return false;
+    	}
+
+    	if (hasProcessed)
+    	{
+			Boolean memProcessed = null;
+			memProcessed = (Boolean) po.get_Value(colProcessed);
+
+			Boolean dbProcessed = Boolean.TRUE;
+			if (! dbProcessedS.equals("Y"))
+				dbProcessed = Boolean.FALSE;
+			if (memProcessed != null && ! memProcessed.equals(dbProcessed))
+				return false;
+    	}
+
+		return true;
 	}
 }
