@@ -1108,18 +1108,16 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		columns.setMenupopup("none");
 		columns.setColumnsgroup(false);
 
-		Map<Integer, String> colnames = new HashMap<Integer, String>();
-		int index = 0;
-
 		for (int i = 0; i < numColumns; i++)
 		{
 			// IDEMPIERE-2148: when has tab customize, ignore check properties isDisplayedGrid
 			if ((isHasCustomizeData || gridFields[i].isDisplayedGrid()) && !gridFields[i].isToolbarOnlyButton())
 			{
-				colnames.put(index, gridFields[i].getHeader());
-				index++;
 				org.zkoss.zul.Column column = new Column();
-				column.setLabel(gridFields[i].getHeader());
+				if(!gridFields[i].isSameLine() && !gridTab.isReadOnly() && gridTab.isInsertRecord())
+					column.setLabel(gridFields[i].getHeader()+"+");
+				else
+					column.setLabel(gridFields[i].getHeader());
 
 				if (columnWidthMap != null && columnWidthMap.get(gridFields[i].getAD_Field_ID()) != null && !columnWidthMap.get(gridFields[i].getAD_Field_ID()).equals("")) {
 					column.setWidth(columnWidthMap.get(gridFields[i].getAD_Field_ID()));

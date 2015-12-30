@@ -135,7 +135,7 @@ public class SIWCalloutOrderProduct implements ISimpleInputWindowCallout {
 					{
 						String info = Msg.parseTranslation(ctx, "@QtyAvailable@=" + available
 							+ " - @QtyNotReserved@=" + notReserved + " = " + total);
-						return Msg.getMsg(ctx, "InsufficientQtyAvailable");
+						return Msg.getMsg(ctx, "InsufficientQtyAvailable")+info;
 					}
 				}
 			}

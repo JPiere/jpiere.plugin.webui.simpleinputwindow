@@ -1121,9 +1121,11 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 					}
 
 					String[] yx = cell.getId().split("_");
-					String ColumnIndex = yx[1];
+					int ColumnIndex = Integer.parseInt(yx[1]);
 
-					if(new Integer(ColumnIndex).intValue() == lastColumnIndex && !gridTab.isReadOnly() && gridTab.isInsertRecord())
+					GridField gField = simpleInputWindowGridView.getSimpleInputWindowGridTable().getField(ColumnIndex);
+
+					if((!gField.isSameLine() || ColumnIndex == lastColumnIndex) && !gridTab.isReadOnly() && gridTab.isInsertRecord())
 					{
 						boolean isOK = simpleInputWindow.saveData(false);
 						if(!isOK)
