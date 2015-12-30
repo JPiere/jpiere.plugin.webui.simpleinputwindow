@@ -1114,10 +1114,9 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			if ((isHasCustomizeData || gridFields[i].isDisplayedGrid()) && !gridFields[i].isToolbarOnlyButton())
 			{
 				org.zkoss.zul.Column column = new Column();
+				column.setLabel(gridFields[i].getHeader());
 				if(!gridFields[i].isSameLine() && !gridTab.isReadOnly() && gridTab.isInsertRecord())
-					column.setLabel(gridFields[i].getHeader()+"+");
-				else
-					column.setLabel(gridFields[i].getHeader());
+					column.setImage(ThemeManager.getThemeResource("images/New10.png"));
 
 				if (columnWidthMap != null && columnWidthMap.get(gridFields[i].getAD_Field_ID()) != null && !columnWidthMap.get(gridFields[i].getAD_Field_ID()).equals("")) {
 					column.setWidth(columnWidthMap.get(gridFields[i].getAD_Field_ID()));
