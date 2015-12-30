@@ -16,6 +16,7 @@ package jpiere.plugin.simpleinputwindow.factory;
 import jpiere.plugin.simpleinputwindow.base.ISimpleInputWindowCallout;
 import jpiere.plugin.simpleinputwindow.base.ISimpleInputWindowCalloutFactory;
 import jpiere.plugin.simpleinputwindow.callout.SimpleInputWindowCalloutInventory;
+import jpiere.plugin.simpleinputwindow.callout.SIWCalloutOrderController;
 import jpiere.plugin.simpleinputwindow.callout.SimpleInputWindowSampleCallout;
 
 /**
@@ -37,6 +38,8 @@ public class DefaultSimpleInputWindowCalloutFactory implements ISimpleInputWindo
 		}else if(tableName.equals("M_InventoryLine") &&
 				(columnName.equals("M_Product_ID") || columnName.equals("M_Locator_ID") || columnName.equals("M_AttributeSetInstance_ID"))){
 			return new SimpleInputWindowCalloutInventory();
+		}else if(tableName.equals("C_OrderLine")){
+			return new SIWCalloutOrderController();
 		}
 
 		return null;

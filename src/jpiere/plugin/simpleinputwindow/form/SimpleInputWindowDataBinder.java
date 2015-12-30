@@ -142,6 +142,7 @@ public class SimpleInputWindowDataBinder implements ValueChangeListener {
 	{
     	//Step1:Update Editor Value for display data.
 		List<WEditor>  editors = rendere.getEditors();
+		boolean haveEditor = false;
 		for(WEditor editor : editors)
 		{
 			if(editor.getColumnName().equals(columnName))
@@ -164,9 +165,16 @@ public class SimpleInputWindowDataBinder implements ValueChangeListener {
 	            	lineNoLabel.setValue("*"+lineNoLabel.getValue());
 	            }
 
+	            haveEditor = true;
 		        break;
 			}
 		}//for
+
+		if(!haveEditor)
+		{
+			PO po = listModel.getPO(rendere.getCurrentRowIndex());
+			po.set_ValueNoCheck(columnName, newValue);
+		}
 
 	}
 

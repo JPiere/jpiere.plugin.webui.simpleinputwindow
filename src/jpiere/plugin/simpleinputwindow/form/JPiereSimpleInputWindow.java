@@ -2148,8 +2148,6 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 					if(newModel!=null)
 					{
 						newModel.saveEx(trxName);
-						newModel = null;
-						newModelLineNo = null;
 
 						rowIndex =currentSimpleInputWindowGridView.getSimpleInputWindowListModel().getRowIndexFromID(newModel.get_ID());
 						if(rowIndex == -1)
@@ -2158,6 +2156,9 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 						lineNoCell = (Cell)row.getChildren().get(1);
 						lineNoLabel = (org.zkoss.zul.Label)lineNoCell.getChildren().get(0);
 						lineNoLabel.setValue(lineNoLabel.getValue().replace("+*", ""));
+
+						newModel = null;
+						newModelLineNo = null;
 					}
 
 					Collection<PO> POs = dirtyModel.values();
@@ -2510,9 +2511,17 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				for(int i = 0; i < po.get_ColumnCount(); i++)
 				{
 					if(record_id == 0 || po.get_Value(i)==null)
+					{
 						Env.setContext(Env.getCtx(), gridTab.getWindowNo(), po.get_ColumnName(i), "");
-					else
-						Env.setContext(Env.getCtx(), gridTab.getWindowNo(), po.get_ColumnName(i), po.get_Value(i).toString());
+					}else{
+
+						if(po.get_Value(i).toString().equals("true") || po.get_Value(i).toString().equals("false"))
+						{
+							Env.setContext(Env.getCtx(), form.getWindowNo(), po.get_ColumnName(i),  po.get_Value(i).toString().equals("true") ? "Y" : "N");
+						}else{
+							Env.setContext(Env.getCtx(), gridTab.getWindowNo(), po.get_ColumnName(i), po.get_Value(i).toString());
+						}
+					}
 				}
 
 				Env.setContext(Env.getCtx(), form.getWindowNo(), "IsSOTrx", gridTab.getGridWindow().isSOTrx());

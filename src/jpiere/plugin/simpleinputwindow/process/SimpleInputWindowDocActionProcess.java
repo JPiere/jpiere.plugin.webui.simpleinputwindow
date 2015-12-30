@@ -19,12 +19,14 @@ import java.util.logging.Level;
 
 import org.adempiere.base.IModelFactory;
 import org.adempiere.base.Service;
+import org.compiere.model.MOrder;
 import org.compiere.model.MRefList;
 import org.compiere.model.MTable;
 import org.compiere.model.PO;
 import org.compiere.process.DocAction;
 import org.compiere.process.ProcessInfoParameter;
 import org.compiere.process.SvrProcess;
+import org.compiere.util.Env;
 import org.compiere.util.Msg;
 
 /**
@@ -40,7 +42,8 @@ public class SimpleInputWindowDocActionProcess extends SvrProcess {
 	String docAction = DocAction.ACTION_Complete;
 
 	@Override
-	protected void prepare() {
+	protected void prepare()
+	{
 		ProcessInfoParameter[] para = getParameter();
 		for (int i = 0; i < para.length; i++)
 		{
@@ -79,7 +82,7 @@ public class SimpleInputWindowDocActionProcess extends SvrProcess {
 						|| document.getDocStatus().equals(DocAction.STATUS_Voided)
 						|| document.getDocStatus().equals(DocAction.STATUS_Reversed))
 				{
-					return "その伝票ステータス更新処理は実行できません。";//TODO：Multi-Lang
+					return Msg.getMsg(Env.getCtx(), "JP_Cannot_Process_DocAction");//You can not process the DocAction.
 				}
 
 				if(document.getDocStatus().equals(DocAction.STATUS_Completed))
@@ -89,8 +92,13 @@ public class SimpleInputWindowDocActionProcess extends SvrProcess {
 					{
 						;
 					}else{
-						return "その伝票ステータス更新処理は実行できません。";
+						return Msg.getMsg(Env.getCtx(), "JP_Cannot_Process_DocAction");//You can not process the DocAction.
 					}
+				}
+
+				if(tableName.equals(MOrder.Table_Name))
+				{
+					((MOrder)document).setDocAction(docAction);
 				}
 
 				document.processIt(docAction);
