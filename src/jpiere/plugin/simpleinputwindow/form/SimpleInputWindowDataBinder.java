@@ -13,6 +13,7 @@
  *****************************************************************************/
 package jpiere.plugin.simpleinputwindow.form;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -25,6 +26,7 @@ import org.adempiere.webui.event.ValueChangeEvent;
 import org.adempiere.webui.event.ValueChangeListener;
 import org.adempiere.webui.window.FDialog;
 import org.compiere.model.GridField;
+import org.compiere.model.MLookup;
 import org.compiere.model.PO;
 import org.compiere.util.CLogger;
 import org.zkoss.zul.Cell;
@@ -124,6 +126,25 @@ public class SimpleInputWindowDataBinder implements ValueChangeListener {
 							logger.saveError("Error", new Exception(calloutMessage));
 						}
 
+						ArrayList<GridField> dependants = simpleInputWindow.getGridTab().getDependantFields(editor.getColumnName());
+						if(dependants.size() > 0)
+						{
+				    		for (GridField dependentField : dependants)
+				    		{
+				    			//  if the field has a lookup
+				    			if (dependentField != null && dependentField.getLookup() instanceof MLookup)
+				    			{
+				    				MLookup mLookup = (MLookup)dependentField.getLookup();
+				    				//  if the lookup is dynamic (i.e. contains this columnName as variable)
+				    				if (mLookup.getValidation().indexOf("@"+gridField.getColumnName()+"@") != -1)
+				    				{
+				    					mLookup.refresh();
+				    				}
+				    			}
+				    		}   //  for all dependent fields
+						}
+
+						break;
 					}
 
 				}//for

@@ -32,6 +32,7 @@ public class SIWCalloutOrderController implements ISimpleInputWindowCallout {
 			//Product
 			msg = new SIWCalloutOrderProduct().start(dataBinder, rowIndex, ColumnName, newValue, oldValue);
 			msg = msg + new SIWCalloutOrderTax().start(dataBinder, rowIndex, ColumnName, newValue, oldValue);
+			msg = msg + new SIWCalloutOrderAmt().start(dataBinder, rowIndex, ColumnName, newValue, oldValue);
 		}
 		else if(ColumnName.equals("C_BPartner_Location_ID"))
 		{

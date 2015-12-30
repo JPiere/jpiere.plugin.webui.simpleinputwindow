@@ -85,7 +85,7 @@ public class SIWCalloutOrderTax implements ISimpleInputWindowCallout {
 //		if (log.isLoggable(Level.INFO)) log.info("Tax ID=" + C_Tax_ID);
 		//
 		if (C_Tax_ID == 0)
-			;//TODO:イベントがファイヤーされていたけど、その後の処理があるのではないか？　FDialogに書き換える必要を検討
+			;
 		else
 			dataBinder.setValue(rowIndex, "C_Tax_ID", new Integer(C_Tax_ID));
 		//
