@@ -1143,16 +1143,17 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 							if (po != null)
 							{
 								//Set default value
-								for(int i = 0; i < gridFields.length; i++)
+								GridField[] allFields =gridTab.getFields();
+								for(int i = 0; i < allFields.length; i++)
 								{
-									Object defaultValue = gridFields[i].getDefault();
+									Object defaultValue = allFields[i].getDefault();
 									if(defaultValue!=null)
 									{
-										po.set_ValueNoCheck(gridFields[i].getColumnName(), defaultValue);
+										po.set_ValueNoCheck(allFields[i].getColumnName(), defaultValue);
 									}
 								}
 
-								//Overwrite default value
+								//Overwrite default value by Value of Search Fields
 								for(Map.Entry<String, WEditor> entry: searchEditorMap.entrySet())
 								{
 									if(entry.getValue().getValue() != null && po.get_ColumnIndex(entry.getKey()) != -1)

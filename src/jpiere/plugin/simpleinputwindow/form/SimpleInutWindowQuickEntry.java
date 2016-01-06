@@ -71,14 +71,12 @@ public class SimpleInutWindowQuickEntry extends WQuickEntry {
 				throw exception;
 			}
 
-			detach();
+
 			if(isOK)
 			{
+				detach();
 				simpleInputWindow.onEvent(new Event(ConfirmPanel.A_OK));
-			}else{
-				simpleInputWindow.onEvent(new Event(ConfirmPanel.A_CANCEL));//refresh
 			}
-
 
 		}else if (e.getTarget().getId().equals(ConfirmPanel.A_CANCEL)){
 			detach();
