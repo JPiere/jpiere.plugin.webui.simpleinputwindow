@@ -94,6 +94,7 @@ import org.compiere.model.MLookup;
 import org.compiere.model.MLookupFactory;
 import org.compiere.model.MPInstance;
 import org.compiere.model.MProcess;
+import org.compiere.model.MRefList;
 import org.compiere.model.MRole;
 import org.compiere.model.MTab;
 import org.compiere.model.MTable;
@@ -907,6 +908,11 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				WSearchEditor editor = new WSearchEditor("keyColumn", true, false, true, lookup);
 				editor.setValue(new Integer(tabFieldValue.toString()).intValue());
 				return editor.getDisplay();
+
+			}else if(AD_Reference_ID==SystemIDs.REFERENCE_DATATYPE_LIST){
+
+				return MRefList.getListName(Env.getCtx(), m_simpleInputWindow.getJP_TabField().getAD_Column().getAD_Reference_Value_ID(), tabFieldValue.toString());
+
 			}else if(AD_Reference_ID==SystemIDs.REFERENCE_DATATYPE_DATE
 					|| AD_Reference_ID==SystemIDs.REFERENCE_DATATYPE_DATETIME
 					|| AD_Reference_ID==SystemIDs.REFERENCE_DATATYPE_TIME ){
