@@ -48,42 +48,24 @@ public class SIWCalloutInvoiceTax implements ISimpleInputWindowCallout {
 			C_Charge_ID = Env.getContextAsInt(ctx, WindowNo, tabNo, "C_Charge_ID");
 
 		if (M_Product_ID == 0 && C_Charge_ID == 0)
-			return new SIWCalloutOrderAmt().start(dataBinder, rowIndex, ColumnName, newValue, oldValue);
+			return new SIWCalloutInvoiceAmt().start(dataBinder, rowIndex, ColumnName, newValue, oldValue);
 
 		//	Check Partner Location
 		int shipC_BPartner_Location_ID = 0;
-		if (column.equals("C_BPartner_Location_ID"))
-			shipC_BPartner_Location_ID = ((Integer)newValue).intValue();
-		else
-			shipC_BPartner_Location_ID = Env.getContextAsInt(ctx, WindowNo, "C_BPartner_Location_ID");
+		shipC_BPartner_Location_ID = Env.getContextAsInt(ctx, WindowNo, "C_BPartner_Location_ID");
 		if (shipC_BPartner_Location_ID == 0)
-			return new SIWCalloutOrderAmt().start(dataBinder, rowIndex, ColumnName, newValue, oldValue);
-//		if (log.isLoggable(Level.FINE)) log.fine("Ship BP_Location=" + shipC_BPartner_Location_ID);
+			return new SIWCalloutInvoiceAmt().start(dataBinder, rowIndex, ColumnName, newValue, oldValue);
 
 		//
-		Timestamp billDate = Env.getContextAsDate(ctx, WindowNo, "DateOrdered");
-//		if (log.isLoggable(Level.FINE)) log.fine("Bill Date=" + billDate);
-
-		Timestamp shipDate = Env.getContextAsDate(ctx, WindowNo, "DatePromised");
-//		if (log.isLoggable(Level.FINE)) log.fine("Ship Date=" + shipDate);
+		Timestamp billDate = Env.getContextAsDate(ctx, WindowNo, "DateInvoiced");
 
 		int AD_Org_ID = Env.getContextAsInt(ctx, WindowNo, "AD_Org_ID");
-//		if (log.isLoggable(Level.FINE)) log.fine("Org=" + AD_Org_ID);
-
-		int M_Warehouse_ID = Env.getContextAsInt(ctx, WindowNo, "M_Warehouse_ID");
-//		if (log.isLoggable(Level.FINE)) log.fine("Warehouse=" + M_Warehouse_ID);
-
-		int billC_BPartner_Location_ID = Env.getContextAsInt(ctx, WindowNo, "Bill_Location_ID");
-		if (billC_BPartner_Location_ID == 0)
-			billC_BPartner_Location_ID = shipC_BPartner_Location_ID;
-//		if (log.isLoggable(Level.FINE)) log.fine("Bill BP_Location=" + billC_BPartner_Location_ID);
 
 		//
-		int C_Tax_ID = Tax.get (ctx, M_Product_ID, C_Charge_ID, billDate, shipDate,
-			AD_Org_ID, M_Warehouse_ID, billC_BPartner_Location_ID, shipC_BPartner_Location_ID,
+		int C_Tax_ID = Tax.get (ctx, M_Product_ID, C_Charge_ID, billDate, billDate,
+			AD_Org_ID, 0, shipC_BPartner_Location_ID, shipC_BPartner_Location_ID,
 			"Y".equals(Env.getContext(ctx, WindowNo, "IsSOTrx")), null);
-//		if (log.isLoggable(Level.INFO)) log.info("Tax ID=" + C_Tax_ID);
-		//
+
 		if (C_Tax_ID == 0)
 			;
 		else

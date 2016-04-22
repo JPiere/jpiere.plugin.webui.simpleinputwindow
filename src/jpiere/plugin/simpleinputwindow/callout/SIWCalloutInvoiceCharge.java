@@ -28,17 +28,17 @@ public class SIWCalloutInvoiceCharge implements ISimpleInputWindowCallout {
 
 		String msg = null;
 		if (ColumnName.equals("M_Product_ID")){
-			msg = new SIWCalloutOrderProduct().start(dataBinder, rowIndex, ColumnName, newValue, oldValue);
+			msg = new SIWCalloutInvoiceProduct().start(dataBinder, rowIndex, ColumnName, newValue, oldValue);
 
 		}
 		else if(ColumnName.equals("C_BPartner_Location_ID"))
 		{
-			msg = new SIWCalloutOrderTax().start(dataBinder, rowIndex, ColumnName, newValue, oldValue);
+			msg = new SIWCalloutInvoiceTax().start(dataBinder, rowIndex, ColumnName, newValue, oldValue);
 
 		}else if(ColumnName.equals("C_Charge_ID")){
-				;
+			;
 		}else if (ColumnName.equals("C_UOM_ID")){
-			msg = new SIWCalloutOrderProduct().start(dataBinder, rowIndex, ColumnName, newValue, oldValue);
+			msg = new SIWCalloutInvoiceProduct().start(dataBinder, rowIndex, ColumnName, newValue, oldValue);
 		}
 
 		return msg;

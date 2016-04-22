@@ -57,13 +57,13 @@ public class SIWCalloutInvoiceProduct implements ISimpleInputWindowCallout {
 
 
 		int C_BPartner_ID = Env.getContextAsInt(ctx, WindowNo, "C_BPartner_ID");
-		BigDecimal Qty = (BigDecimal)dataBinder.getValue(rowIndex, "QtyOrdered");
+		BigDecimal Qty = (BigDecimal)dataBinder.getValue(rowIndex, "QtyInvoiced");
 		boolean IsSOTrx = Env.getContext(ctx, WindowNo, "IsSOTrx").equals("Y");
 		MProductPricing pp = new MProductPricing (M_Product_ID.intValue(), C_BPartner_ID, Qty, IsSOTrx);
 		//
 		int M_PriceList_ID = Env.getContextAsInt(ctx, WindowNo, "M_PriceList_ID");
 		pp.setM_PriceList_ID(M_PriceList_ID);
-		Timestamp orderDate = (Timestamp)dataBinder.getValue(rowIndex, "DateOrdered");
+		Timestamp invoiceDate = (Timestamp)Env.getContextAsDate(ctx, WindowNo,"DateInvoiced");
 		/** PLV is only accurate if PL selected in header */
 		int M_PriceList_Version_ID = Env.getContextAsInt(ctx, WindowNo, "M_PriceList_Version_ID");
 		if ( M_PriceList_Version_ID == 0 && M_PriceList_ID > 0)
@@ -75,21 +75,19 @@ public class SIWCalloutInvoiceProduct implements ISimpleInputWindowCallout {
 				+ "ORDER BY plv.ValidFrom DESC";
 			//	Use newest price list - may not be future
 
-			M_PriceList_Version_ID = DB.getSQLValueEx(null, sql, M_PriceList_ID, orderDate);
+			M_PriceList_Version_ID = DB.getSQLValueEx(null, sql, M_PriceList_ID, invoiceDate);
 			if ( M_PriceList_Version_ID > 0 )
 				Env.setContext(ctx, WindowNo, "M_PriceList_Version_ID", M_PriceList_Version_ID );
 		}
 		pp.setM_PriceList_Version_ID(M_PriceList_Version_ID);
-		pp.setPriceDate(orderDate);
+		pp.setPriceDate(invoiceDate);
 
 		dataBinder.setValue(rowIndex, "PriceList", pp.getPriceList());
 		dataBinder.setValue(rowIndex, "PriceLimit", pp.getPriceLimit());
 		dataBinder.setValue(rowIndex, "PriceActual", pp.getPriceStd());
 		dataBinder.setValue(rowIndex, "PriceEntered", pp.getPriceStd());
-		dataBinder.setValue(rowIndex, "C_Currency_ID", new Integer(pp.getC_Currency_ID()));
-		dataBinder.setValue(rowIndex, "Discount", pp.getDiscount());
 		dataBinder.setValue(rowIndex, "C_UOM_ID", new Integer(pp.getC_UOM_ID()));
-		dataBinder.setValue(rowIndex, "QtyOrdered", dataBinder.getValue(rowIndex, "QtyEntered"));
+		dataBinder.setValue(rowIndex, "QtyInvoiced", dataBinder.getValue(rowIndex, "QtyEntered"));
 		Env.setContext(ctx, WindowNo, "EnforcePriceLimit", pp.isEnforcePriceLimit() ? "Y" : "N");
 		Env.setContext(ctx, WindowNo, "DiscountSchema", pp.isDiscountSchema() ? "Y" : "N");
 
@@ -102,45 +100,6 @@ public class SIWCalloutInvoiceProduct implements ISimpleInputWindowCallout {
 
 		dataBinder.setValue(rowIndex, "LineNetAmt", LineNetAmt);
 
-		if (Env.isSOTrx(ctx, WindowNo))
-		{
-			MProduct product = MProduct.get (ctx, M_Product_ID.intValue());
-			Object obj = Env.getContext(Env.getCtx(), WindowNo, "IsDropShip");
-			if (product.isStocked() && Env.getContext(Env.getCtx(), WindowNo, "IsDropShip").equals("N"))
-			{
-				BigDecimal QtyOrdered = (BigDecimal)dataBinder.getValue(rowIndex, "QtyOrdered");
-				int M_Warehouse_ID = Env.getContextAsInt(ctx, WindowNo, "M_Warehouse_ID");
-				int M_AttributeSetInstance_ID = Env.getContextAsInt(ctx, WindowNo,
-													dataBinder.getSimpleInputWindow().getGridTab().getTabNo(), "M_AttributeSetInstance_ID");
-				BigDecimal available = MStorageReservation.getQtyAvailable
-					(M_Warehouse_ID, M_Product_ID.intValue(), M_AttributeSetInstance_ID, null);
-				if (available == null)
-					available = Env.ZERO;
-				if (available.signum() == 0)
-					return Msg.getMsg(ctx, "NoQtyAvailable");
-				else if (available.compareTo(QtyOrdered) < 0)
-					return Msg.getMsg(ctx, "InsufficientQtyAvailable");
-				else
-				{
-					Integer C_OrderLine_ID = (Integer)dataBinder.getValue(rowIndex, "C_OrderLine_ID");
-					if (C_OrderLine_ID == null)
-						C_OrderLine_ID = new Integer(0);
-					BigDecimal notReserved = MOrderLine.getNotReserved(ctx,
-						M_Warehouse_ID, M_Product_ID, M_AttributeSetInstance_ID,
-						C_OrderLine_ID.intValue());
-					if (notReserved == null)
-						notReserved = Env.ZERO;
-					BigDecimal total = available.subtract(notReserved);
-					if (total.compareTo(QtyOrdered) < 0)
-					{
-						String info = Msg.parseTranslation(ctx, "@QtyAvailable@=" + available
-							+ " - @QtyNotReserved@=" + notReserved + " = " + total);
-						return Msg.getMsg(ctx, "InsufficientQtyAvailable")+info;
-					}
-				}
-			}
-		}
-		//
 		return "";
 	}
 }

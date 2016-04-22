@@ -48,15 +48,14 @@ public class SIWCalloutInvoiceAmt implements ISimpleInputWindowCallout {
 		int StdPrecision = MPriceList.getStandardPrecision(ctx, M_PriceList_ID);
 		MPriceList pl = new MPriceList(ctx, M_PriceList_ID, null);
 		boolean isEnforcePriceLimit = pl.isEnforcePriceLimit();
-		BigDecimal QtyEntered, QtyOrdered, PriceEntered, PriceActual, PriceLimit, Discount, PriceList;
+		BigDecimal QtyEntered, QtyInvoiced, PriceEntered, PriceActual, PriceLimit, PriceList;
 		//	get values
 		QtyEntered = (BigDecimal)dataBinder.getValue(rowIndex, "QtyEntered");
-		QtyOrdered = (BigDecimal)dataBinder.getValue(rowIndex, "QtyOrdered");
+		QtyInvoiced = (BigDecimal)dataBinder.getValue(rowIndex, "QtyInvoiced");
 //		if (log.isLoggable(Level.FINE)) log.fine("QtyEntered=" + QtyEntered + ", Ordered=" + QtyOrdered + ", UOM=" + C_UOM_To_ID);
 		//
 		PriceEntered = (BigDecimal)dataBinder.getValue(rowIndex, "PriceEntered");
 		PriceActual = (BigDecimal)dataBinder.getValue(rowIndex, "PriceActual");
-		Discount = (BigDecimal)dataBinder.getValue(rowIndex, "Discount");
 		PriceLimit = (BigDecimal)dataBinder.getValue(rowIndex, "PriceLimit");
 		PriceList = (BigDecimal)dataBinder.getValue(rowIndex, "PriceList");
 //		if (log.isLoggable(Level.FINE)){
@@ -81,7 +80,7 @@ public class SIWCalloutInvoiceAmt implements ISimpleInputWindowCallout {
 			}
 		}
 		//	Product Qty changed - recalc price
-		else if ((ColumnName.equals("QtyOrdered")
+		else if ((ColumnName.equals("QtyInvoiced")
 			|| ColumnName.equals("QtyEntered")
 			|| ColumnName.equals("C_UOM_ID")
 			|| ColumnName.equals("M_Product_ID"))
@@ -89,20 +88,19 @@ public class SIWCalloutInvoiceAmt implements ISimpleInputWindowCallout {
 		{
 			int C_BPartner_ID = Env.getContextAsInt(ctx, WindowNo, "C_BPartner_ID");
 			if (ColumnName.equals("QtyEntered"))
-				QtyOrdered = MUOMConversion.convertProductFrom (ctx, M_Product_ID,
+				QtyInvoiced = MUOMConversion.convertProductFrom (ctx, M_Product_ID,
 					C_UOM_To_ID, QtyEntered);
-			if (QtyOrdered == null)
-				QtyOrdered = QtyEntered;
+			if (QtyInvoiced == null)
+				QtyInvoiced = QtyEntered;
 			boolean IsSOTrx = Env.getContext(ctx, WindowNo, "IsSOTrx").equals("Y");
-			MProductPricing pp = new MProductPricing (M_Product_ID, C_BPartner_ID, QtyOrdered, IsSOTrx);
+			MProductPricing pp = new MProductPricing (M_Product_ID, C_BPartner_ID, QtyInvoiced, IsSOTrx);
 			pp.setM_PriceList_ID(M_PriceList_ID);
 			int M_PriceList_Version_ID = Env.getContextAsInt(ctx, WindowNo, "M_PriceList_Version_ID");
 			pp.setM_PriceList_Version_ID(M_PriceList_Version_ID);
-			Timestamp date = (Timestamp)dataBinder.getValue(rowIndex, "DateOrdered");
+			Timestamp date = (Timestamp)Env.getContextAsDate(ctx, WindowNo, "DateInvoiced");
 			pp.setPriceDate(date);
 			//
-			PriceEntered = MUOMConversion.convertProductFrom (ctx, M_Product_ID,
-				C_UOM_To_ID, pp.getPriceStd());
+			PriceEntered = MUOMConversion.convertProductFrom (ctx, M_Product_ID, C_UOM_To_ID, pp.getPriceStd());
 			if (PriceEntered == null)
 				PriceEntered = pp.getPriceStd();
 			//
@@ -110,22 +108,19 @@ public class SIWCalloutInvoiceAmt implements ISimpleInputWindowCallout {
 //				+ ", PriceEntered=" + PriceEntered + ", Discount=" + pp.getDiscount());
 			PriceActual = pp.getPriceStd();
 			PriceEntered = pp.getPriceStd();
-			Discount = pp.getDiscount();
 			PriceLimit = pp.getPriceLimit();
 			PriceList = pp.getPriceList();
 			dataBinder.setValue(rowIndex, "PriceList", pp.getPriceList());
 			dataBinder.setValue(rowIndex, "PriceLimit", pp.getPriceLimit());
 			dataBinder.setValue(rowIndex, "PriceActual", pp.getPriceStd());
 			dataBinder.setValue(rowIndex, "PriceEntered", pp.getPriceStd());
-			dataBinder.setValue(rowIndex, "Discount", pp.getDiscount());
 			dataBinder.setValue(rowIndex, "PriceEntered", PriceEntered);
 			Env.setContext(ctx, WindowNo, "DiscountSchema", pp.isDiscountSchema() ? "Y" : "N");
 		}
 		else if (ColumnName.equals("PriceActual"))
 		{
 			PriceActual = (BigDecimal)newValue;
-			PriceEntered = MUOMConversion.convertProductFrom (ctx, M_Product_ID,
-				C_UOM_To_ID, PriceActual);
+			PriceEntered = MUOMConversion.convertProductFrom (ctx, M_Product_ID, C_UOM_To_ID, PriceActual);
 			if (PriceEntered == null)
 				PriceEntered = PriceActual;
 			//
@@ -136,8 +131,7 @@ public class SIWCalloutInvoiceAmt implements ISimpleInputWindowCallout {
 		else if (ColumnName.equals("PriceEntered"))
 		{
 			PriceEntered = (BigDecimal)newValue;
-			PriceActual = MUOMConversion.convertProductTo (ctx, M_Product_ID,
-				C_UOM_To_ID, PriceEntered);
+			PriceActual = MUOMConversion.convertProductTo (ctx, M_Product_ID, C_UOM_To_ID, PriceEntered);
 			if (PriceActual == null)
 				PriceActual = PriceEntered;
 			//
@@ -146,31 +140,6 @@ public class SIWCalloutInvoiceAmt implements ISimpleInputWindowCallout {
 			dataBinder.setValue(rowIndex, "PriceActual", PriceActual);
 		}
 
-		//  Discount entered - Calculate Actual/Entered
-		if (ColumnName.equals("Discount"))
-		{
-			if ( PriceList.doubleValue() != 0 )
-				PriceActual = BigDecimal.valueOf((100.0 - Discount.doubleValue()) / 100.0 * PriceList.doubleValue());
-			if (PriceActual.scale() > StdPrecision)
-				PriceActual = PriceActual.setScale(StdPrecision, BigDecimal.ROUND_HALF_UP);
-			PriceEntered = MUOMConversion.convertProductFrom (ctx, M_Product_ID,
-				C_UOM_To_ID, PriceActual);
-			if (PriceEntered == null)
-				PriceEntered = PriceActual;
-			dataBinder.setValue(rowIndex, "PriceActual", PriceActual);
-			dataBinder.setValue(rowIndex, "PriceEntered", PriceEntered);
-		}
-		//	calculate Discount
-		else
-		{
-			if (PriceList.compareTo(Env.ZERO) == 0)
-				Discount = Env.ZERO;
-			else
-				Discount = BigDecimal.valueOf((PriceList.doubleValue() - PriceActual.doubleValue()) / PriceList.doubleValue() * 100.0);
-			if (Discount.scale() > 2)
-				Discount = Discount.setScale(2, BigDecimal.ROUND_HALF_UP);
-			dataBinder.setValue(rowIndex, "Discount", Discount);
-		}
 //		if (log.isLoggable(Level.FINE)) log.fine("PriceEntered=" + PriceEntered + ", Actual=" + PriceActual + ", Discount=" + Discount);
 
 		//	Check PriceLimit
@@ -183,26 +152,18 @@ public class SIWCalloutInvoiceAmt implements ISimpleInputWindowCallout {
 		  && PriceActual.compareTo(PriceLimit) < 0)
 		{
 			PriceActual = PriceLimit;
-			PriceEntered = MUOMConversion.convertProductFrom (ctx, M_Product_ID,
-				C_UOM_To_ID, PriceLimit);
+			PriceEntered = MUOMConversion.convertProductFrom (ctx, M_Product_ID, C_UOM_To_ID, PriceLimit);
 			if (PriceEntered == null)
 				PriceEntered = PriceLimit;
 //			if (log.isLoggable(Level.FINE)) log.fine("(under) PriceEntered=" + PriceEntered + ", Actual" + PriceLimit);
 			dataBinder.setValue(rowIndex, "PriceActual", PriceLimit);
 			dataBinder.setValue(rowIndex, "PriceEntered", PriceEntered);
 //			mTab.fireDataStatusEEvent ("UnderLimitPrice", "", false);//TTODO:イベントがファイヤーされていたけど、その後の処理があるのではないか？　FDialogに書き換える必要を検討
-			//	Repeat Discount calc
-			if (PriceList.compareTo(Env.ZERO) != 0)
-			{
-				Discount = BigDecimal.valueOf((PriceList.doubleValue () - PriceActual.doubleValue ()) / PriceList.doubleValue () * 100.0);
-				if (Discount.scale () > 2)
-					Discount = Discount.setScale (2, BigDecimal.ROUND_HALF_UP);
-				dataBinder.setValue(rowIndex, "Discount", Discount);
-			}
+
 		}
 
 		//	Line Net Amt
-		BigDecimal LineNetAmt = QtyOrdered.multiply(PriceActual);
+		BigDecimal LineNetAmt = QtyInvoiced.multiply(PriceActual);
 		if (LineNetAmt.scale() > StdPrecision)
 			LineNetAmt = LineNetAmt.setScale(StdPrecision, BigDecimal.ROUND_HALF_UP);
 //		if (log.isLoggable(Level.INFO)) log.info("LineNetAmt=" + LineNetAmt);

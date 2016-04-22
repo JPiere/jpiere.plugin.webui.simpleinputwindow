@@ -46,15 +46,15 @@ public class SIWCalloutInvoiceQty implements ISimpleInputWindowCallout {
 
 		int M_Product_ID = Env.getContextAsInt(ctx, WindowNo, tabNo, "M_Product_ID");
 
-		BigDecimal QtyOrdered = Env.ZERO;
+		BigDecimal QtyInvoiced = Env.ZERO;
 		BigDecimal QtyEntered, PriceActual, PriceEntered;
 
 		//	No Product
 		if (M_Product_ID == 0)
 		{
 			QtyEntered = (BigDecimal)dataBinder.getValue(rowIndex, "QtyEntered");
-			QtyOrdered = QtyEntered;
-			dataBinder.setValue(rowIndex, "QtyOrdered", QtyOrdered);
+			QtyInvoiced = QtyEntered;
+			dataBinder.setValue(rowIndex, "QtyInvoiced", QtyInvoiced);
 		}
 		//	UOM Changed - convert from Entered -> Product
 		else if (ColumnName.equals("C_UOM_ID"))
@@ -69,14 +69,12 @@ public class SIWCalloutInvoiceQty implements ISimpleInputWindowCallout {
 				QtyEntered = QtyEntered1;
 				dataBinder.setValue(rowIndex, "QtyEntered", QtyEntered);
 			}
-			QtyOrdered = MUOMConversion.convertProductFrom (ctx, M_Product_ID,
-				C_UOM_To_ID, QtyEntered);
-			if (QtyOrdered == null)
-				QtyOrdered = QtyEntered;
-			boolean conversion = QtyEntered.compareTo(QtyOrdered) != 0;
+			QtyInvoiced = MUOMConversion.convertProductFrom (ctx, M_Product_ID,	C_UOM_To_ID, QtyEntered);
+			if (QtyInvoiced == null)
+				QtyInvoiced = QtyEntered;
+			boolean conversion = QtyEntered.compareTo(QtyInvoiced) != 0;
 			PriceActual = (BigDecimal)dataBinder.getValue(rowIndex,"PriceActual");
-			PriceEntered = MUOMConversion.convertProductFrom (ctx, M_Product_ID,
-				C_UOM_To_ID, PriceActual);
+			PriceEntered = MUOMConversion.convertProductFrom (ctx, M_Product_ID, C_UOM_To_ID, PriceActual);
 			if (PriceEntered == null)
 				PriceEntered = PriceActual;
 //			if (log.isLoggable(Level.FINE)) log.fine("UOM=" + C_UOM_To_ID
@@ -84,7 +82,7 @@ public class SIWCalloutInvoiceQty implements ISimpleInputWindowCallout {
 //				+ " -> " + conversion
 //				+ " QtyOrdered/PriceEntered=" + QtyOrdered + "/" + PriceEntered);
 			Env.setContext(ctx, WindowNo, "UOMConversion", conversion ? "Y" : "N");
-			dataBinder.setValue(rowIndex, "QtyOrdered", QtyOrdered);
+			dataBinder.setValue(rowIndex, "QtyInvoiced", QtyInvoiced);
 			dataBinder.setValue(rowIndex, "PriceEntered", PriceEntered);
 		}
 		//	QtyEntered changed - calculate QtyOrdered
@@ -100,37 +98,35 @@ public class SIWCalloutInvoiceQty implements ISimpleInputWindowCallout {
 				QtyEntered = QtyEntered1;
 				dataBinder.setValue(rowIndex, "QtyEntered", QtyEntered);
 			}
-			QtyOrdered = MUOMConversion.convertProductFrom (ctx, M_Product_ID,
-				C_UOM_To_ID, QtyEntered);
-			if (QtyOrdered == null)
-				QtyOrdered = QtyEntered;
-			boolean conversion = QtyEntered.compareTo(QtyOrdered) != 0;
+			QtyInvoiced = MUOMConversion.convertProductFrom (ctx, M_Product_ID,	C_UOM_To_ID, QtyEntered);
+			if (QtyInvoiced == null)
+				QtyInvoiced = QtyEntered;
+			boolean conversion = QtyEntered.compareTo(QtyInvoiced) != 0;
 //			if (log.isLoggable(Level.FINE)) log.fine("UOM=" + C_UOM_To_ID
 //				+ ", QtyEntered=" + QtyEntered
 //				+ " -> " + conversion
 //				+ " QtyOrdered=" + QtyOrdered);
 			Env.setContext(ctx, WindowNo, "UOMConversion", conversion ? "Y" : "N");
-			dataBinder.setValue(rowIndex, "QtyOrdered", QtyOrdered);
+			dataBinder.setValue(rowIndex, "QtyInvoiced", QtyInvoiced);
 		}
 		//	QtyOrdered changed - calculate QtyEntered (should not happen)
-		else if (ColumnName.equals("QtyOrdered"))
+		else if (ColumnName.equals("QtyInvoiced"))
 		{
 			int C_UOM_To_ID = Env.getContextAsInt(ctx, WindowNo, tabNo, "C_UOM_ID");
-			QtyOrdered = (BigDecimal)newValue;
+			QtyInvoiced = (BigDecimal)newValue;
 			int precision = MProduct.get(ctx, M_Product_ID).getUOMPrecision();
-			BigDecimal QtyOrdered1 = QtyOrdered.setScale(precision, BigDecimal.ROUND_HALF_UP);
-			if (QtyOrdered.compareTo(QtyOrdered1) != 0)
+			BigDecimal QtyInvoiced1 = QtyInvoiced.setScale(precision, BigDecimal.ROUND_HALF_UP);
+			if (QtyInvoiced.compareTo(QtyInvoiced1) != 0)
 			{
 //				if (log.isLoggable(Level.FINE)) log.fine("Corrected QtyOrdered Scale "
 //					+ QtyOrdered + "->" + QtyOrdered1);
-				QtyOrdered = QtyOrdered1;
-				dataBinder.setValue(rowIndex, "QtyOrdered", QtyOrdered);
+				QtyInvoiced = QtyInvoiced1;
+				dataBinder.setValue(rowIndex, "QtyInvoiced", QtyInvoiced);
 			}
-			QtyEntered = MUOMConversion.convertProductTo (ctx, M_Product_ID,
-				C_UOM_To_ID, QtyOrdered);
+			QtyEntered = MUOMConversion.convertProductTo (ctx, M_Product_ID, C_UOM_To_ID, QtyInvoiced);
 			if (QtyEntered == null)
-				QtyEntered = QtyOrdered;
-			boolean conversion = QtyOrdered.compareTo(QtyEntered) != 0;
+				QtyEntered = QtyInvoiced;
+			boolean conversion = QtyInvoiced.compareTo(QtyEntered) != 0;
 //			if (log.isLoggable(Level.FINE)) log.fine("UOM=" + C_UOM_To_ID
 //				+ ", QtyOrdered=" + QtyOrdered
 //				+ " -> " + conversion
@@ -140,53 +136,10 @@ public class SIWCalloutInvoiceQty implements ISimpleInputWindowCallout {
 		}
 		else
 		{
-		//	QtyEntered = (BigDecimal)mTab.getValue("QtyEntered");
-			QtyOrdered = (BigDecimal)dataBinder.getValue(rowIndex,"QtyOrdered");
+			QtyInvoiced = (BigDecimal)dataBinder.getValue(rowIndex,"QtyInvoiced");
 		}
 
-		//	Storage
-		if (M_Product_ID != 0
-			&& Env.isSOTrx(ctx, WindowNo)
-			&& QtyOrdered.signum() > 0)		//	no negative (returns)
-		{
-			MProduct product = MProduct.get (ctx, M_Product_ID);
-			if (product.isStocked() && Env.getContext(ctx, WindowNo, "IsDropShip").equals("N"))
-			{
-				int M_Warehouse_ID = Env.getContextAsInt(ctx, WindowNo, "M_Warehouse_ID");
-				int M_AttributeSetInstance_ID = Env.getContextAsInt(ctx, WindowNo, tabNo, "M_AttributeSetInstance_ID");
-				BigDecimal available = MStorageReservation.getQtyAvailable
-					(M_Warehouse_ID, M_Product_ID, M_AttributeSetInstance_ID, null);
-				if (available == null)
-					available = Env.ZERO;
-				if (available.signum() == 0)
-					;
-//					mTab.fireDataStatusEEvent ("NoQtyAvailable", "0", false); //TODO
-				else if (available.compareTo(QtyOrdered) < 0)
-					;
-//					mTab.fireDataStatusEEvent ("InsufficientQtyAvailable", available.toString(), false);//TODO
-				else
-				{
-					Integer C_OrderLine_ID = (Integer)dataBinder.getValue(rowIndex,"C_OrderLine_ID");
-					if (C_OrderLine_ID == null)
-						C_OrderLine_ID = new Integer(0);
-					BigDecimal notReserved = MOrderLine.getNotReserved(ctx,
-						M_Warehouse_ID, M_Product_ID, M_AttributeSetInstance_ID,
-						C_OrderLine_ID.intValue());
-					if (notReserved == null)
-						notReserved = Env.ZERO;
-					BigDecimal total = available.subtract(notReserved);
-					if (total.compareTo(QtyOrdered) < 0)
-					{
-						StringBuilder msgpts = new StringBuilder("@QtyAvailable@=").append(available)
-								.append("  -  @QtyNotReserved@=").append(notReserved).append("  =  ").append(total);
-						String info = Msg.parseTranslation(ctx, msgpts.toString());
-//						mTab.fireDataStatusEEvent ("InsufficientQtyAvailable",	//TODO
-//							info, false);
-					}
-				}
-			}
-		}
-		//
+
 		return "";
 	}
 
