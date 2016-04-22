@@ -112,7 +112,7 @@ public class SimpleInputWindowDocActionProcess extends SvrProcess {
 		if(document == null)
 			return Msg.getMsg(getCtx(), "Error");
 
-		String msg = Msg.getMsg(getCtx(), "Display Document Info") + " : " + document.getDocumentInfo()
+		String msg = Msg.getMsg(getCtx(), "DisplayDocumentInfo") + " : " + document.getDocumentInfo()
 				+ System.lineSeparator()
 				+ Msg.getElement(getCtx(), "DocStatus") + " : " + MRefList.getListName(getCtx(), 131, document.getDocStatus())
 				+ System.lineSeparator();

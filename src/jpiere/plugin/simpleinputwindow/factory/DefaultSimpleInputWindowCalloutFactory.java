@@ -15,8 +15,9 @@ package jpiere.plugin.simpleinputwindow.factory;
 
 import jpiere.plugin.simpleinputwindow.base.ISimpleInputWindowCallout;
 import jpiere.plugin.simpleinputwindow.base.ISimpleInputWindowCalloutFactory;
-import jpiere.plugin.simpleinputwindow.callout.SimpleInputWindowCalloutInventory;
 import jpiere.plugin.simpleinputwindow.callout.SIWCalloutOrderController;
+import jpiere.plugin.simpleinputwindow.callout.SimpleInputWindowCalloutInventory;
+import jpiere.plugin.simpleinputwindow.callout.SIWCalloutInvoiceController;
 import jpiere.plugin.simpleinputwindow.callout.SimpleInputWindowSampleCallout;
 
 /**
@@ -40,8 +41,9 @@ public class DefaultSimpleInputWindowCalloutFactory implements ISimpleInputWindo
 			return new SimpleInputWindowCalloutInventory();
 		}else if(tableName.equals("C_OrderLine")){
 			return new SIWCalloutOrderController();
+		}else if(tableName.equals("C_InvoiceLine")){
+			return new SIWCalloutInvoiceController();
 		}
-
 		return null;
 
 	}
