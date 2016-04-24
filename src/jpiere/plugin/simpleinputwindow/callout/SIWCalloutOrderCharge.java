@@ -13,6 +13,15 @@
  *****************************************************************************/
 package jpiere.plugin.simpleinputwindow.callout;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Properties;
+import java.util.logging.Level;
+
+import org.compiere.util.DB;
+import org.compiere.util.Env;
+
 import jpiere.plugin.simpleinputwindow.base.ISimpleInputWindowCallout;
 import jpiere.plugin.simpleinputwindow.form.SimpleInputWindowDataBinder;
 
@@ -26,22 +35,56 @@ public class SIWCalloutOrderCharge implements ISimpleInputWindowCallout {
 	public String start(SimpleInputWindowDataBinder dataBinder,int rowIndex, String ColumnName, Object newValue, Object oldValue)
 	{
 
-		String msg = null;
-		if (ColumnName.equals("M_Product_ID")){
-			msg = new SIWCalloutOrderProduct().start(dataBinder, rowIndex, ColumnName, newValue, oldValue);
-
-		}
-		else if(ColumnName.equals("C_BPartner_Location_ID"))
+		Integer C_Charge_ID = (Integer)newValue;
+		if (C_Charge_ID == null || C_Charge_ID.intValue() == 0)
+			return "";
+		
+		int WindowNo = dataBinder.getSimpleInputWindow().getGridTab().getWindowNo();
+		Properties ctx = Env.getCtx();
+		int tabNo = dataBinder.getSimpleInputWindow().getGridTab().getTabNo();
+	
+		//	No Product defined
+		if (dataBinder.getValue(rowIndex, "M_Product_ID") != null)
 		{
-			msg = new SIWCalloutOrderTax().start(dataBinder, rowIndex, ColumnName, newValue, oldValue);
+			dataBinder.setValue(rowIndex, "C_Charge_ID", null);
+			return "ChargeExclusively";
+		}
+		
+		dataBinder.setValue(rowIndex, "M_AttributeSetInstance_ID", null);
+		dataBinder.setValue(rowIndex, "S_ResourceAssignment_ID", null);
+		dataBinder.setValue(rowIndex, "C_UOM_ID", new Integer(100));//	EA
 
-		}else if(ColumnName.equals("C_Charge_ID")){
-				;
-		}else if (ColumnName.equals("C_UOM_ID")){
-			msg = new SIWCalloutOrderProduct().start(dataBinder, rowIndex, ColumnName, newValue, oldValue);
+		Env.setContext(ctx, WindowNo, "DiscountSchema", "N");
+		String sql = "SELECT ChargeAmt FROM C_Charge WHERE C_Charge_ID=?";
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try
+		{
+			pstmt = DB.prepareStatement(sql, null);
+			pstmt.setInt(1, C_Charge_ID.intValue());
+			rs = pstmt.executeQuery();
+			if (rs.next())
+			{
+				dataBinder.setValue(rowIndex, "PriceEntered", rs.getBigDecimal (1));
+				dataBinder.setValue(rowIndex, "PriceActual", rs.getBigDecimal (1));
+				dataBinder.setValue(rowIndex, "PriceLimit", Env.ZERO);
+				dataBinder.setValue(rowIndex, "PriceList", Env.ZERO);
+				dataBinder.setValue(rowIndex, "Discount", Env.ZERO);
+			}
+		}
+		catch (SQLException e)
+		{
+//			log.log(Level.SEVERE, sql, e);
+			return e.getLocalizedMessage();
+		}
+		finally
+		{
+			DB.close(rs, pstmt);
+			rs = null; pstmt = null;
 		}
 
-		return msg;
+		//
+		return new SIWCalloutOrderTax().start(dataBinder, rowIndex, ColumnName, newValue, oldValue);
 	}
 
 
