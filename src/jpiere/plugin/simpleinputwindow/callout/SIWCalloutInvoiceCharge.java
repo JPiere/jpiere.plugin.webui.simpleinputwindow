@@ -25,7 +25,7 @@ import org.compiere.util.Env;
 import jpiere.plugin.simpleinputwindow.base.ISimpleInputWindowCallout;
 import jpiere.plugin.simpleinputwindow.form.SimpleInputWindowDataBinder;
 
-public class SIWCalloutOrderCharge implements ISimpleInputWindowCallout {
+public class SIWCalloutInvoiceCharge implements ISimpleInputWindowCallout {
 
 	/**
 	 *
@@ -34,11 +34,10 @@ public class SIWCalloutOrderCharge implements ISimpleInputWindowCallout {
 	@Override
 	public String start(SimpleInputWindowDataBinder dataBinder,int rowIndex, String ColumnName, Object newValue, Object oldValue)
 	{
-
 		Integer C_Charge_ID = (Integer)newValue;
 		if (C_Charge_ID == null || C_Charge_ID.intValue() == 0)
 			return "";
-		
+
 		int WindowNo = dataBinder.getSimpleInputWindow().getGridTab().getWindowNo();
 		Properties ctx = Env.getCtx();
 		int tabNo = dataBinder.getSimpleInputWindow().getGridTab().getTabNo();
@@ -69,12 +68,11 @@ public class SIWCalloutOrderCharge implements ISimpleInputWindowCallout {
 				dataBinder.setValue(rowIndex, "PriceActual", rs.getBigDecimal (1));
 				dataBinder.setValue(rowIndex, "PriceLimit", Env.ZERO);
 				dataBinder.setValue(rowIndex, "PriceList", Env.ZERO);
-				dataBinder.setValue(rowIndex, "Discount", Env.ZERO);
 			}
 		}
 		catch (SQLException e)
 		{
-//			log.log(Level.SEVERE, sql, e);
+//			log.log(Level.SEVERE, sql + e);
 			return e.getLocalizedMessage();
 		}
 		finally
@@ -82,9 +80,10 @@ public class SIWCalloutOrderCharge implements ISimpleInputWindowCallout {
 			DB.close(rs, pstmt);
 			rs = null; pstmt = null;
 		}
-
-		//
-		return new SIWCalloutOrderTax().start(dataBinder, rowIndex, ColumnName, newValue, oldValue);
+		
+		
+		return new SIWCalloutInvoiceTax().start(dataBinder, rowIndex, ColumnName, newValue, oldValue);
+		
 	}
 
 

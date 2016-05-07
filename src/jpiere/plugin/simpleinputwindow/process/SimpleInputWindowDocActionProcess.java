@@ -103,7 +103,9 @@ public class SimpleInputWindowDocActionProcess extends SvrProcess {
 
 				document.processIt(docAction);
 				document.saveEx();
-				addBufferLog(getAD_PInstance_ID(), null, null, document.getDocumentInfo(), po.get_Table_ID(), po.get_ID());
+				addBufferLog(getAD_PInstance_ID(), null, null
+						, document.getDocumentInfo() + " : " + Msg.getElement(getCtx(), "DocStatus") + " - " + MRefList.getListName(getCtx(), 131, document.getDocStatus())
+						, po.get_Table_ID(), po.get_ID());
 				break;
 			}
 
@@ -112,13 +114,7 @@ public class SimpleInputWindowDocActionProcess extends SvrProcess {
 		if(document == null)
 			return Msg.getMsg(getCtx(), "Error");
 
-		String msg = Msg.getMsg(getCtx(), "Display Document Info") + " : " + document.getDocumentInfo()
-				+ System.lineSeparator()
-				+ Msg.getElement(getCtx(), "DocStatus") + " : " + MRefList.getListName(getCtx(), 131, document.getDocStatus())
-				+ System.lineSeparator();
-
-
-		return msg;
+		return "";
 	}
 
 }
