@@ -2575,10 +2575,10 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		tabbox = new Tabbox();
 		tabbox.setParent(editArea);
-		tabbox.setWidth("100%");
-	    tabbox.setHeight("100%");
-	    tabbox.setVflex("1");
-	    tabbox.setHflex("1");
+		ZKUpdateUtil.setWidth(tabbox, "100%");
+		ZKUpdateUtil.setHeight(tabbox, "100%");
+		ZKUpdateUtil.setVflex(tabbox, "1");
+		ZKUpdateUtil.setHflex(tabbox, "1");
 
 		Tabs tabs = new Tabs();
 		tabbox.appendChild(tabs);
