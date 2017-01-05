@@ -84,6 +84,7 @@ import org.adempiere.webui.event.WTableModelListener;
 import org.adempiere.webui.panel.CustomForm;
 import org.adempiere.webui.session.SessionManager;
 import org.adempiere.webui.theme.ThemeManager;
+import org.adempiere.webui.util.ZKUpdateUtil;
 import org.adempiere.webui.window.FDialog;
 import org.compiere.model.GridField;
 import org.compiere.model.GridTab;
@@ -338,8 +339,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		form.setHeight("100%");
 
 		/*Main Layout(Borderlayout)*/
-		mainLayout.setWidth("100%");
-		mainLayout.setHeight("100%");
+		ZKUpdateUtil.setWidth(mainLayout, "100%");
+		ZKUpdateUtil.setHeight(mainLayout, "100%");
 
 		//Main Layout(Borderlayout)-North
 		North north = new North();
@@ -349,7 +350,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		north.appendChild(parameterPanel);
 		north.setStyle("border: none");
 		parameterPanel.appendChild(parameterLayout); 		//parameterLayout = Grid
-		parameterLayout.setWidth("100%");
+		ZKUpdateUtil.setWidth(parameterLayout, "100%");
 		Rows parameterLayoutRows = parameterLayout.newRows();
 		Row row = null;
 
@@ -615,12 +616,12 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		mainLayout.appendChild(center);
 		center.appendChild(displayDataPanel);
 		displayDataPanel.appendChild(displayDataLayout);//Borderlayout
-		displayDataPanel.setWidth("100%");
-		displayDataPanel.setHeight("100%");
-		displayDataPanel.setHflex("1");
-		displayDataPanel.setVflex("1");
-		displayDataLayout.setWidth("100%");
-		displayDataLayout.setHeight("100%");
+		ZKUpdateUtil.setWidth(displayDataPanel, "100%");
+		ZKUpdateUtil.setHeight(displayDataPanel, "100%");
+		ZKUpdateUtil.setHflex(displayDataPanel, "1");
+		ZKUpdateUtil.setVflex(displayDataPanel, "1");
+		ZKUpdateUtil.setWidth(displayDataLayout, "100%");
+		ZKUpdateUtil.setHeight(displayDataLayout, "100%");
 		displayDataLayout.setStyle("border: none");
 
 			//Edit Area
@@ -682,10 +683,10 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		tabbox = new Tabbox();
 		tabbox.setParent(editArea);
-		tabbox.setWidth("100%");
-	    tabbox.setHeight("100%");
-	    tabbox.setVflex("1");
-	    tabbox.setHflex("1");
+		ZKUpdateUtil.setWidth(tabbox, "100%");
+		ZKUpdateUtil.setHeight(tabbox, "100%");
+		ZKUpdateUtil.setHflex(tabbox, "1");
+		ZKUpdateUtil.setVflex(tabbox, "1");
 
 		Tabs tabs = new Tabs();
 		tabbox.appendChild(tabs);
@@ -817,10 +818,10 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		tabbox.addEventListener(Events.ON_SELECT, this);
 
 		tabbox.setParent(editArea);
-		tabbox.setWidth("100%");
-	    tabbox.setHeight("100%");
-	    tabbox.setVflex("1");
-	    tabbox.setHflex("1");
+		ZKUpdateUtil.setWidth(tabbox, "100%");
+		ZKUpdateUtil.setHeight(tabbox, "100%");
+	    ZKUpdateUtil.setHflex(tabbox, "1");
+		ZKUpdateUtil.setVflex(tabbox, "1");
 
 		Tabs tabs = new Tabs();
 		tabbox.appendChild(tabs);
@@ -980,10 +981,10 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		grid.setRowRenderer(renderer);
 		grid.addEventListener(Events.ON_CLICK, this);
 
-		grid.setWidth("100%");
-		grid.setHeight("100%");
-		grid.setVflex(true);
-		grid.setVisible(true);
+		ZKUpdateUtil.setWidth(grid, "100%");
+		ZKUpdateUtil.setHeight(grid, "100%");
+		ZKUpdateUtil.setHflex(grid, "1");
+		ZKUpdateUtil.setVflex(grid, "1");
 		grid.setMold("paging");
 		grid.setPageSize(m_simpleInputWindow.getJP_PageSize());
 
@@ -2574,10 +2575,10 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		tabbox = new Tabbox();
 		tabbox.setParent(editArea);
-		tabbox.setWidth("100%");
-	    tabbox.setHeight("100%");
-	    tabbox.setVflex("1");
-	    tabbox.setHflex("1");
+		ZKUpdateUtil.setWidth(tabbox, "100%");
+		ZKUpdateUtil.setHeight(tabbox, "100%");
+		ZKUpdateUtil.setVflex(tabbox, "1");
+		ZKUpdateUtil.setHflex(tabbox, "1");
 
 		Tabs tabs = new Tabs();
 		tabbox.appendChild(tabs);
