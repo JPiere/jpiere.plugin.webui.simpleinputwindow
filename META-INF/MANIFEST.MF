@@ -4,7 +4,7 @@ Bundle-Name: jpiere.plugin.webui.simpleinputwindow
 Bundle-SymbolicName: jpiere.plugin.webui.simpleinputwindow;singleton:=true
 Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: OSS ERP Solutions
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.adempiere.base;bundle-version="3.0.0",
  org.adempiere.plugin.utils;bundle-version="3.0.0",
