@@ -460,6 +460,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 					row.appendCellChild(editor.getLabel().rightAlign(),1);
 					actualxpos = actualxpos + 1;
 					row.appendCellChild(editor.getComponent(),searchField.getColumnSpan());
+					ZKUpdateUtil.setHflex((HtmlBasedComponent)editor.getComponent(), "true");
 					actualxpos = actualxpos + searchField.getColumnSpan();
 
 					//Create button that call Quick Entry Window.
