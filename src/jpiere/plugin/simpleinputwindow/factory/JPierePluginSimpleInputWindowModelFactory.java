@@ -35,32 +35,43 @@ public class JPierePluginSimpleInputWindowModelFactory implements IModelFactory 
 
 	@Override
 	public Class<?> getClass(String tableName) {
-		if(tableName.equals(MSimpleInputWindow.Table_Name)){
-			return MSimpleInputWindow.class;
-		}else if(tableName.equals(MSimpleInputSearch.Table_Name)){
-			return MSimpleInputSearch.class;
+		
+		if(tableName.startsWith("JP_SimpleInput"))
+		{
+			if(tableName.equals(MSimpleInputWindow.Table_Name)){
+				return MSimpleInputWindow.class;
+			}else if(tableName.equals(MSimpleInputSearch.Table_Name)){
+				return MSimpleInputSearch.class;
+			}
 		}
 		return null;
 	}
 
 	@Override
-	public PO getPO(String tableName, int Record_ID, String trxName) {
-		if(tableName.equals(MSimpleInputWindow.Table_Name)){
-			return  new MSimpleInputWindow(Env.getCtx(), Record_ID, trxName);
-		}else if(tableName.equals(MSimpleInputSearch.Table_Name)){
-			return  new MSimpleInputSearch(Env.getCtx(), Record_ID, trxName);
+	public PO getPO(String tableName, int Record_ID, String trxName) 
+	{
+		if(tableName.startsWith("JP_SimpleInput"))
+		{
+			if(tableName.equals(MSimpleInputWindow.Table_Name)){
+				return  new MSimpleInputWindow(Env.getCtx(), Record_ID, trxName);
+			}else if(tableName.equals(MSimpleInputSearch.Table_Name)){
+				return  new MSimpleInputSearch(Env.getCtx(), Record_ID, trxName);
+			}
 		}
 		return null;
 	}
 
 	@Override
-	public PO getPO(String tableName, ResultSet rs, String trxName) {
-		if(tableName.equals(MSimpleInputWindow.Table_Name)){
-			return  new MSimpleInputWindow(Env.getCtx(), rs, trxName);
-		}else if(tableName.equals(MSimpleInputSearch.Table_Name)){
-			return  new MSimpleInputSearch(Env.getCtx(), rs, trxName);
+	public PO getPO(String tableName, ResultSet rs, String trxName) 
+	{
+		if(tableName.startsWith("JP_SimpleInput"))
+		{
+			if(tableName.equals(MSimpleInputWindow.Table_Name)){
+				return  new MSimpleInputWindow(Env.getCtx(), rs, trxName);
+			}else if(tableName.equals(MSimpleInputSearch.Table_Name)){
+				return  new MSimpleInputSearch(Env.getCtx(), rs, trxName);
+			}
 		}
-
 		return null;
 	}
 
