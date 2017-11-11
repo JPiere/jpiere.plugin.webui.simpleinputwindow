@@ -17,7 +17,8 @@ Require-Bundle: org.adempiere.base;bundle-version="3.0.0",
  zcommon;bundle-version="8.0.1",
  zul;bundle-version="8.0.1",
  zhtml;bundle-version="8.0.1",
- zweb;bundle-version="8.0.1"
+ zweb;bundle-version="8.0.1",
+ org.slf4j.api;bundle-version="1.7.10"
 Bundle-Activator: org.adempiere.plugin.utils.AdempiereActivator
 Service-Component: OSGI-INF/jpierePluginSimpleInputWindowModelFactory.xml,OSGI-INF/jpierePluginSimpleInputWindowFormFactory.xml,OSGI-INF/jpierePluginSimpleInputWindowCalloutFactory.xml,
  OSGI-INF/jpierePluginSimpleInputWindowProcessFactory.xml
