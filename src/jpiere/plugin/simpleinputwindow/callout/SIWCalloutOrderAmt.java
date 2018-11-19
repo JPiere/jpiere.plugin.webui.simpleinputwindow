@@ -14,17 +14,18 @@
 package jpiere.plugin.simpleinputwindow.callout;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.util.Properties;
-
-import jpiere.plugin.simpleinputwindow.base.ISimpleInputWindowCallout;
-import jpiere.plugin.simpleinputwindow.form.SimpleInputWindowDataBinder;
 
 import org.compiere.model.MPriceList;
 import org.compiere.model.MProductPricing;
 import org.compiere.model.MRole;
 import org.compiere.model.MUOMConversion;
 import org.compiere.util.Env;
+
+import jpiere.plugin.simpleinputwindow.base.ISimpleInputWindowCallout;
+import jpiere.plugin.simpleinputwindow.form.SimpleInputWindowDataBinder;
 
 public class SIWCalloutOrderAmt implements ISimpleInputWindowCallout {
 
@@ -152,7 +153,7 @@ public class SIWCalloutOrderAmt implements ISimpleInputWindowCallout {
 			if ( PriceList.doubleValue() != 0 )
 				PriceActual = BigDecimal.valueOf((100.0 - Discount.doubleValue()) / 100.0 * PriceList.doubleValue());
 			if (PriceActual.scale() > StdPrecision)
-				PriceActual = PriceActual.setScale(StdPrecision, BigDecimal.ROUND_HALF_UP);
+				PriceActual = PriceActual.setScale(StdPrecision, RoundingMode.HALF_UP);
 			PriceEntered = MUOMConversion.convertProductFrom (ctx, M_Product_ID,
 				C_UOM_To_ID, PriceActual);
 			if (PriceEntered == null)
@@ -168,7 +169,7 @@ public class SIWCalloutOrderAmt implements ISimpleInputWindowCallout {
 			else
 				Discount = BigDecimal.valueOf((PriceList.doubleValue() - PriceActual.doubleValue()) / PriceList.doubleValue() * 100.0);
 			if (Discount.scale() > 2)
-				Discount = Discount.setScale(2, BigDecimal.ROUND_HALF_UP);
+				Discount = Discount.setScale(2, RoundingMode.HALF_UP);
 			dataBinder.setValue(rowIndex, "Discount", Discount);
 		}
 //		if (log.isLoggable(Level.FINE)) log.fine("PriceEntered=" + PriceEntered + ", Actual=" + PriceActual + ", Discount=" + Discount);
@@ -196,7 +197,7 @@ public class SIWCalloutOrderAmt implements ISimpleInputWindowCallout {
 			{
 				Discount = BigDecimal.valueOf((PriceList.doubleValue () - PriceActual.doubleValue ()) / PriceList.doubleValue () * 100.0);
 				if (Discount.scale () > 2)
-					Discount = Discount.setScale (2, BigDecimal.ROUND_HALF_UP);
+					Discount = Discount.setScale (2, RoundingMode.HALF_UP);
 				dataBinder.setValue(rowIndex, "Discount", Discount);
 			}
 		}
@@ -204,7 +205,7 @@ public class SIWCalloutOrderAmt implements ISimpleInputWindowCallout {
 		//	Line Net Amt
 		BigDecimal LineNetAmt = QtyOrdered.multiply(PriceActual);
 		if (LineNetAmt.scale() > StdPrecision)
-			LineNetAmt = LineNetAmt.setScale(StdPrecision, BigDecimal.ROUND_HALF_UP);
+			LineNetAmt = LineNetAmt.setScale(StdPrecision, RoundingMode.HALF_UP);
 //		if (log.isLoggable(Level.INFO)) log.info("LineNetAmt=" + LineNetAmt);
 		dataBinder.setValue(rowIndex, "LineNetAmt", LineNetAmt);
 		//

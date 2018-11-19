@@ -14,18 +14,16 @@
 package jpiere.plugin.simpleinputwindow.callout;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Properties;
 
-import jpiere.plugin.simpleinputwindow.base.ISimpleInputWindowCallout;
-import jpiere.plugin.simpleinputwindow.form.SimpleInputWindowDataBinder;
-
-import org.compiere.model.MOrderLine;
 import org.compiere.model.MProduct;
-import org.compiere.model.MStorageReservation;
 import org.compiere.model.MUOM;
 import org.compiere.model.MUOMConversion;
 import org.compiere.util.Env;
-import org.compiere.util.Msg;
+
+import jpiere.plugin.simpleinputwindow.base.ISimpleInputWindowCallout;
+import jpiere.plugin.simpleinputwindow.form.SimpleInputWindowDataBinder;
 
 public class SIWCalloutInvoiceQty implements ISimpleInputWindowCallout {
 
@@ -61,7 +59,7 @@ public class SIWCalloutInvoiceQty implements ISimpleInputWindowCallout {
 		{
 			int C_UOM_To_ID = ((Integer)newValue).intValue();
 			QtyEntered = (BigDecimal)dataBinder.getValue(rowIndex,"QtyEntered");
-			BigDecimal QtyEntered1 = QtyEntered.setScale(MUOM.getPrecision(ctx, C_UOM_To_ID), BigDecimal.ROUND_HALF_UP);
+			BigDecimal QtyEntered1 = QtyEntered.setScale(MUOM.getPrecision(ctx, C_UOM_To_ID), RoundingMode.HALF_UP);
 			if (QtyEntered.compareTo(QtyEntered1) != 0)
 			{
 //				if (log.isLoggable(Level.FINE)) log.fine("Corrected QtyEntered Scale UOM=" + C_UOM_To_ID
@@ -90,7 +88,7 @@ public class SIWCalloutInvoiceQty implements ISimpleInputWindowCallout {
 		{
 			int C_UOM_To_ID = Env.getContextAsInt(ctx, WindowNo, tabNo, "C_UOM_ID");
 			QtyEntered = (BigDecimal)newValue;
-			BigDecimal QtyEntered1 = QtyEntered.setScale(MUOM.getPrecision(ctx, C_UOM_To_ID), BigDecimal.ROUND_HALF_UP);
+			BigDecimal QtyEntered1 = QtyEntered.setScale(MUOM.getPrecision(ctx, C_UOM_To_ID), RoundingMode.HALF_UP);
 			if (QtyEntered.compareTo(QtyEntered1) != 0)
 			{
 //				if (log.isLoggable(Level.FINE)) log.fine("Corrected QtyEntered Scale UOM=" + C_UOM_To_ID
@@ -115,7 +113,7 @@ public class SIWCalloutInvoiceQty implements ISimpleInputWindowCallout {
 			int C_UOM_To_ID = Env.getContextAsInt(ctx, WindowNo, tabNo, "C_UOM_ID");
 			QtyInvoiced = (BigDecimal)newValue;
 			int precision = MProduct.get(ctx, M_Product_ID).getUOMPrecision();
-			BigDecimal QtyInvoiced1 = QtyInvoiced.setScale(precision, BigDecimal.ROUND_HALF_UP);
+			BigDecimal QtyInvoiced1 = QtyInvoiced.setScale(precision, RoundingMode.HALF_UP);
 			if (QtyInvoiced.compareTo(QtyInvoiced1) != 0)
 			{
 //				if (log.isLoggable(Level.FINE)) log.fine("Corrected QtyOrdered Scale "

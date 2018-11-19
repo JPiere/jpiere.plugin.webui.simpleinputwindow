@@ -53,7 +53,7 @@ public class MSimpleInputWindow extends X_JP_SimpleInputWindow {
 			return null;
 		final String whereClause = "JP_SimpleInputWindow_ID=?";
 		MSimpleInputWindow retValue = new Query(ctx, I_JP_SimpleInputWindow.Table_Name, whereClause, null)
-				.setParameters(new Integer(JP_SimpleInputWindow_ID).intValue())
+				.setParameters(Integer.valueOf(JP_SimpleInputWindow_ID).intValue())
 				.firstOnly();
 		return retValue;
 	}	//	get

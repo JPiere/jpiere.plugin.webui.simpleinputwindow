@@ -16,11 +16,11 @@ package jpiere.plugin.simpleinputwindow.callout;
 import java.sql.Timestamp;
 import java.util.Properties;
 
-import jpiere.plugin.simpleinputwindow.base.ISimpleInputWindowCallout;
-import jpiere.plugin.simpleinputwindow.form.SimpleInputWindowDataBinder;
-
 import org.compiere.model.Tax;
 import org.compiere.util.Env;
+
+import jpiere.plugin.simpleinputwindow.base.ISimpleInputWindowCallout;
+import jpiere.plugin.simpleinputwindow.form.SimpleInputWindowDataBinder;
 
 public class SIWCalloutOrderTax implements ISimpleInputWindowCallout {
 
@@ -87,7 +87,7 @@ public class SIWCalloutOrderTax implements ISimpleInputWindowCallout {
 		if (C_Tax_ID == 0)
 			;
 		else
-			dataBinder.setValue(rowIndex, "C_Tax_ID", new Integer(C_Tax_ID));
+			dataBinder.setValue(rowIndex, "C_Tax_ID", Integer.valueOf(C_Tax_ID));
 		//
 
 

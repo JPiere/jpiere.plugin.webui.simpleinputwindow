@@ -17,7 +17,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Properties;
-import java.util.logging.Level;
 
 import org.compiere.util.DB;
 import org.compiere.util.Env;
@@ -38,21 +37,21 @@ public class SIWCalloutOrderCharge implements ISimpleInputWindowCallout {
 		Integer C_Charge_ID = (Integer)newValue;
 		if (C_Charge_ID == null || C_Charge_ID.intValue() == 0)
 			return "";
-		
+
 		int WindowNo = dataBinder.getSimpleInputWindow().getGridTab().getWindowNo();
 		Properties ctx = Env.getCtx();
 		int tabNo = dataBinder.getSimpleInputWindow().getGridTab().getTabNo();
-	
+
 		//	No Product defined
 		if (dataBinder.getValue(rowIndex, "M_Product_ID") != null)
 		{
 			dataBinder.setValue(rowIndex, "C_Charge_ID", null);
 			return "ChargeExclusively";
 		}
-		
+
 		dataBinder.setValue(rowIndex, "M_AttributeSetInstance_ID", null);
 		dataBinder.setValue(rowIndex, "S_ResourceAssignment_ID", null);
-		dataBinder.setValue(rowIndex, "C_UOM_ID", new Integer(100));//	EA
+		dataBinder.setValue(rowIndex, "C_UOM_ID", Integer.valueOf(100));//	EA
 
 		Env.setContext(ctx, WindowNo, "DiscountSchema", "N");
 		String sql = "SELECT ChargeAmt FROM C_Charge WHERE C_Charge_ID=?";

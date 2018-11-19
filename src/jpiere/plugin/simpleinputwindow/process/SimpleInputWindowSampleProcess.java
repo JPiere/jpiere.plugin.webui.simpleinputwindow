@@ -49,7 +49,7 @@ public class SimpleInputWindowSampleProcess extends SvrProcess {
 		String msg = null;
 		for(PO po : genericPOs)
 		{
-			msg = new Integer(po.get_ID()).toString();
+			msg = Integer.valueOf(po.get_ID()).toString();
 			po.set_ValueNoCheck("Rate", new BigDecimal(1000));
 			po.saveEx();
 			addBufferLog(getAD_PInstance_ID(), null, null, msg, po.get_Table_ID(), po.get_ID());

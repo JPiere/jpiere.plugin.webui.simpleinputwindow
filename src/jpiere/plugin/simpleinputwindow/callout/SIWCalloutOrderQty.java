@@ -14,10 +14,8 @@
 package jpiere.plugin.simpleinputwindow.callout;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Properties;
-
-import jpiere.plugin.simpleinputwindow.base.ISimpleInputWindowCallout;
-import jpiere.plugin.simpleinputwindow.form.SimpleInputWindowDataBinder;
 
 import org.compiere.model.MOrderLine;
 import org.compiere.model.MProduct;
@@ -26,6 +24,9 @@ import org.compiere.model.MUOM;
 import org.compiere.model.MUOMConversion;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
+
+import jpiere.plugin.simpleinputwindow.base.ISimpleInputWindowCallout;
+import jpiere.plugin.simpleinputwindow.form.SimpleInputWindowDataBinder;
 
 public class SIWCalloutOrderQty implements ISimpleInputWindowCallout {
 
@@ -61,7 +62,7 @@ public class SIWCalloutOrderQty implements ISimpleInputWindowCallout {
 		{
 			int C_UOM_To_ID = ((Integer)newValue).intValue();
 			QtyEntered = (BigDecimal)dataBinder.getValue(rowIndex,"QtyEntered");
-			BigDecimal QtyEntered1 = QtyEntered.setScale(MUOM.getPrecision(ctx, C_UOM_To_ID), BigDecimal.ROUND_HALF_UP);
+			BigDecimal QtyEntered1 = QtyEntered.setScale(MUOM.getPrecision(ctx, C_UOM_To_ID), RoundingMode.HALF_UP);
 			if (QtyEntered.compareTo(QtyEntered1) != 0)
 			{
 //				if (log.isLoggable(Level.FINE)) log.fine("Corrected QtyEntered Scale UOM=" + C_UOM_To_ID
@@ -92,7 +93,7 @@ public class SIWCalloutOrderQty implements ISimpleInputWindowCallout {
 		{
 			int C_UOM_To_ID = Env.getContextAsInt(ctx, WindowNo, tabNo, "C_UOM_ID");
 			QtyEntered = (BigDecimal)newValue;
-			BigDecimal QtyEntered1 = QtyEntered.setScale(MUOM.getPrecision(ctx, C_UOM_To_ID), BigDecimal.ROUND_HALF_UP);
+			BigDecimal QtyEntered1 = QtyEntered.setScale(MUOM.getPrecision(ctx, C_UOM_To_ID), RoundingMode.HALF_UP);
 			if (QtyEntered.compareTo(QtyEntered1) != 0)
 			{
 //				if (log.isLoggable(Level.FINE)) log.fine("Corrected QtyEntered Scale UOM=" + C_UOM_To_ID
@@ -118,7 +119,7 @@ public class SIWCalloutOrderQty implements ISimpleInputWindowCallout {
 			int C_UOM_To_ID = Env.getContextAsInt(ctx, WindowNo, tabNo, "C_UOM_ID");
 			QtyOrdered = (BigDecimal)newValue;
 			int precision = MProduct.get(ctx, M_Product_ID).getUOMPrecision();
-			BigDecimal QtyOrdered1 = QtyOrdered.setScale(precision, BigDecimal.ROUND_HALF_UP);
+			BigDecimal QtyOrdered1 = QtyOrdered.setScale(precision, RoundingMode.HALF_UP);
 			if (QtyOrdered.compareTo(QtyOrdered1) != 0)
 			{
 //				if (log.isLoggable(Level.FINE)) log.fine("Corrected QtyOrdered Scale "
@@ -168,7 +169,7 @@ public class SIWCalloutOrderQty implements ISimpleInputWindowCallout {
 				{
 					Integer C_OrderLine_ID = (Integer)dataBinder.getValue(rowIndex,"C_OrderLine_ID");
 					if (C_OrderLine_ID == null)
-						C_OrderLine_ID = new Integer(0);
+						C_OrderLine_ID = Integer.valueOf(0);
 					BigDecimal notReserved = MOrderLine.getNotReserved(ctx,
 						M_Warehouse_ID, M_Product_ID, M_AttributeSetInstance_ID,
 						C_OrderLine_ID.intValue());

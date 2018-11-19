@@ -935,7 +935,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			{
 				MLookup lookup = MLookupFactory.get(Env.getCtx(), form.getWindowNo(), 0, m_simpleInputWindow.getJP_TabField().getAD_Column_ID(), DisplayType.Search);
 				WSearchEditor editor = new WSearchEditor("keyColumn", true, false, true, lookup);
-				editor.setValue(new Integer(tabFieldValue.toString()).intValue());
+				editor.setValue(Integer.valueOf(tabFieldValue.toString()).intValue());
 				return editor.getDisplay();
 
 			}else if(AD_Reference_ID==SystemIDs.REFERENCE_DATATYPE_LIST){
@@ -971,7 +971,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		Grid grid  = new Grid();
 
-		grid.setId(new Integer(tabIndex).toString());
+		grid.setId(Integer.valueOf(tabIndex).toString());
 
 		org.zkoss.zul.Columns columns = grid.getColumns();
 		if(columns == null)
@@ -1719,7 +1719,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			tabbox.getTabpanels().appendChild(tabpanel);
 			Grid grid  = new Grid();
 
-			grid.setId(new Integer(0).toString());
+			grid.setId(Integer.valueOf(0).toString());
 
 			columns = grid.getColumns();
 			if(columns == null)
