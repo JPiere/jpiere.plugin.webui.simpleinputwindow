@@ -470,7 +470,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 						QuickEntryButton.setId(editor.getColumnName());
 						QuickEntryButton.addActionListener(this);
 						QuickEntryButton.setEnabled(true);
-						if ("Y".equals(Env.getContext(Env.getCtx(), "#THEME_USE_FONT_ICON_FOR_IMAGE")))
+						if (ThemeManager.isUseFontIconForImage())
 							QuickEntryButton.setIconSclass("z-icon-Form");
 						else
 							QuickEntryButton.setImage(ThemeManager.getThemeResource("images/mForm.png"));
@@ -548,7 +548,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				SearchButton.setId("SearchButton");
 				SearchButton.addActionListener(this);
 				SearchButton.setEnabled(true);
-				if ("Y".equals(Env.getContext(Env.getCtx(), "#THEME_USE_FONT_ICON_FOR_IMAGE")))
+				if (ThemeManager.isUseFontIconForImage())
 					SearchButton.setIconSclass("z-icon-Find");
 				else
 					SearchButton.setImage(ThemeManager.getThemeResource("images/Find16.png"));
@@ -558,7 +558,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				CreateButton.setId("CreateButton");
 				CreateButton.addActionListener(this);
 				CreateButton.setEnabled(true);
-				if ("Y".equals(Env.getContext(Env.getCtx(), "#THEME_USE_FONT_ICON_FOR_IMAGE")))
+				if (ThemeManager.isUseFontIconForImage())
 					CreateButton.setIconSclass("z-icon-New");
 				else
 					CreateButton.setImage(ThemeManager.getThemeResource("images/New16.png"));
@@ -569,7 +569,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				SaveButton.setId("SaveButton");
 				SaveButton.addActionListener(this);
 				SaveButton.setEnabled(false);
-				if ("Y".equals(Env.getContext(Env.getCtx(), "#THEME_USE_FONT_ICON_FOR_IMAGE")))
+				if (ThemeManager.isUseFontIconForImage())
 					SaveButton.setIconSclass("z-icon-Save");
 				else
 					SaveButton.setImage(ThemeManager.getThemeResource("images/Save16.png"));
@@ -580,7 +580,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				IgnoreButton.setId("IgnoreButton");
 				IgnoreButton.addActionListener(this);
 				IgnoreButton.setEnabled(false);
-				if ("Y".equals(Env.getContext(Env.getCtx(), "#THEME_USE_FONT_ICON_FOR_IMAGE")))
+				if (ThemeManager.isUseFontIconForImage())
 					IgnoreButton.setIconSclass("z-icon-Ignore");
 				else
 					IgnoreButton.setImage(ThemeManager.getThemeResource("images/Ignore16.png"));
@@ -592,7 +592,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				HomeButton.setId("HomeButton");
 				HomeButton.addActionListener(this);
 				HomeButton.setEnabled(true);
-				if ("Y".equals(Env.getContext(Env.getCtx(), "#THEME_USE_FONT_ICON_FOR_IMAGE")))
+				if (ThemeManager.isUseFontIconForImage())
 					HomeButton.setIconSclass("z-icon-Home");
 				else
 					HomeButton.setImage(ThemeManager.getThemeResource("images/Home16.png"));
@@ -603,7 +603,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				ProcessButton.setId("ProcessButton");
 				ProcessButton.addActionListener(this);
 				ProcessButton.setEnabled(false);
-				if ("Y".equals(Env.getContext(Env.getCtx(), "#THEME_USE_FONT_ICON_FOR_IMAGE")))
+				if (ThemeManager.isUseFontIconForImage())
 					ProcessButton.setIconSclass("z-icon-Process");
 				else
 					ProcessButton.setImage(ThemeManager.getThemeResource("images/Process16.png"));
@@ -614,7 +614,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				DeleteButton.setId("DeleteButton");
 				DeleteButton.addActionListener(this);
 				DeleteButton.setEnabled(false);
-				if ("Y".equals(Env.getContext(Env.getCtx(), "#THEME_USE_FONT_ICON_FOR_IMAGE")))
+				if (ThemeManager.isUseFontIconForImage())
 					DeleteButton.setIconSclass("z-icon-Delete");
 				else
 					DeleteButton.setImage(ThemeManager.getThemeResource("images/Delete16.png"));
@@ -625,7 +625,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				CustomizeButton.setId("CustomizeButton");
 				CustomizeButton.addActionListener(this);
 				CustomizeButton.setEnabled(false);
-				if ("Y".equals(Env.getContext(Env.getCtx(), "#THEME_USE_FONT_ICON_FOR_IMAGE")))
+				if (ThemeManager.isUseFontIconForImage())
 					CustomizeButton.setIconSclass("z-icon-Customize");
 				else
 					CustomizeButton.setImage(ThemeManager.getThemeResource("images/Customize16.png"));
