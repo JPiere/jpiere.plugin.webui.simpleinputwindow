@@ -14,17 +14,18 @@
 package jpiere.plugin.simpleinputwindow.callout;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.util.Properties;
-
-import jpiere.plugin.simpleinputwindow.base.ISimpleInputWindowCallout;
-import jpiere.plugin.simpleinputwindow.form.SimpleInputWindowDataBinder;
 
 import org.compiere.model.MPriceList;
 import org.compiere.model.MProductPricing;
 import org.compiere.model.MRole;
 import org.compiere.model.MUOMConversion;
 import org.compiere.util.Env;
+
+import jpiere.plugin.simpleinputwindow.base.ISimpleInputWindowCallout;
+import jpiere.plugin.simpleinputwindow.form.SimpleInputWindowDataBinder;
 
 public class SIWCalloutInvoiceAmt implements ISimpleInputWindowCallout {
 
@@ -165,7 +166,7 @@ public class SIWCalloutInvoiceAmt implements ISimpleInputWindowCallout {
 		//	Line Net Amt
 		BigDecimal LineNetAmt = QtyInvoiced.multiply(PriceActual);
 		if (LineNetAmt.scale() > StdPrecision)
-			LineNetAmt = LineNetAmt.setScale(StdPrecision, BigDecimal.ROUND_HALF_UP);
+			LineNetAmt = LineNetAmt.setScale(StdPrecision, RoundingMode.HALF_UP);
 //		if (log.isLoggable(Level.INFO)) log.info("LineNetAmt=" + LineNetAmt);
 		dataBinder.setValue(rowIndex, "LineNetAmt", LineNetAmt);
 		//

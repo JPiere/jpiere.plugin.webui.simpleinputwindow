@@ -14,11 +14,9 @@
 package jpiere.plugin.simpleinputwindow.callout;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.util.Properties;
-
-import jpiere.plugin.simpleinputwindow.base.ISimpleInputWindowCallout;
-import jpiere.plugin.simpleinputwindow.form.SimpleInputWindowDataBinder;
 
 import org.compiere.model.MOrderLine;
 import org.compiere.model.MPriceList;
@@ -28,6 +26,9 @@ import org.compiere.model.MStorageReservation;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
+
+import jpiere.plugin.simpleinputwindow.base.ISimpleInputWindowCallout;
+import jpiere.plugin.simpleinputwindow.form.SimpleInputWindowDataBinder;
 
 public class SIWCalloutOrderProduct implements ISimpleInputWindowCallout {
 
@@ -86,9 +87,9 @@ public class SIWCalloutOrderProduct implements ISimpleInputWindowCallout {
 		dataBinder.setValue(rowIndex, "PriceLimit", pp.getPriceLimit());
 		dataBinder.setValue(rowIndex, "PriceActual", pp.getPriceStd());
 		dataBinder.setValue(rowIndex, "PriceEntered", pp.getPriceStd());
-		dataBinder.setValue(rowIndex, "C_Currency_ID", new Integer(pp.getC_Currency_ID()));
+		dataBinder.setValue(rowIndex, "C_Currency_ID", Integer.valueOf(pp.getC_Currency_ID()));
 		dataBinder.setValue(rowIndex, "Discount", pp.getDiscount());
-		dataBinder.setValue(rowIndex, "C_UOM_ID", new Integer(pp.getC_UOM_ID()));
+		dataBinder.setValue(rowIndex, "C_UOM_ID", Integer.valueOf(pp.getC_UOM_ID()));
 		dataBinder.setValue(rowIndex, "QtyOrdered", dataBinder.getValue(rowIndex, "QtyEntered"));
 		Env.setContext(ctx, WindowNo, "EnforcePriceLimit", pp.isEnforcePriceLimit() ? "Y" : "N");
 		Env.setContext(ctx, WindowNo, "DiscountSchema", pp.isDiscountSchema() ? "Y" : "N");
@@ -98,7 +99,7 @@ public class SIWCalloutOrderProduct implements ISimpleInputWindowCallout {
 		//	Line Net Amt
 		BigDecimal LineNetAmt = ((BigDecimal)dataBinder.getValue(rowIndex,"QtyEntered")).multiply(pp.getPriceStd());
 		if (LineNetAmt.scale() > StdPrecision)
-			LineNetAmt = LineNetAmt.setScale(StdPrecision, BigDecimal.ROUND_HALF_UP);
+			LineNetAmt = LineNetAmt.setScale(StdPrecision, RoundingMode.HALF_UP);
 
 		dataBinder.setValue(rowIndex, "LineNetAmt", LineNetAmt);
 
@@ -124,7 +125,7 @@ public class SIWCalloutOrderProduct implements ISimpleInputWindowCallout {
 				{
 					Integer C_OrderLine_ID = (Integer)dataBinder.getValue(rowIndex, "C_OrderLine_ID");
 					if (C_OrderLine_ID == null)
-						C_OrderLine_ID = new Integer(0);
+						C_OrderLine_ID = Integer.valueOf(0);
 					BigDecimal notReserved = MOrderLine.getNotReserved(ctx,
 						M_Warehouse_ID, M_Product_ID, M_AttributeSetInstance_ID,
 						C_OrderLine_ID.intValue());

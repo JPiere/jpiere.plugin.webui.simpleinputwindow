@@ -21,10 +21,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import jpiere.plugin.simpleinputwindow.base.ISimpleInputWindowCallout;
-import jpiere.plugin.simpleinputwindow.base.ISimpleInputWindowCalloutFactory;
-import jpiere.plugin.simpleinputwindow.window.SimpleInputWindowProcessModelDialog;
-
 import org.adempiere.base.IModelFactory;
 import org.adempiere.base.Service;
 import org.adempiere.util.GridRowCtx;
@@ -77,6 +73,10 @@ import org.zkoss.zul.Row;
 import org.zkoss.zul.RowRenderer;
 import org.zkoss.zul.RowRendererExt;
 import org.zkoss.zul.impl.XulElement;
+
+import jpiere.plugin.simpleinputwindow.base.ISimpleInputWindowCallout;
+import jpiere.plugin.simpleinputwindow.base.ISimpleInputWindowCalloutFactory;
+import jpiere.plugin.simpleinputwindow.window.SimpleInputWindowProcessModelDialog;
 
 
 /**
@@ -452,12 +452,12 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 		cell = new Cell();
 		if(listModel.getPO(index).get_ID()==0)
 		{
-			cell.appendChild(new Label("+*" + new Integer(index+1).toString()));
+			cell.appendChild(new Label("+*" + Integer.valueOf(index+1).toString()));
 		}else{
 			if(dirtyModel.containsKey(listModel.getPO(index).get_ID()))
-				cell.appendChild(new Label("*" + new Integer(index+1).toString()));
+				cell.appendChild(new Label("*" + Integer.valueOf(index+1).toString()));
 			else
-				cell.appendChild(new Label(new Integer(index+1).toString()));
+				cell.appendChild(new Label(Integer.valueOf(index+1).toString()));
 		}
 
 		cell.setStyle(CELL_DIV_STYLE_ALIGN_RIGHT);
