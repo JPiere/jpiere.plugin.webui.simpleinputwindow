@@ -1932,8 +1932,10 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			}
 
 			popup.render(buttonList);
-
-			LayoutUtils.openPopupWindow(ProcessButton, popup, "after_start");
+			if (popup.getChildren().size() > 0) {
+				popup.setPage(ProcessButton.getPage());
+				popup.open(ProcessButton, "after_start");
+			}
 
 			return;
 
