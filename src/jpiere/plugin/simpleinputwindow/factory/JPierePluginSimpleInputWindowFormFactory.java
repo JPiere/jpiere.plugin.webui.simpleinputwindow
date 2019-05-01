@@ -15,11 +15,11 @@ package jpiere.plugin.simpleinputwindow.factory;
 
 import java.util.logging.Level;
 
-import jpiere.plugin.simpleinputwindow.form.AbstractSimpleInputWindowForm;
-
 import org.adempiere.webui.factory.IFormFactory;
 import org.adempiere.webui.panel.ADForm;
 import org.compiere.util.CLogger;
+
+import jpiere.plugin.simpleinputwindow.form.AbstractSimpleInputWindowForm;
 
 
 /**
@@ -60,7 +60,7 @@ public class JPierePluginSimpleInputWindowFormFactory implements IFormFactory{
 			if (clazz != null) {
 				try
 	    		{
-	    			form = clazz.newInstance();
+	    			form = clazz.getDeclaredConstructor().newInstance();
 	    		}
 	    		catch (Exception e)
 	    		{

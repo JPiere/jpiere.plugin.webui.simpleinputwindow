@@ -82,7 +82,7 @@ public class JPierePluginSimpleInputWindowProcessFactory implements IProcessFact
 				//Get Process
 				try
 				{
-					process = (ProcessCall)processClass.newInstance();
+					process = (ProcessCall)processClass.getDeclaredConstructor().newInstance();
 				}
 				catch (Exception ex)
 				{
