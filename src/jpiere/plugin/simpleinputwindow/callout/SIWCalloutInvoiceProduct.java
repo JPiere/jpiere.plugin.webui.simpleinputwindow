@@ -42,7 +42,7 @@ public class SIWCalloutInvoiceProduct implements ISimpleInputWindowCallout {
 
 		int WindowNo = dataBinder.getSimpleInputWindow().getGridTab().getWindowNo();
 		Properties ctx = Env.getCtx();
-		int tabNo = dataBinder.getSimpleInputWindow().getGridTab().getTabNo();
+		//int tabNo = dataBinder.getSimpleInputWindow().getGridTab().getTabNo();
 
 		dataBinder.setValue(rowIndex, "C_Charge_ID", null);
 		//	Set Attribute
@@ -56,7 +56,7 @@ public class SIWCalloutInvoiceProduct implements ISimpleInputWindowCallout {
 		int C_BPartner_ID = Env.getContextAsInt(ctx, WindowNo, "C_BPartner_ID");
 		BigDecimal Qty = (BigDecimal)dataBinder.getValue(rowIndex, "QtyInvoiced");
 		boolean IsSOTrx = Env.getContext(ctx, WindowNo, "IsSOTrx").equals("Y");
-		MProductPricing pp = new MProductPricing (M_Product_ID.intValue(), C_BPartner_ID, Qty, IsSOTrx);
+		MProductPricing pp = new MProductPricing (M_Product_ID.intValue(), C_BPartner_ID, Qty, IsSOTrx, null);
 		//
 		int M_PriceList_ID = Env.getContextAsInt(ctx, WindowNo, "M_PriceList_ID");
 		pp.setM_PriceList_ID(M_PriceList_ID);

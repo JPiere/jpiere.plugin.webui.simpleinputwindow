@@ -136,12 +136,12 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 	private HashMap<Integer,PO> 	dirtyModel;
 
 	//Map that is ID of PO and LineNo for save.< ID of PO, LieNo>
-	private HashMap<Integer,Integer>  dirtyLineNo ;
+	//private HashMap<Integer,Integer>  dirtyLineNo ;
 
 	//Search Field Editor Map
 	private HashMap<String,WEditor> searchEditorMap = new HashMap<String,WEditor> ();
 
-	private GridField[] gridFields;
+	//private GridField[] gridFields;
 
 	/**
 	 *
@@ -158,10 +158,10 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 		this.listModel = listModel;
 
 		this.dirtyModel= simpleInputWindow.getDirtyModel();
-		this.dirtyLineNo = simpleInputWindow.getDirtyLineNo();
+		//this.dirtyLineNo = simpleInputWindow.getDirtyLineNo();
 		this.dataBinder = new SimpleInputWindowDataBinder(simpleInputWindow,this,listModel);
 		this.searchEditorMap = simpleInputWindow.getSearchEditorMap();
-		this.gridFields = simpleInputWindow.getFields();
+		//this.gridFields = simpleInputWindow.getFields();
 	}
 
 	public SimpleInputWindowDataBinder getSimpleInputWindowDataBinder()

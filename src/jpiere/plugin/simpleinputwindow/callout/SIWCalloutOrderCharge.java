@@ -40,7 +40,7 @@ public class SIWCalloutOrderCharge implements ISimpleInputWindowCallout {
 
 		int WindowNo = dataBinder.getSimpleInputWindow().getGridTab().getWindowNo();
 		Properties ctx = Env.getCtx();
-		int tabNo = dataBinder.getSimpleInputWindow().getGridTab().getTabNo();
+		//int tabNo = dataBinder.getSimpleInputWindow().getGridTab().getTabNo();
 
 		//	No Product defined
 		if (dataBinder.getValue(rowIndex, "M_Product_ID") != null)

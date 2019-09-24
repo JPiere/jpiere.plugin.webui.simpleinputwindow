@@ -23,7 +23,6 @@ import org.compiere.model.MStorageReservation;
 import org.compiere.model.MUOM;
 import org.compiere.model.MUOMConversion;
 import org.compiere.util.Env;
-import org.compiere.util.Msg;
 
 import jpiere.plugin.simpleinputwindow.base.ISimpleInputWindowCallout;
 import jpiere.plugin.simpleinputwindow.form.SimpleInputWindowDataBinder;
@@ -178,9 +177,9 @@ public class SIWCalloutOrderQty implements ISimpleInputWindowCallout {
 					BigDecimal total = available.subtract(notReserved);
 					if (total.compareTo(QtyOrdered) < 0)
 					{
-						StringBuilder msgpts = new StringBuilder("@QtyAvailable@=").append(available)
-								.append("  -  @QtyNotReserved@=").append(notReserved).append("  =  ").append(total);
-						String info = Msg.parseTranslation(ctx, msgpts.toString());
+//						StringBuilder msgpts = new StringBuilder("@QtyAvailable@=").append(available)
+//								.append("  -  @QtyNotReserved@=").append(notReserved).append("  =  ").append(total);
+//						String info = Msg.parseTranslation(ctx, msgpts.toString());
 //						mTab.fireDataStatusEEvent ("InsufficientQtyAvailable",	//TODO
 //							info, false);
 					}

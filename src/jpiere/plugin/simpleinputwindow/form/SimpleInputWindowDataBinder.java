@@ -17,9 +17,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import jpiere.plugin.simpleinputwindow.base.ISimpleInputWindowCallout;
-import jpiere.plugin.simpleinputwindow.base.ISimpleInputWindowCalloutFactory;
-
 import org.adempiere.base.Service;
 import org.adempiere.webui.editor.WEditor;
 import org.adempiere.webui.event.ValueChangeEvent;
@@ -30,6 +27,9 @@ import org.compiere.model.MLookup;
 import org.compiere.model.PO;
 import org.compiere.util.CLogger;
 import org.zkoss.zul.Cell;
+
+import jpiere.plugin.simpleinputwindow.base.ISimpleInputWindowCallout;
+import jpiere.plugin.simpleinputwindow.base.ISimpleInputWindowCalloutFactory;
 
 /**
  * Transfer data from editor to GridTab
@@ -171,7 +171,7 @@ public class SimpleInputWindowDataBinder implements ValueChangeListener {
 				editor.setValue(newValue);
 
 		        //Step2:Update ViewModel data for display data.Please refer to JPMatrixGridRowRenderer.editRow() method.
-		    	Object oldValue = listModel.getValueAt(rendere.getCurrentRowIndex(), editor.getGridField());
+		    	//Object oldValue = listModel.getValueAt(rendere.getCurrentRowIndex(), editor.getGridField());
 		        listModel.setValueAt (newValue, rendere.getCurrentRowIndex(), editor.getGridField());
 
 	            //Step3:Update Context : GridField.setValue method can update context

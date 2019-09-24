@@ -94,7 +94,7 @@ public class SIWCalloutInvoiceAmt implements ISimpleInputWindowCallout {
 			if (QtyInvoiced == null)
 				QtyInvoiced = QtyEntered;
 			boolean IsSOTrx = Env.getContext(ctx, WindowNo, "IsSOTrx").equals("Y");
-			MProductPricing pp = new MProductPricing (M_Product_ID, C_BPartner_ID, QtyInvoiced, IsSOTrx);
+			MProductPricing pp = new MProductPricing (M_Product_ID, C_BPartner_ID, QtyInvoiced, IsSOTrx, null);
 			pp.setM_PriceList_ID(M_PriceList_ID);
 			int M_PriceList_Version_ID = Env.getContextAsInt(ctx, WindowNo, "M_PriceList_Version_ID");
 			pp.setM_PriceList_Version_ID(M_PriceList_Version_ID);
@@ -111,7 +111,7 @@ public class SIWCalloutInvoiceAmt implements ISimpleInputWindowCallout {
 			PriceEntered = pp.getPriceStd();
 			PriceLimit = pp.getPriceLimit();
 			PriceList = pp.getPriceList();
-			dataBinder.setValue(rowIndex, "PriceList", pp.getPriceList());
+			dataBinder.setValue(rowIndex, "PriceList", PriceList);
 			dataBinder.setValue(rowIndex, "PriceLimit", pp.getPriceLimit());
 			dataBinder.setValue(rowIndex, "PriceActual", pp.getPriceStd());
 			dataBinder.setValue(rowIndex, "PriceEntered", pp.getPriceStd());
