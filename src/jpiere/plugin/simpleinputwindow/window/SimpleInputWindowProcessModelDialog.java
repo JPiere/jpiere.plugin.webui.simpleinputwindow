@@ -15,9 +15,6 @@ package jpiere.plugin.simpleinputwindow.window;
 
 import java.text.SimpleDateFormat;
 
-import jpiere.plugin.simpleinputwindow.component.SimpleInputWindowDocumentLink;
-import jpiere.plugin.simpleinputwindow.form.JPiereSimpleInputWindow;
-
 import org.adempiere.webui.apps.ProcessModalDialog;
 import org.adempiere.webui.theme.ThemeManager;
 import org.compiere.process.ProcessInfo;
@@ -38,6 +35,9 @@ import org.zkoss.zul.Html;
 import org.zkoss.zul.Label;
 import org.zkoss.zul.Vlayout;
 
+import jpiere.plugin.simpleinputwindow.component.SimpleInputWindowDocumentLink;
+import jpiere.plugin.simpleinputwindow.form.JPiereSimpleInputWindow;
+
 
 /**
  * JPiereMatrixWindowProcessModelDialog
@@ -57,9 +57,9 @@ public class SimpleInputWindowProcessModelDialog extends ProcessModalDialog {
 
 	private Table logMessageTable;
 
-	private int[]		    m_ids = null;
+//	private int[]		    m_ids = null;
 
-	private boolean isParameterPage = true;
+//	private boolean isParameterPage = true;
 
 	//Simple Input Window use this constractor only.
 	public SimpleInputWindowProcessModelDialog(int WindowNo, ProcessInfo pi,
@@ -134,9 +134,9 @@ public class SimpleInputWindowProcessModelDialog extends ProcessModalDialog {
 		bCancel.setLabel(Msg.getMsg(Env.getCtx(), "Close"));
 		bCancel.setImage(ThemeManager.getThemeResource("images/Cancel16.png"));
 
-		isParameterPage = false;
+//		isParameterPage = false;
 
-		m_ids = pi.getIDs();
+//		m_ids = pi.getIDs();
 
 		//move message div to center to give more space to display potentially very long log info
 //		replaceComponent (resultPanelLayout, topParameterLayout);
