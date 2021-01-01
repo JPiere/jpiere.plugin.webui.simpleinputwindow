@@ -544,20 +544,22 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		//Create Button
 		row = parameterLayoutRows.newRow();
-				SearchButton = new Button();
+				SearchButton = new Button(Msg.getMsg(Env.getCtx(), "search"));
 				SearchButton.setId("SearchButton");
 				SearchButton.addActionListener(this);
 				SearchButton.setEnabled(true);
+				ZKUpdateUtil.setWidth(SearchButton, "100%");
 				if (ThemeManager.isUseFontIconForImage())
 					SearchButton.setIconSclass("z-icon-Find");
 				else
 					SearchButton.setImage(ThemeManager.getThemeResource("images/Find16.png"));
 				row.appendCellChild(SearchButton);
 
-				CreateButton = new Button();
+				CreateButton = new Button(Msg.getMsg(Env.getCtx(), "NewRecord"));
 				CreateButton.setId("CreateButton");
 				CreateButton.addActionListener(this);
 				CreateButton.setEnabled(true);
+				ZKUpdateUtil.setWidth(CreateButton, "100%");
 				if (ThemeManager.isUseFontIconForImage())
 					CreateButton.setIconSclass("z-icon-New");
 				else
@@ -565,10 +567,11 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				if(!gridTab.isReadOnly() && gridTab.isInsertRecord())
 					row.appendCellChild(CreateButton);
 
-				SaveButton = new Button();
+				SaveButton = new Button(Msg.getMsg(Env.getCtx(), "save"));
 				SaveButton.setId("SaveButton");
 				SaveButton.addActionListener(this);
 				SaveButton.setEnabled(false);
+				ZKUpdateUtil.setWidth(SaveButton, "100%");
 				if (ThemeManager.isUseFontIconForImage())
 					SaveButton.setIconSclass("z-icon-Save");
 				else
@@ -576,10 +579,11 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				if(!gridTab.isReadOnly())
 					row.appendCellChild(SaveButton);
 
-				IgnoreButton = new Button();
+				IgnoreButton = new Button(Msg.getMsg(Env.getCtx(), "Ignore"));
 				IgnoreButton.setId("IgnoreButton");
 				IgnoreButton.addActionListener(this);
 				IgnoreButton.setEnabled(false);
+				ZKUpdateUtil.setWidth(IgnoreButton, "100%");
 				if (ThemeManager.isUseFontIconForImage())
 					IgnoreButton.setIconSclass("z-icon-Ignore");
 				else
@@ -587,11 +591,11 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				if(!gridTab.isReadOnly())
 					row.appendCellChild(IgnoreButton);
 
-
-				HomeButton = new Button();
+				HomeButton = new Button(Msg.getMsg(Env.getCtx(), "clear"));
 				HomeButton.setId("HomeButton");
 				HomeButton.addActionListener(this);
 				HomeButton.setEnabled(true);
+				ZKUpdateUtil.setWidth(HomeButton, "100%");
 				if (ThemeManager.isUseFontIconForImage())
 					HomeButton.setIconSclass("z-icon-Home");
 				else
@@ -599,10 +603,11 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				row.appendCellChild(HomeButton);
 
 				loadToolbarButtons();
-				ProcessButton = new Button();
+				ProcessButton = new Button(Msg.getMsg(Env.getCtx(), "Process"));
 				ProcessButton.setId("ProcessButton");
 				ProcessButton.addActionListener(this);
 				ProcessButton.setEnabled(false);
+				ZKUpdateUtil.setWidth(ProcessButton, "100%");
 				if (ThemeManager.isUseFontIconForImage())
 					ProcessButton.setIconSclass("z-icon-Process");
 				else
@@ -610,10 +615,11 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				if(toolbarProcessButtons.size()> 0 )
 					row.appendCellChild(ProcessButton);
 
-				DeleteButton = new Button();
+				DeleteButton = new Button(Msg.getMsg(Env.getCtx(), "Delete"));
 				DeleteButton.setId("DeleteButton");
 				DeleteButton.addActionListener(this);
 				DeleteButton.setEnabled(false);
+				ZKUpdateUtil.setWidth(DeleteButton, "100%");
 				if (ThemeManager.isUseFontIconForImage())
 					DeleteButton.setIconSclass("z-icon-Delete");
 				else
@@ -621,10 +627,11 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				if(!gridTab.isReadOnly() && m_simpleInputWindow.isDeleteable())
 					row.appendCellChild(DeleteButton);
 
-				CustomizeButton = new Button();
+				CustomizeButton = new Button(Msg.getMsg(Env.getCtx(), "Customize"));
 				CustomizeButton.setId("CustomizeButton");
 				CustomizeButton.addActionListener(this);
 				CustomizeButton.setEnabled(false);
+				ZKUpdateUtil.setWidth(CustomizeButton, "100%");
 				if (ThemeManager.isUseFontIconForImage())
 					CustomizeButton.setIconSclass("z-icon-Customize");
 				else
@@ -860,7 +867,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		whereClause = createWhere();
 		if(!Util.isEmpty(message.toString()))
 		{
-			FDialog.info(form.getWindowNo(), null, message.toString());
+			FDialog.info(form.getWindowNo(), null, "Error", message.toString());
 			message = new StringBuilder();
 			return false;
 		}
@@ -870,7 +877,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		if(allPOs.size()==0)
 		{
 			message.append(System.getProperty("line.separator") + Msg.getMsg(Env.getCtx(), "not.found"));
-			FDialog.info(form.getWindowNo(), null, message.toString());
+			FDialog.info(form.getWindowNo(), null,"Error", message.toString());
 			message = new StringBuilder();
 			return false;
 		}
@@ -1997,7 +2004,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 	{
 		frozenNum.setValue(m_simpleInputWindow.getJP_FrozenField());
 		frozenNum.setReadWrite(true);
-		editArea.removeChild(tabbox);
+		if(tabbox != null)
+			editArea.removeChild(tabbox);
 
 		//set Buttons
 		SearchButton.setEnabled(true);
