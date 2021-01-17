@@ -1318,7 +1318,10 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		MRole role = MRole.get(Env.getCtx(), Env.getAD_Role_ID(Env.getCtx()));
 		String orgAccessSQL = role.getOrgWhere(false);
 		if( orgAccessSQL != null)
-			whereClause.append(" AND ").append(gridTab.getTableName()).append(".").append(orgAccessSQL);
+		{
+			orgAccessSQL = orgAccessSQL.substring(1);//Ref - IDEMPIERE-4254
+			whereClause.append(" AND (").append(gridTab.getTableName()).append(".").append(orgAccessSQL);
+		}
 
 		return whereClause.toString();
 	}
