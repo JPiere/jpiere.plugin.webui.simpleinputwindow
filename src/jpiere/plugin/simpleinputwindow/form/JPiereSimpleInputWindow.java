@@ -1570,7 +1570,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		if(message != null && !Util.isEmpty(message.toString()))
 		{
-			Dialog.info(form.getWindowNo(), message.toString());
+			Dialog.info(form.getWindowNo(), null, message.toString());
 			message = new StringBuilder();
 			return;
 		}
@@ -1674,7 +1674,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 			}else{
 
-				Dialog.ask(form.getWindowNo(), Msg.getMsg(Env.getCtx(), "SaveChanges?"), new Callback<Boolean>() {//Do you want to save changes?
+				Dialog.ask(form.getWindowNo(),null,  Msg.getMsg(Env.getCtx(), "SaveChanges?"), new Callback<Boolean>() {//Do you want to save changes?
 
 					@Override
 					public void onCallback(Boolean result)
@@ -1778,7 +1778,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 			}else{
 
-				Dialog.info(form.getWindowNo(), Msg.getMsg(Env.getCtx(), "killsession.saveWorkMessage"));//Save Your Work!!
+				Dialog.info(form.getWindowNo(), null, Msg.getMsg(Env.getCtx(), "killsession.saveWorkMessage"));//Save Your Work!!
 			}
 
 			return;
@@ -1889,7 +1889,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 			}else{
 
-				Dialog.ask(form.getWindowNo(), Msg.getMsg(Env.getCtx(), "SaveChanges?"), new Callback<Boolean>() {//Do you want to save changes?
+				Dialog.ask(form.getWindowNo(), null, Msg.getMsg(Env.getCtx(), "SaveChanges?"), new Callback<Boolean>() {//Do you want to save changes?
 
 					@Override
 					public void onCallback(Boolean result)
@@ -2113,7 +2113,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		}else{
 
-			Dialog.ask(form.getWindowNo(), Msg.getMsg(Env.getCtx(), "SaveChanges?"), new Callback<Boolean>() {//Do you want to save changes?
+			Dialog.ask(form.getWindowNo(), null, Msg.getMsg(Env.getCtx(), "SaveChanges?"), new Callback<Boolean>() {//Do you want to save changes?
 
 				@Override
 				public void onCallback(Boolean result)
@@ -2264,7 +2264,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				{
 					msg = msg + lineLabel + ", ";
 				}
-				Dialog.info(form.getWindowNo(), msg);
+				Dialog.info(form.getWindowNo(), null, msg);
 
 				return false;
 			}
@@ -2325,7 +2325,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		 String lineNo = Msg.getElement(Env.getCtx(), "LineNo")+"　:　";
 		 popupMsg = popupMsg + System.lineSeparator() +  lineNo + (currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().getCurrentRowIndex()+1);
 
-		 Dialog.ask(form.getWindowNo(), popupMsg, new Callback<Boolean>() {
+		 Dialog.ask(form.getWindowNo(), null, popupMsg, new Callback<Boolean>() {
 
 			@Override
 			public void onCallback(Boolean result)
