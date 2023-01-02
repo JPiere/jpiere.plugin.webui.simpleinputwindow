@@ -48,7 +48,7 @@ import org.adempiere.webui.event.ContextMenuListener;
 import org.adempiere.webui.panel.CustomForm;
 import org.adempiere.webui.panel.HelpController;
 import org.adempiere.webui.session.SessionManager;
-import org.adempiere.webui.window.FDialog;
+import org.adempiere.webui.window.Dialog;
 import org.compiere.model.GridField;
 import org.compiere.model.GridTab;
 import org.compiere.model.MLookup;
@@ -1303,7 +1303,7 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 								currentRowIndex, po.get_ColumnName(i), po.get_Value(i), po.get_Value(i));
 						if(calloutMessage != null && !calloutMessage.equals(""))
 						{
-							FDialog.error(gridTab.getWindowNo(), calloutMessage);
+							Dialog.error(gridTab.getWindowNo(), calloutMessage);
 						}
 
 					}

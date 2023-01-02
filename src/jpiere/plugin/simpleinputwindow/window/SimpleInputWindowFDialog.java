@@ -3,11 +3,8 @@ package jpiere.plugin.simpleinputwindow.window;
 import java.util.Properties;
 import java.util.logging.Level;
 
-import jpiere.plugin.simpleinputwindow.component.SimpleInputWindowMessagebox;
-
 import org.adempiere.webui.apps.AEnv;
 import org.adempiere.webui.component.Messagebox;
-import org.adempiere.webui.window.FDialog;
 import org.compiere.util.CLogMgt;
 import org.compiere.util.CLogger;
 import org.compiere.util.Env;
@@ -15,7 +12,9 @@ import org.compiere.util.Msg;
 import org.compiere.util.Trace;
 import org.zkoss.zk.ui.HtmlBasedComponent;
 
-public class SimpleInputWindowFDialog extends FDialog {
+import jpiere.plugin.simpleinputwindow.component.SimpleInputWindowMessagebox;
+
+public class SimpleInputWindowFDialog {
 
 	/**	Logger			*/
     private static final CLogger logger = CLogger.getCLogger(SimpleInputWindowFDialog.class);

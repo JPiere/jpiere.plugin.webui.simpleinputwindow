@@ -21,7 +21,7 @@ import org.adempiere.base.Service;
 import org.adempiere.webui.editor.WEditor;
 import org.adempiere.webui.event.ValueChangeEvent;
 import org.adempiere.webui.event.ValueChangeListener;
-import org.adempiere.webui.window.FDialog;
+import org.adempiere.webui.window.Dialog;
 import org.compiere.model.GridField;
 import org.compiere.model.MLookup;
 import org.compiere.model.PO;
@@ -122,7 +122,7 @@ public class SimpleInputWindowDataBinder implements ValueChangeListener {
 						calloutMessage =callout.start(this, rendere.getCurrentRowIndex(), gridField.getColumnName(), newValue, oldValue);
 						if(calloutMessage != null && !calloutMessage.equals(""))
 						{
-							FDialog.error(simpleInputWindow.getForm().getWindowNo(), calloutMessage);
+							Dialog.error(simpleInputWindow.getForm().getWindowNo(), calloutMessage);
 							logger.saveError("Error", new Exception(calloutMessage));
 						}
 

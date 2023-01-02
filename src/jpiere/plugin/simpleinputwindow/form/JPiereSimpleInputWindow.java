@@ -79,7 +79,7 @@ import org.adempiere.webui.panel.CustomForm;
 import org.adempiere.webui.session.SessionManager;
 import org.adempiere.webui.theme.ThemeManager;
 import org.adempiere.webui.util.ZKUpdateUtil;
-import org.adempiere.webui.window.FDialog;
+import org.adempiere.webui.window.Dialog;
 import org.compiere.model.GridField;
 import org.compiere.model.GridTab;
 import org.compiere.model.GridTable;
@@ -867,7 +867,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		whereClause = createWhere();
 		if(!Util.isEmpty(message.toString()))
 		{
-			FDialog.info(form.getWindowNo(), null, "Error", message.toString());
+			Dialog.info(form.getWindowNo(), null, message.toString());
 			message = new StringBuilder();
 			return false;
 		}
@@ -877,7 +877,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		if(allPOs.size()==0)
 		{
 			message.append(System.getProperty("line.separator") + Msg.getMsg(Env.getCtx(), "not.found"));
-			FDialog.info(form.getWindowNo(), null,"Error", message.toString());
+			Dialog.info(form.getWindowNo(), "Error", message.toString());
 			message = new StringBuilder();
 			return false;
 		}
@@ -1570,7 +1570,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		if(message != null && !Util.isEmpty(message.toString()))
 		{
-			FDialog.info(form.getWindowNo(), null, message.toString());
+			Dialog.info(form.getWindowNo(), message.toString());
 			message = new StringBuilder();
 			return;
 		}
@@ -1631,7 +1631,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			{
 				editor.setValue(quickEntry.getRecord_ID());
 			}else{
-				FDialog.info(form.getWindowNo(), null, "JP_CannotCreateNew");
+				Dialog.info(form.getWindowNo(), "JP_CannotCreateNew");
 				return ;
 			}
 
@@ -1674,7 +1674,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 			}else{
 
-				FDialog.ask(form.getWindowNo(), null, Msg.getMsg(Env.getCtx(), "SaveChanges?"), new Callback<Boolean>() {//Do you want to save changes?
+				Dialog.ask(form.getWindowNo(), Msg.getMsg(Env.getCtx(), "SaveChanges?"), new Callback<Boolean>() {//Do you want to save changes?
 
 					@Override
 					public void onCallback(Boolean result)
@@ -1778,7 +1778,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 			}else{
 
-				FDialog.info(form.getWindowNo(), null, Msg.getMsg(Env.getCtx(), "killsession.saveWorkMessage"));//Save Your Work!!
+				Dialog.info(form.getWindowNo(), Msg.getMsg(Env.getCtx(), "killsession.saveWorkMessage"));//Save Your Work!!
 			}
 
 			return;
@@ -1816,7 +1816,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 			}else{
 
-				FDialog.ask(form.getWindowNo(), null, Msg.getMsg(Env.getCtx(), "SaveChanges?"), new Callback<Boolean>() {//Do you want to save changes?
+				Dialog.ask(form.getWindowNo(), Msg.getMsg(Env.getCtx(), "SaveChanges?"), new Callback<Boolean>() {//Do you want to save changes?
 
 					@Override
 					public void onCallback(Boolean result)
@@ -1825,7 +1825,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 						{
 							if(!saveData(true))
 							{
-								FDialog.error(form.getWindowNo(), form, "SaveError");
+								Dialog.error(form.getWindowNo(), "SaveError");
 							}
 						}else{
 							;//Nothing to do;
@@ -1889,7 +1889,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 			}else{
 
-				FDialog.ask(form.getWindowNo(), null, Msg.getMsg(Env.getCtx(), "SaveChanges?"), new Callback<Boolean>() {//Do you want to save changes?
+				Dialog.ask(form.getWindowNo(), Msg.getMsg(Env.getCtx(), "SaveChanges?"), new Callback<Boolean>() {//Do you want to save changes?
 
 					@Override
 					public void onCallback(Boolean result)
@@ -2113,7 +2113,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		}else{
 
-			FDialog.ask(form.getWindowNo(), null, Msg.getMsg(Env.getCtx(), "SaveChanges?"), new Callback<Boolean>() {//Do you want to save changes?
+			Dialog.ask(form.getWindowNo(), Msg.getMsg(Env.getCtx(), "SaveChanges?"), new Callback<Boolean>() {//Do you want to save changes?
 
 				@Override
 				public void onCallback(Boolean result)
@@ -2264,7 +2264,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				{
 					msg = msg + lineLabel + ", ";
 				}
-				FDialog.info(form.getWindowNo(), form, msg);
+				Dialog.info(form.getWindowNo(), msg);
 
 				return false;
 			}
@@ -2286,7 +2286,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		}
 		catch (Exception e)
 		{
-			FDialog.error(form.getWindowNo(), form, "SaveError", e.getLocalizedMessage());
+			Dialog.error(form.getWindowNo(), "SaveError", e.getLocalizedMessage());
 
 			return false;
 
@@ -2310,14 +2310,14 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 		 if(currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().getCurrentRowIndex() < 0)
 		 {
-			 FDialog.error(form.getWindowNo(), "DeleteError");
+			 Dialog.error(form.getWindowNo(), "DeleteError");
 			 return;
 		 }
 
 		 final PO po= currentSimpleInputWindowGridView.getSimpleInputWindowGridTable().getPO(currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().getCurrentRowIndex());
 		 if(po == null)
 		 {
-			 FDialog.error(form.getWindowNo(), "DeleteError");
+			 Dialog.error(form.getWindowNo(), "DeleteError");
 			 return;
 		 }
 
@@ -2325,7 +2325,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		 String lineNo = Msg.getElement(Env.getCtx(), "LineNo")+"　:　";
 		 popupMsg = popupMsg + System.lineSeparator() +  lineNo + (currentSimpleInputWindowGridView.getSimpleInputWindowGridRowRenderer().getCurrentRowIndex()+1);
 
-		 FDialog.ask(form.getWindowNo(), null, popupMsg, new Callback<Boolean>() {
+		 Dialog.ask(form.getWindowNo(), popupMsg, new Callback<Boolean>() {
 
 			@Override
 			public void onCallback(Boolean result)
@@ -2346,7 +2346,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 						}
 
 					} catch (Exception e) {
-						FDialog.error(form.getWindowNo(), "DeleteError");
+						Dialog.error(form.getWindowNo(), "DeleteError");
 						return;
 					}
 
@@ -2381,7 +2381,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				stringBuilderMsg.append(System.lineSeparator());
 		}
 
-		 FDialog.ask(form.getWindowNo(), null, stringBuilderMsg.toString(), new Callback<Boolean>() {
+		 Dialog.ask(form.getWindowNo(), null, stringBuilderMsg.toString(), new Callback<Boolean>() {
 
 				@Override
 				public void onCallback(Boolean result)
@@ -2429,7 +2429,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 						} catch (Exception e) {
 
 							trx.rollback();
-							FDialog.error(form.getWindowNo(), "DeleteError");
+							Dialog.error(form.getWindowNo(), "DeleteError");
 							currentSimpleInputWindowGridView.getGrid().setModel(currentSimpleInputWindowGridView.getSimpleInputWindowListModel());
 							return;
 
@@ -2453,7 +2453,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 							updateColumn();
 
 						} catch (Exception e) {
-							FDialog.error(form.getWindowNo(), "Error");
+							Dialog.error(form.getWindowNo(), "Error");
 						}
 					}//if (result)
 
