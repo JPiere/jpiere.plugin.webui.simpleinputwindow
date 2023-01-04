@@ -31,6 +31,7 @@ import org.adempiere.webui.adwindow.GridView;
 import org.adempiere.webui.adwindow.IADTabpanel;
 import org.adempiere.webui.component.Button;
 import org.adempiere.webui.component.Checkbox;
+import org.adempiere.webui.component.ComboEditorBox;
 import org.adempiere.webui.component.Combobox;
 import org.adempiere.webui.component.Datebox;
 import org.adempiere.webui.component.NumberBox;
@@ -1093,10 +1094,9 @@ public class SimpleInputWindowGridRowRenderer implements RowRenderer<Object[]> ,
 			boolean isLastPage =  maxRowIndex >= rowList.size() ? true : false;
 			maxRowIndex = maxRowIndex > rowList.size() ? rowList.size() : maxRowIndex;
 
-			if(event.getTarget().getParent() instanceof Searchbox)
+			if(event.getTarget().getParent() instanceof ComboEditorBox)//Ref: IDEMPIERE-2902 UX: Implement Radio buttons
 			{
-
-				Searchbox searchBox =(Searchbox)event.getTarget().getParent();
+				ComboEditorBox searchBox =(ComboEditorBox)event.getTarget().getParent();
 				if(searchBox.getText().equals(""))
 				{
 					;//If you push Enter key at Blank Search field, iDempiere dispay Info Window. So, stay same row.
