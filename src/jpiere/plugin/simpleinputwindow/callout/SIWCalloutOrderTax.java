@@ -16,7 +16,8 @@ package jpiere.plugin.simpleinputwindow.callout;
 import java.sql.Timestamp;
 import java.util.Properties;
 
-import org.compiere.model.Tax;
+import org.adempiere.base.Core;
+import org.compiere.model.I_C_Order;
 import org.compiere.util.Env;
 
 import jpiere.plugin.simpleinputwindow.base.ISimpleInputWindowCallout;
@@ -78,10 +79,11 @@ public class SIWCalloutOrderTax implements ISimpleInputWindowCallout {
 			billC_BPartner_Location_ID = shipC_BPartner_Location_ID;
 //		if (log.isLoggable(Level.FINE)) log.fine("Bill BP_Location=" + billC_BPartner_Location_ID);
 
-		//
-		int C_Tax_ID = Tax.get (ctx, M_Product_ID, C_Charge_ID, billDate, shipDate,
-			AD_Org_ID, M_Warehouse_ID, billC_BPartner_Location_ID, shipC_BPartner_Location_ID,
-			"Y".equals(Env.getContext(ctx, WindowNo, "IsSOTrx")), null);
+		String deliveryViaRule = Env.getContext(ctx, WindowNo, I_C_Order.COLUMNNAME_DeliveryViaRule, true);
+		int dropshipLocationId = Env.getContextAsInt(ctx, WindowNo, I_C_Order.COLUMNNAME_DropShip_Location_ID, true);
+		int C_Tax_ID = Core.getTaxLookup().get (ctx, M_Product_ID, C_Charge_ID, billDate, shipDate,
+			AD_Org_ID, M_Warehouse_ID, billC_BPartner_Location_ID, shipC_BPartner_Location_ID,dropshipLocationId,
+			"Y".equals(Env.getContext(ctx, WindowNo, "IsSOTrx")), deliveryViaRule, null);
 //		if (log.isLoggable(Level.INFO)) log.info("Tax ID=" + C_Tax_ID);
 		//
 		if (C_Tax_ID == 0)
