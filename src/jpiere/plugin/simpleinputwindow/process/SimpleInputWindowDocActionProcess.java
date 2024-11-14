@@ -26,7 +26,6 @@ import org.compiere.model.PO;
 import org.compiere.process.DocAction;
 import org.compiere.process.ProcessInfoParameter;
 import org.compiere.process.SvrProcess;
-import org.compiere.util.Env;
 import org.compiere.util.Msg;
 
 /**
@@ -82,7 +81,7 @@ public class SimpleInputWindowDocActionProcess extends SvrProcess {
 						|| document.getDocStatus().equals(DocAction.STATUS_Voided)
 						|| document.getDocStatus().equals(DocAction.STATUS_Reversed))
 				{
-					return Msg.getMsg(Env.getCtx(), "JP_Cannot_Process_DocAction");//You can not process the DocAction.
+					return "JP_Cannot_Process_DocAction";//You can not process the DocAction.
 				}
 
 				if(document.getDocStatus().equals(DocAction.STATUS_Completed))
@@ -92,7 +91,7 @@ public class SimpleInputWindowDocActionProcess extends SvrProcess {
 					{
 						;
 					}else{
-						return Msg.getMsg(Env.getCtx(), "JP_Cannot_Process_DocAction");//You can not process the DocAction.
+						return "JP_Cannot_Process_DocAction";//You can not process the DocAction.
 					}
 				}
 

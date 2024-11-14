@@ -16,6 +16,7 @@ package jpiere.plugin.simpleinputwindow.window;
 import java.text.SimpleDateFormat;
 
 import org.adempiere.webui.apps.ProcessModalDialog;
+import org.adempiere.webui.component.Tabpanel;
 import org.adempiere.webui.theme.ThemeManager;
 import org.compiere.process.ProcessInfo;
 import org.compiere.process.ProcessInfoLog;
@@ -27,6 +28,7 @@ import org.zkoss.zhtml.Table;
 import org.zkoss.zhtml.Td;
 import org.zkoss.zhtml.Text;
 import org.zkoss.zhtml.Tr;
+import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.HtmlBasedComponent;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
@@ -109,6 +111,16 @@ public class SimpleInputWindowProcessModelDialog extends ProcessModalDialog {
 	@Override
 	public void updateUI() {
 		swithToFinishScreen();
+		
+		Component parent = getParent();
+		while (parent != null) {
+			if (parent instanceof Tabpanel) {
+				Tabpanel parentTabPanel = (Tabpanel) parent;
+				parentTabPanel.setOnCloseHandler(null);
+				break;
+			}
+			parent = parent.getParent();
+		}
 	}
 
 	protected void swithToFinishScreen() {
@@ -237,5 +249,4 @@ public class SimpleInputWindowProcessModelDialog extends ProcessModalDialog {
 		}
 		//messageDiv.appendChild(logMessageTable);
 	}
-
 }
