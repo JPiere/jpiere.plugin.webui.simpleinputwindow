@@ -16,6 +16,8 @@ import org.compiere.util.MSort;
 
 public class SimpleInputWindowGridTable extends AbstractTableModel {
 
+	private static final long serialVersionUID = 4969004812274950414L;
+	
 	/** Keep track of last sorted column index and sort direction */
 	private int 				m_lastSortColumnIndex = -1;
 	private boolean 			m_lastSortedAscending = true;

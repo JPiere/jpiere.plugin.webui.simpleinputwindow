@@ -28,6 +28,8 @@ import org.compiere.util.Util;
  */
 public class MSimpleInputSearch extends X_JP_SimpleInputSearch {
 
+	private static final long serialVersionUID = 9114844096623305277L;
+
 	public MSimpleInputSearch(Properties ctx, int JP_SimpleInputSearch_ID,
 			String trxName) {
 		super(ctx, JP_SimpleInputSearch_ID, trxName);

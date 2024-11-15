@@ -30,6 +30,8 @@ import org.zkoss.zk.ui.event.Event;
  */
 public class SimpleInutWindowQuickEntry extends WQuickEntry {
 
+	private static final long serialVersionUID = 2051753329407328920L;
+	
 	private JPiereSimpleInputWindow simpleInputWindow;
 
 	public SimpleInutWindowQuickEntry(int WindowNo, int AD_Window_ID, JPiereSimpleInputWindow SIW) {

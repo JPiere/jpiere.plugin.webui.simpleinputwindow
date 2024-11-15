@@ -146,6 +146,8 @@ import jpiere.plugin.simpleinputwindow.window.SimpleInputWindowProcessModelDialo
  */
 public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm implements EventListener<Event>, ValueChangeListener,WTableModelListener,ActionListener{
 
+	private static final long serialVersionUID = -6663411002232713949L;
+
 	/**	Logger			*/
 	private  static CLogger log = CLogger.getCLogger(JPiereSimpleInputWindow.class);
 

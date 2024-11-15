@@ -51,6 +51,8 @@ import jpiere.plugin.simpleinputwindow.form.JPiereSimpleInputWindow;
  */
 public class SimpleInputWindowProcessModelDialog extends ProcessModalDialog {
 
+	private static final long serialVersionUID = -6733140737863262111L;
+
 	private JPiereSimpleInputWindow simpleInputWindow;
 
 	private HtmlBasedComponent resultPanelLayout;

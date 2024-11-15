@@ -27,5 +27,7 @@ import org.zkoss.zul.Vbox;
  */
 public abstract class AbstractSimpleInputWindowForm extends Vbox implements ISimpleInputWindowFormController,IFormController {
 
+	private static final long serialVersionUID = 7830600507700683330L;
+
 
 }

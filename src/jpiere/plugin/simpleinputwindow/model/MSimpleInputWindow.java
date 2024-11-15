@@ -30,6 +30,8 @@ import org.compiere.util.Util;
  */
 public class MSimpleInputWindow extends X_JP_SimpleInputWindow {
 
+	private static final long serialVersionUID = 3241774197342779394L;
+	
 	MSimpleInputSearch[] m_simpleInputSearches;
 
 	public MSimpleInputWindow(Properties ctx, int JP_SimpleInputWindow_ID,
