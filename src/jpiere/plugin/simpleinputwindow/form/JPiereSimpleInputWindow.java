@@ -1934,7 +1934,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		}else if(event.getTarget().equals(ProcessButton)){
 
 			ProcessButtonPopup popup = new ProcessButtonPopup();
-			popup.setWidgetAttribute(AdempiereWebUI.WIDGET_INSTANCE_NAME, "processButtonPopup");
+			popup.setClientAttribute(AdempiereWebUI.WIDGET_INSTANCE_NAME, "processButtonPopup");
 
 			List<org.zkoss.zul.Button> buttonList = new ArrayList<org.zkoss.zul.Button>();
 			for(ToolbarProcessButton processButton : toolbarProcessButtons) {

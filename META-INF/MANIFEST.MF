@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: jpiere.plugin.webui.simpleinputwindow
 Bundle-SymbolicName: jpiere.plugin.webui.simpleinputwindow;singleton:=true
-Bundle-Version: 11.0.0.qualifier
+Bundle-Version: 12.0.0.qualifier
 Bundle-Vendor: OSS ERP Solutions
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.adempiere.base;bundle-version="3.0.0",
