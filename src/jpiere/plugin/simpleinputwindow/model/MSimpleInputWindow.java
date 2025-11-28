@@ -34,11 +34,14 @@ public class MSimpleInputWindow extends X_JP_SimpleInputWindow {
 	
 	MSimpleInputSearch[] m_simpleInputSearches;
 
-	public MSimpleInputWindow(Properties ctx, int JP_SimpleInputWindow_ID,
-			String trxName) {
+	public MSimpleInputWindow(Properties ctx, int JP_SimpleInputWindow_ID, String trxName) {
 		super(ctx, JP_SimpleInputWindow_ID, trxName);
 	}
 
+	public MSimpleInputWindow(Properties ctx, String JP_SimpleInputWindow_UU, String trxName) {
+		super(ctx, JP_SimpleInputWindow_UU, trxName);
+	}
+	
 	public MSimpleInputWindow(Properties ctx, ResultSet rs, String trxName) {
 		super(ctx, rs, trxName);
 	}

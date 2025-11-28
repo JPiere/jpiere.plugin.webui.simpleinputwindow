@@ -22,21 +22,79 @@ import java.util.Properties;
 import org.compiere.model.*;
 
 /** Generated Model for JP_SimpleInputWindow
- *  @author iDempiere (generated) 
- *  @version Release 3.1 - $Id$ */
-public class X_JP_SimpleInputWindow extends PO implements I_JP_SimpleInputWindow, I_Persistent 
+ *  @author iDempiere (generated)
+ *  @version Release 12 - $Id$ */
+@org.adempiere.base.Model(table="JP_SimpleInputWindow")
+public class X_JP_SimpleInputWindow extends PO implements I_JP_SimpleInputWindow, I_Persistent
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20151209L;
+	private static final long serialVersionUID = 20251128L;
 
     /** Standard Constructor */
     public X_JP_SimpleInputWindow (Properties ctx, int JP_SimpleInputWindow_ID, String trxName)
     {
       super (ctx, JP_SimpleInputWindow_ID, trxName);
       /** if (JP_SimpleInputWindow_ID == 0)
+        {
+			setAD_Tab_ID (0);
+			setAD_Window_ID (0);
+			setIsSummarized (false);
+// N
+			setJP_FrozenField (0);
+			setJP_PageSize (0);
+// 20
+			setJP_SimpleInputWindow_ID (0);
+			setName (null);
+			setValue (null);
+        } */
+    }
+
+    /** Standard Constructor */
+    public X_JP_SimpleInputWindow (Properties ctx, int JP_SimpleInputWindow_ID, String trxName, String ... virtualColumns)
+    {
+      super (ctx, JP_SimpleInputWindow_ID, trxName, virtualColumns);
+      /** if (JP_SimpleInputWindow_ID == 0)
+        {
+			setAD_Tab_ID (0);
+			setAD_Window_ID (0);
+			setIsSummarized (false);
+// N
+			setJP_FrozenField (0);
+			setJP_PageSize (0);
+// 20
+			setJP_SimpleInputWindow_ID (0);
+			setName (null);
+			setValue (null);
+        } */
+    }
+
+    /** Standard Constructor */
+    public X_JP_SimpleInputWindow (Properties ctx, String JP_SimpleInputWindow_UU, String trxName)
+    {
+      super (ctx, JP_SimpleInputWindow_UU, trxName);
+      /** if (JP_SimpleInputWindow_UU == null)
+        {
+			setAD_Tab_ID (0);
+			setAD_Window_ID (0);
+			setIsSummarized (false);
+// N
+			setJP_FrozenField (0);
+			setJP_PageSize (0);
+// 20
+			setJP_SimpleInputWindow_ID (0);
+			setName (null);
+			setValue (null);
+        } */
+    }
+
+    /** Standard Constructor */
+    public X_JP_SimpleInputWindow (Properties ctx, String JP_SimpleInputWindow_UU, String trxName, String ... virtualColumns)
+    {
+      super (ctx, JP_SimpleInputWindow_UU, trxName, virtualColumns);
+      /** if (JP_SimpleInputWindow_UU == null)
         {
 			setAD_Tab_ID (0);
 			setAD_Window_ID (0);
@@ -58,7 +116,7 @@ public class X_JP_SimpleInputWindow extends PO implements I_JP_SimpleInputWindow
     }
 
     /** AccessLevel
-      * @return 4 - System 
+      * @return 4 - System
       */
     protected int get_AccessLevel()
     {
@@ -74,32 +132,32 @@ public class X_JP_SimpleInputWindow extends PO implements I_JP_SimpleInputWindow
 
     public String toString()
     {
-      StringBuffer sb = new StringBuffer ("X_JP_SimpleInputWindow[")
-        .append(get_ID()).append("]");
+      StringBuilder sb = new StringBuilder ("X_JP_SimpleInputWindow[")
+        .append(get_ID()).append(",Name=").append(getName()).append("]");
       return sb.toString();
     }
 
 	public org.compiere.model.I_AD_Tab getAD_Tab() throws RuntimeException
-    {
-		return (org.compiere.model.I_AD_Tab)MTable.get(getCtx(), org.compiere.model.I_AD_Tab.Table_Name)
-			.getPO(getAD_Tab_ID(), get_TrxName());	}
+	{
+		return (org.compiere.model.I_AD_Tab)MTable.get(getCtx(), org.compiere.model.I_AD_Tab.Table_ID)
+			.getPO(getAD_Tab_ID(), get_TrxName());
+	}
 
 	/** Set Tab.
-		@param AD_Tab_ID 
-		Tab within a Window
-	  */
+		@param AD_Tab_ID Tab within a Window
+	*/
 	public void setAD_Tab_ID (int AD_Tab_ID)
 	{
-		if (AD_Tab_ID < 1) 
+		if (AD_Tab_ID < 1)
 			set_Value (COLUMNNAME_AD_Tab_ID, null);
-		else 
+		else
 			set_Value (COLUMNNAME_AD_Tab_ID, Integer.valueOf(AD_Tab_ID));
 	}
 
 	/** Get Tab.
 		@return Tab within a Window
 	  */
-	public int getAD_Tab_ID () 
+	public int getAD_Tab_ID()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_AD_Tab_ID);
 		if (ii == null)
@@ -108,26 +166,26 @@ public class X_JP_SimpleInputWindow extends PO implements I_JP_SimpleInputWindow
 	}
 
 	public org.compiere.model.I_AD_Window getAD_Window() throws RuntimeException
-    {
-		return (org.compiere.model.I_AD_Window)MTable.get(getCtx(), org.compiere.model.I_AD_Window.Table_Name)
-			.getPO(getAD_Window_ID(), get_TrxName());	}
+	{
+		return (org.compiere.model.I_AD_Window)MTable.get(getCtx(), org.compiere.model.I_AD_Window.Table_ID)
+			.getPO(getAD_Window_ID(), get_TrxName());
+	}
 
 	/** Set Window.
-		@param AD_Window_ID 
-		Data entry or display window
-	  */
+		@param AD_Window_ID Data entry or display window
+	*/
 	public void setAD_Window_ID (int AD_Window_ID)
 	{
-		if (AD_Window_ID < 1) 
+		if (AD_Window_ID < 1)
 			set_Value (COLUMNNAME_AD_Window_ID, null);
-		else 
+		else
 			set_Value (COLUMNNAME_AD_Window_ID, Integer.valueOf(AD_Window_ID));
 	}
 
 	/** Get Window.
 		@return Data entry or display window
 	  */
-	public int getAD_Window_ID () 
+	public int getAD_Window_ID()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_AD_Window_ID);
 		if (ii == null)
@@ -136,9 +194,8 @@ public class X_JP_SimpleInputWindow extends PO implements I_JP_SimpleInputWindow
 	}
 
 	/** Set Description.
-		@param Description 
-		Optional short description of the record
-	  */
+		@param Description Optional short description of the record
+	*/
 	public void setDescription (String Description)
 	{
 		set_Value (COLUMNNAME_Description, Description);
@@ -147,15 +204,14 @@ public class X_JP_SimpleInputWindow extends PO implements I_JP_SimpleInputWindow
 	/** Get Description.
 		@return Optional short description of the record
 	  */
-	public String getDescription () 
+	public String getDescription()
 	{
 		return (String)get_Value(COLUMNNAME_Description);
 	}
 
 	/** Set Records deletable.
-		@param IsDeleteable 
-		Indicates if records can be deleted from the database
-	  */
+		@param IsDeleteable Indicates if records can be deleted from the database
+	*/
 	public void setIsDeleteable (boolean IsDeleteable)
 	{
 		set_Value (COLUMNNAME_IsDeleteable, Boolean.valueOf(IsDeleteable));
@@ -164,44 +220,44 @@ public class X_JP_SimpleInputWindow extends PO implements I_JP_SimpleInputWindow
 	/** Get Records deletable.
 		@return Indicates if records can be deleted from the database
 	  */
-	public boolean isDeleteable () 
+	public boolean isDeleteable()
 	{
 		Object oo = get_Value(COLUMNNAME_IsDeleteable);
-		if (oo != null) 
+		if (oo != null)
 		{
-			 if (oo instanceof Boolean) 
-				 return ((Boolean)oo).booleanValue(); 
+			 if (oo instanceof Boolean)
+				 return ((Boolean)oo).booleanValue();
 			return "Y".equals(oo);
 		}
 		return false;
 	}
 
-	/** Set Calculate Sum (Σ).
-		@param IsSummarized 
-		Calculate the Sum of numeric content or length
-	  */
+	/** Set Calculate Sum (&#931;).
+		@param IsSummarized Calculate the Sum of numeric content or length
+	*/
 	public void setIsSummarized (boolean IsSummarized)
 	{
 		set_Value (COLUMNNAME_IsSummarized, Boolean.valueOf(IsSummarized));
 	}
 
-	/** Get Calculate Sum (Σ).
+	/** Get Calculate Sum (&#931;).
 		@return Calculate the Sum of numeric content or length
 	  */
-	public boolean isSummarized () 
+	public boolean isSummarized()
 	{
 		Object oo = get_Value(COLUMNNAME_IsSummarized);
-		if (oo != null) 
+		if (oo != null)
 		{
-			 if (oo instanceof Boolean) 
-				 return ((Boolean)oo).booleanValue(); 
+			 if (oo instanceof Boolean)
+				 return ((Boolean)oo).booleanValue();
 			return "Y".equals(oo);
 		}
 		return false;
 	}
 
 	/** Set Frozen Field.
-		@param JP_FrozenField Frozen Field	  */
+		@param JP_FrozenField Frozen Field
+	*/
 	public void setJP_FrozenField (int JP_FrozenField)
 	{
 		set_Value (COLUMNNAME_JP_FrozenField, Integer.valueOf(JP_FrozenField));
@@ -209,7 +265,7 @@ public class X_JP_SimpleInputWindow extends PO implements I_JP_SimpleInputWindow
 
 	/** Get Frozen Field.
 		@return Frozen Field	  */
-	public int getJP_FrozenField () 
+	public int getJP_FrozenField()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_JP_FrozenField);
 		if (ii == null)
@@ -218,7 +274,8 @@ public class X_JP_SimpleInputWindow extends PO implements I_JP_SimpleInputWindow
 	}
 
 	/** Set SQL JOIN.
-		@param JP_JoinClause SQL JOIN	  */
+		@param JP_JoinClause SQL JOIN
+	*/
 	public void setJP_JoinClause (String JP_JoinClause)
 	{
 		set_Value (COLUMNNAME_JP_JoinClause, JP_JoinClause);
@@ -226,13 +283,14 @@ public class X_JP_SimpleInputWindow extends PO implements I_JP_SimpleInputWindow
 
 	/** Get SQL JOIN.
 		@return SQL JOIN	  */
-	public String getJP_JoinClause () 
+	public String getJP_JoinClause()
 	{
 		return (String)get_Value(COLUMNNAME_JP_JoinClause);
 	}
 
 	/** Set Page Size.
-		@param JP_PageSize Page Size	  */
+		@param JP_PageSize Page Size
+	*/
 	public void setJP_PageSize (int JP_PageSize)
 	{
 		set_Value (COLUMNNAME_JP_PageSize, Integer.valueOf(JP_PageSize));
@@ -240,7 +298,7 @@ public class X_JP_SimpleInputWindow extends PO implements I_JP_SimpleInputWindow
 
 	/** Get Page Size.
 		@return Page Size	  */
-	public int getJP_PageSize () 
+	public int getJP_PageSize()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_JP_PageSize);
 		if (ii == null)
@@ -249,18 +307,19 @@ public class X_JP_SimpleInputWindow extends PO implements I_JP_SimpleInputWindow
 	}
 
 	/** Set Simple Input Window.
-		@param JP_SimpleInputWindow_ID Simple Input Window	  */
+		@param JP_SimpleInputWindow_ID Simple Input Window
+	*/
 	public void setJP_SimpleInputWindow_ID (int JP_SimpleInputWindow_ID)
 	{
-		if (JP_SimpleInputWindow_ID < 1) 
+		if (JP_SimpleInputWindow_ID < 1)
 			set_ValueNoCheck (COLUMNNAME_JP_SimpleInputWindow_ID, null);
-		else 
+		else
 			set_ValueNoCheck (COLUMNNAME_JP_SimpleInputWindow_ID, Integer.valueOf(JP_SimpleInputWindow_ID));
 	}
 
 	/** Get Simple Input Window.
 		@return Simple Input Window	  */
-	public int getJP_SimpleInputWindow_ID () 
+	public int getJP_SimpleInputWindow_ID()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_JP_SimpleInputWindow_ID);
 		if (ii == null)
@@ -269,7 +328,8 @@ public class X_JP_SimpleInputWindow extends PO implements I_JP_SimpleInputWindow
 	}
 
 	/** Set JP_SimpleInputWindow_UU.
-		@param JP_SimpleInputWindow_UU JP_SimpleInputWindow_UU	  */
+		@param JP_SimpleInputWindow_UU JP_SimpleInputWindow_UU
+	*/
 	public void setJP_SimpleInputWindow_UU (String JP_SimpleInputWindow_UU)
 	{
 		set_ValueNoCheck (COLUMNNAME_JP_SimpleInputWindow_UU, JP_SimpleInputWindow_UU);
@@ -277,29 +337,31 @@ public class X_JP_SimpleInputWindow extends PO implements I_JP_SimpleInputWindow
 
 	/** Get JP_SimpleInputWindow_UU.
 		@return JP_SimpleInputWindow_UU	  */
-	public String getJP_SimpleInputWindow_UU () 
+	public String getJP_SimpleInputWindow_UU()
 	{
 		return (String)get_Value(COLUMNNAME_JP_SimpleInputWindow_UU);
 	}
 
 	public org.compiere.model.I_AD_Field getJP_TabField() throws RuntimeException
-    {
-		return (org.compiere.model.I_AD_Field)MTable.get(getCtx(), org.compiere.model.I_AD_Field.Table_Name)
-			.getPO(getJP_TabField_ID(), get_TrxName());	}
+	{
+		return (org.compiere.model.I_AD_Field)MTable.get(getCtx(), org.compiere.model.I_AD_Field.Table_ID)
+			.getPO(getJP_TabField_ID(), get_TrxName());
+	}
 
 	/** Set Tab Field.
-		@param JP_TabField_ID Tab Field	  */
+		@param JP_TabField_ID Tab Field
+	*/
 	public void setJP_TabField_ID (int JP_TabField_ID)
 	{
-		if (JP_TabField_ID < 1) 
+		if (JP_TabField_ID < 1)
 			set_Value (COLUMNNAME_JP_TabField_ID, null);
-		else 
+		else
 			set_Value (COLUMNNAME_JP_TabField_ID, Integer.valueOf(JP_TabField_ID));
 	}
 
 	/** Get Tab Field.
 		@return Tab Field	  */
-	public int getJP_TabField_ID () 
+	public int getJP_TabField_ID()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_JP_TabField_ID);
 		if (ii == null)
@@ -308,9 +370,8 @@ public class X_JP_SimpleInputWindow extends PO implements I_JP_SimpleInputWindow
 	}
 
 	/** Set Name.
-		@param Name 
-		Alphanumeric identifier of the entity
-	  */
+		@param Name Alphanumeric identifier of the entity
+	*/
 	public void setName (String Name)
 	{
 		set_Value (COLUMNNAME_Name, Name);
@@ -319,15 +380,14 @@ public class X_JP_SimpleInputWindow extends PO implements I_JP_SimpleInputWindow
 	/** Get Name.
 		@return Alphanumeric identifier of the entity
 	  */
-	public String getName () 
+	public String getName()
 	{
 		return (String)get_Value(COLUMNNAME_Name);
 	}
 
 	/** Set Sql ORDER BY.
-		@param OrderByClause 
-		Fully qualified ORDER BY clause
-	  */
+		@param OrderByClause Fully qualified ORDER BY clause
+	*/
 	public void setOrderByClause (String OrderByClause)
 	{
 		set_Value (COLUMNNAME_OrderByClause, OrderByClause);
@@ -336,15 +396,14 @@ public class X_JP_SimpleInputWindow extends PO implements I_JP_SimpleInputWindow
 	/** Get Sql ORDER BY.
 		@return Fully qualified ORDER BY clause
 	  */
-	public String getOrderByClause () 
+	public String getOrderByClause()
 	{
 		return (String)get_Value(COLUMNNAME_OrderByClause);
 	}
 
 	/** Set Search Key.
-		@param Value 
-		Search key for the record in the format required - must be unique
-	  */
+		@param Value Search key for the record in the format required - must be unique
+	*/
 	public void setValue (String Value)
 	{
 		set_Value (COLUMNNAME_Value, Value);
@@ -353,15 +412,14 @@ public class X_JP_SimpleInputWindow extends PO implements I_JP_SimpleInputWindow
 	/** Get Search Key.
 		@return Search key for the record in the format required - must be unique
 	  */
-	public String getValue () 
+	public String getValue()
 	{
 		return (String)get_Value(COLUMNNAME_Value);
 	}
 
 	/** Set Sql WHERE.
-		@param WhereClause 
-		Fully qualified SQL WHERE clause
-	  */
+		@param WhereClause Fully qualified SQL WHERE clause
+	*/
 	public void setWhereClause (String WhereClause)
 	{
 		set_Value (COLUMNNAME_WhereClause, WhereClause);
@@ -370,7 +428,7 @@ public class X_JP_SimpleInputWindow extends PO implements I_JP_SimpleInputWindow
 	/** Get Sql WHERE.
 		@return Fully qualified SQL WHERE clause
 	  */
-	public String getWhereClause () 
+	public String getWhereClause()
 	{
 		return (String)get_Value(COLUMNNAME_WhereClause);
 	}

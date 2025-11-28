@@ -30,10 +30,14 @@ public class MSimpleInputSearch extends X_JP_SimpleInputSearch {
 
 	private static final long serialVersionUID = 9114844096623305277L;
 
-	public MSimpleInputSearch(Properties ctx, int JP_SimpleInputSearch_ID,
-			String trxName) {
+	public MSimpleInputSearch(Properties ctx, int JP_SimpleInputSearch_ID, String trxName) {
 		super(ctx, JP_SimpleInputSearch_ID, trxName);
 	}
+	
+	public MSimpleInputSearch(Properties ctx, String JP_SimpleInputSearch_UU, String trxName) {
+		super(ctx, JP_SimpleInputSearch_UU, trxName);
+	}
+
 
 	public MSimpleInputSearch(Properties ctx, ResultSet rs, String trxName) {
 		super(ctx, rs, trxName);

@@ -60,6 +60,20 @@ public class JPierePluginSimpleInputWindowModelFactory implements IModelFactory 
 		}
 		return null;
 	}
+	
+	@Override
+	public PO getPO(String tableName, String Record_UU, String trxName) 
+	{
+		if(tableName.startsWith("JP_SimpleInput"))
+		{
+			if(tableName.equals(MSimpleInputWindow.Table_Name)){
+				return  new MSimpleInputWindow(Env.getCtx(), Record_UU, trxName);
+			}else if(tableName.equals(MSimpleInputSearch.Table_Name)){
+				return  new MSimpleInputSearch(Env.getCtx(), Record_UU, trxName);
+			}
+		}
+		return null;
+	}
 
 	@Override
 	public PO getPO(String tableName, ResultSet rs, String trxName) 
