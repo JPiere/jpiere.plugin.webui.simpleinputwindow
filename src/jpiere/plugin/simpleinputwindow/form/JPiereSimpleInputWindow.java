@@ -85,6 +85,7 @@ import org.compiere.model.GridTab;
 import org.compiere.model.GridTable;
 import org.compiere.model.GridWindow;
 import org.compiere.model.GridWindowVO;
+import org.compiere.model.MColumn;
 import org.compiere.model.MLookup;
 import org.compiere.model.MLookupFactory;
 import org.compiere.model.MPInstance;
@@ -320,7 +321,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		gridTab.initTab(false);
 
 		//for Context
-		LINK_COLUMN_NAME = m_simpleInputWindow.getAD_Tab().getAD_Column().getColumnName();
+		LINK_COLUMN_NAME = MColumn.getColumnName(Env.getCtx(), m_simpleInputWindow.getAD_Tab().getAD_Column_ID());
 		if(!Util.isEmpty(LINK_COLUMN_NAME))
 		{
 			PARENT_TABLE_NAME = LINK_COLUMN_NAME.substring(0, LINK_COLUMN_NAME.length()-("_ID").length());
@@ -887,7 +888,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		ArrayList<PO> listPOs = new ArrayList<PO>();
 		Object tabFieldValue = null;
 		if(m_simpleInputWindow.getJP_TabField_ID()!=0)
-			tabFieldValue = allPOs.get(0).get_Value(m_simpleInputWindow.getJP_TabField().getAD_Column().getColumnName());
+			tabFieldValue = allPOs.get(0).get_Value(MColumn.getColumnName(Env.getCtx(), m_simpleInputWindow.getJP_TabField().getAD_Column_ID()));
 		int tabIndex = 0;
 		for(PO po:allPOs)
 		{
@@ -897,14 +898,14 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			}
 			else
 			{
-				if(tabFieldValue.equals(po.get_Value(m_simpleInputWindow.getJP_TabField().getAD_Column().getColumnName())))
+				if(tabFieldValue.equals(po.get_Value(MColumn.getColumnName(Env.getCtx(), m_simpleInputWindow.getJP_TabField().getAD_Column_ID()))))
 				{
 					listPOs.add(po);
 				}else{
 					if(createSimpleInputWindowGridView(tabIndex, listPOs, createTabTitle(tabFieldValue), tabFieldValue))
 					{
 						tabIndex++;
-						tabFieldValue = po.get_Value(m_simpleInputWindow.getJP_TabField().getAD_Column().getColumnName());
+						tabFieldValue = po.get_Value(MColumn.getColumnName(Env.getCtx(), m_simpleInputWindow.getJP_TabField().getAD_Column_ID()));
 						listPOs = new ArrayList<PO>();
 						listPOs.add(po);
 					}
@@ -932,8 +933,9 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 		{
 			return gridTab.getName();
 		}else{
-
-			int AD_Reference_ID = m_simpleInputWindow.getJP_TabField().getAD_Column().getAD_Reference_ID();
+			
+			MColumn m_Column = MColumn.get(m_simpleInputWindow.getJP_TabField().getAD_Column_ID());
+			int AD_Reference_ID = m_Column.getAD_Reference_ID();
 			if(AD_Reference_ID==SystemIDs.REFERENCE_DATATYPE_TABLEDIR
 					|| AD_Reference_ID==SystemIDs.REFERENCE_DATATYPE_TABLE
 					|| AD_Reference_ID==SystemIDs.REFERENCE_DATATYPE_SEARCH
@@ -949,7 +951,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 
 			}else if(AD_Reference_ID==SystemIDs.REFERENCE_DATATYPE_LIST){
 
-				return MRefList.getListName(Env.getCtx(), m_simpleInputWindow.getJP_TabField().getAD_Column().getAD_Reference_Value_ID(), tabFieldValue.toString());
+				return MRefList.getListName(Env.getCtx(), m_Column.getAD_Reference_Value_ID(), tabFieldValue.toString());
 
 			}else if(AD_Reference_ID==SystemIDs.REFERENCE_DATATYPE_DATE
 					|| AD_Reference_ID==SystemIDs.REFERENCE_DATATYPE_DATETIME
@@ -1030,12 +1032,13 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			simpleInputWindowGridViewMap.put(tabIndex, new SimpleInputWindowGridView(SIWGridTable, listModel, renderer, grid, null, null, false, edit_mode));
 		}else{
 
-			if(Util.isEmpty(m_simpleInputWindow.getJP_TabField().getAD_Column().getColumnSQL()))
+			MColumn m_Column = MColumn.get(m_simpleInputWindow.getJP_TabField().getAD_Column_ID());
+			if(Util.isEmpty(m_Column.getColumnSQL()))
 				simpleInputWindowGridViewMap.put(tabIndex, new SimpleInputWindowGridView(SIWGridTable, listModel, renderer, grid
-						, m_simpleInputWindow.getJP_TabField().getAD_Column().getColumnName(), tabFieldValue, false, edit_mode));
+						, m_Column.getColumnName(), tabFieldValue, false, edit_mode));
 			else
 				simpleInputWindowGridViewMap.put(tabIndex, new SimpleInputWindowGridView(SIWGridTable, listModel, renderer, grid
-						, m_simpleInputWindow.getJP_TabField().getAD_Column().getColumnName(), tabFieldValue, true, edit_mode));
+						, m_Column.getColumnName(), tabFieldValue, true, edit_mode));
 		}
 		return true;
 	}
@@ -1258,7 +1261,7 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				}else{
 					int AD_Tab_ID = gField.getAD_Tab_ID();
 					MTab tab = new MTab(Env.getCtx(),AD_Tab_ID,null);
-					tableName = tab.getAD_Table().getTableName();
+					tableName = MTable.get(tab.getAD_Table_ID()).getTableName();
 				}
 
 				if(entry.getValue() instanceof WYesNoEditor)
@@ -1960,11 +1963,12 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 			{
 				for(int i = 0 ; i < m_simpleInputSearches.length; i++)
 				{
-					if(event.getTarget().getId().equals(m_simpleInputSearches[i].getAD_Field().getAD_Column().getColumnName()))
+					MColumn m_Column = MColumn.get(m_simpleInputSearches[i].getAD_Field().getAD_Column_ID());
+					if(event.getTarget().getId().equals(m_Column.getColumnName()))
 					{
 						//Create Quick entry window
 						quickEntry = new SimpleInutWindowQuickEntry (form.getWindowNo(), m_simpleInputSearches[i].getJP_QuickEntryWindow_ID(), this);
-						quickEntryColumnName = m_simpleInputSearches[i].getAD_Field().getAD_Column().getColumnName();
+						quickEntryColumnName = m_Column.getColumnName();
 						WEditor editor = searchEditorMap.get(quickEntryColumnName);
 						quickEntry.loadRecord (editor.getValue()==null ? 0 : Integer.parseInt(editor.getValue().toString()));
 
@@ -2082,7 +2086,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 				editor = entry.getValue();
 				for(int i = 0; i < m_simpleInputSearches.length; i++)
 				{
-					if(columnName.equals(m_simpleInputSearches[i].getAD_Field().getAD_Column().getColumnName()))
+					MColumn m_Column = MColumn.get(m_simpleInputSearches[i].getAD_Field().getAD_Column_ID());
+					if(columnName.equals(m_Column.getColumnName()))
 					{
 						DefaultValue = m_simpleInputSearches[i].getDefaultValue();
 						if(!Util.isEmpty(DefaultValue))
@@ -2142,7 +2147,8 @@ public class JPiereSimpleInputWindow extends AbstractSimpleInputWindowForm imple
 						editor = entry.getValue();
 						for(int i = 0; i < m_simpleInputSearches.length; i++)
 						{
-							if(columnName.equals(m_simpleInputSearches[i].getAD_Field().getAD_Column().getColumnName()))
+							MColumn m_Column = MColumn.get(m_simpleInputSearches[i].getAD_Field().getAD_Column_ID());
+							if(columnName.equals(m_Column.getColumnName()))
 							{
 								DefaultValue = m_simpleInputSearches[i].getDefaultValue();
 								if(!Util.isEmpty(DefaultValue))
