@@ -39,9 +39,9 @@ import org.zkoss.zk.ui.Page;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
-import org.zkoss.zul.Hbox;
+import org.zkoss.zul.Hlayout;
 import org.zkoss.zul.Image;
-import org.zkoss.zul.Vbox;
+import org.zkoss.zul.Vlayout;
 
 /**
 * Messagebox : Replaces ZK's Messagebox
@@ -175,32 +175,33 @@ public class SimpleInputWindowMessagebox extends Window implements EventListener
 		pnlInput.setStyle(MESSAGE_PANEL_STYLE);
 		pnlInput.appendChild(txtInput);
 
-		Vbox pnlText = new Vbox();
+		Vlayout pnlText = new Vlayout();
+		pnlText.setStyle("text-align:left");
 		pnlText.appendChild(pnlMessage);
 		pnlText.appendChild(pnlInput);
 
 		if(htmlLog != null)
 			pnlText.appendChild(htmlLog);
 
-		Hbox pnlImage = new Hbox();
+		Hlayout pnlImage = new Hlayout();
 
 		img.setSrc(imgSrc);
 
 		pnlImage.setWidth("72px");
-		pnlImage.setAlign("center");
-		pnlImage.setPack("center");
+		pnlImage.setStyle("text-align:center");
+		pnlImage.setStyle("justify-content:center");
 		pnlImage.appendChild(img);
 
-		Hbox north = new Hbox();
-		north.setAlign("center");
+		Hlayout north = new Hlayout();
+		north.setStyle("text-align:center");
 		this.appendChild(north);
 		north.appendChild(pnlImage);
 		north.appendChild(pnlText);
 		north.setSclass("dialog-content");
 
-		Hbox pnlButtons = new Hbox();
-		pnlButtons.setAlign("center");
-		pnlButtons.setPack("end");
+		Hlayout pnlButtons = new Hlayout();
+		pnlButtons.setStyle("text-align:center");
+		pnlButtons.setStyle("justify-content:flex-end");
 		pnlButtons.appendChild(btnOk);
 		pnlButtons.appendChild(btnCancel);
 		pnlButtons.appendChild(btnYes);

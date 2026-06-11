@@ -15,7 +15,7 @@
 package jpiere.plugin.simpleinputwindow.form;
 
 import org.adempiere.webui.panel.IFormController;
-import org.zkoss.zul.Vbox;
+import org.zkoss.zul.Vlayout;
 
 /**
  *  Abstract JPiere Form Window
@@ -25,7 +25,7 @@ import org.zkoss.zul.Vbox;
  *  @author Hideaki Hagiwara（h.hagiwara@oss-erp.co.jp）
  *
  */
-public abstract class AbstractSimpleInputWindowForm extends Vbox implements ISimpleInputWindowFormController,IFormController {
+public abstract class AbstractSimpleInputWindowForm extends Vlayout implements ISimpleInputWindowFormController,IFormController {
 
 	private static final long serialVersionUID = 7830600507700683330L;
 
